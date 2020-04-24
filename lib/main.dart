@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:test_app1/newProgramButton.dart';
 
 import './programList.dart';
 import './startText.dart';
+import './newProgramButton.dart';
 
 void main() => runApp(MyApp());
 
@@ -18,41 +20,25 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   Map<int, String> _programs = {};
-  var programIndex = 1;
+  var _programIndex = 1;
+  TextEditingController _textFieldController = TextEditingController();
+  String _dropdownValue = 'Cycle based';
 
-  // user defined function
-  void _showDialog() {
-    // flutter defined function
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text("Alert Dialog title"),
-          content: new Text("Alert Dialog body"),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Close"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+  void _dropdownValueChanged(String newValue) {
+    setState(() {
+      _dropdownValue = newValue;
+    });
   }
 
   void _newProgram() {
-    // _showDialog();
+    //_showDialog();
 
     if (_programs.length > 0)
-      programIndex = _programs.keys.last + 1;
+      _programIndex = _programs.keys.last + 1;
     else
-      programIndex = 1;
+      _programIndex = 1;
     setState(() {
-      _programs[programIndex] = 'Program ' + (programIndex).toString();
+      _programs[_programIndex] = _textFieldController.text;
     });
   }
 
@@ -65,11 +51,32 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        primaryColor: Color(0xFF484850),
+        primaryColorLight: Color(0xFF484850),
+        primaryColorDark: Color(0xFF000000),
+        accentColor: Color(0xFFd37c7c),
+        // hintColor: Color(0xFF484850),
+        textTheme: TextTheme(
+          body1: TextStyle(
+            color: Color(0xFFffffff),
+          ),
+          body2: TextStyle(
+            color: Color(0xFFffffff),
+          ),
+          button: TextStyle(
+            color: Color(0xFFffffff),
+          ),
+        ),
+        // backgroundColor: Color(0xFF212128),
+        canvasColor: Color(0xFF212128),
+      ),
+      // theme: ThemeData(),
       // Scaffold() is helper widget to create base page design for app
       home: Scaffold(
-        backgroundColor: Color(0xFF212128),
+        // backgroundColor: Color(0xFF212128),
         appBar: AppBar(
-          backgroundColor: Color(0xFF484850),
+          // backgroundColor: Color(0xFF484850),
           elevation: 0,
           centerTitle: true,
           title: Text('Programs'),
@@ -85,12 +92,21 @@ class _MyAppState extends State<MyApp> {
                 : StartText(),
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _newProgram,
-          child: Icon(Icons.add),
-          elevation: 0,
-          backgroundColor: Color(0xFFD37C7C),
+        floatingActionButton: NewProgramButton(
+          textFieldController: _textFieldController,
+          dropdownValue: _dropdownValue,
+          dropdownValueChanged: _dropdownValueChanged,
+          newProgram: _newProgram,
+          programNames: (_programs.keys).map((program) {
+            return _programs[program];
+          }).toList(),
         ),
+        // floatingActionButton: FloatingActionButton(
+        //   onPressed: _newProgram,
+        //   child: Icon(Icons.add),
+        //   elevation: 0,
+        //   backgroundColor: Color(0xFFD37C7C),
+        // ),
       ),
     );
   }

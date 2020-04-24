@@ -21,16 +21,16 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   Map<int, String> _programs = {};
   var _programIndex = 1;
-  TextEditingController _textFieldController = TextEditingController();
-  String _dropdownValue = 'Cycle based';
+  // TextEditingController _textFieldController = TextEditingController();
+  // String _dropdownValue = 'Cycle based';
 
-  void _dropdownValueChanged(String newValue) {
-    setState(() {
-      _dropdownValue = newValue;
-    });
-  }
+  // void _dropdownValueChanged(String newValue) {
+  //   setState(() {
+  //     _dropdownValue = newValue;
+  //   });
+  // }
 
-  void _newProgram() {
+  void _newProgram(String name, String type) {
     //_showDialog();
 
     if (_programs.length > 0)
@@ -38,7 +38,7 @@ class _MyAppState extends State<MyApp> {
     else
       _programIndex = 1;
     setState(() {
-      _programs[_programIndex] = _textFieldController.text;
+      _programs[_programIndex] = name;
     });
   }
 
@@ -93,9 +93,9 @@ class _MyAppState extends State<MyApp> {
           ],
         ),
         floatingActionButton: NewProgramButton(
-          textFieldController: _textFieldController,
-          dropdownValue: _dropdownValue,
-          dropdownValueChanged: _dropdownValueChanged,
+          // textFieldController: _textFieldController,
+          // dropdownValue: _dropdownValue,
+          // dropdownValueChanged: _dropdownValueChanged,
           newProgram: _newProgram,
           programNames: (_programs.keys).map((program) {
             return _programs[program];

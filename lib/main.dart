@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:test_app1/newProgramButton.dart';
 
+import './global.dart';
 import './programList.dart';
 import './startText.dart';
 import './newProgramDialog.dart';
@@ -23,26 +24,25 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primaryColor: Color(0xFF484850),
-        primaryColorLight: Color(0xFF484850),
-        primaryColorDark: Color(0xFF000000),
-        accentColor: Color(0xFFd37c7c),
-        // hintColor: Color(0xFF484850),
+        brightness: Brightness.dark,
+        canvasColor: darkGreyColor,
+        primaryColor: lightGreyColor,
+        primaryColorLight: lightGreyColor,
+        accentColor: flamingoColor,
         textTheme: TextTheme(
           display1: TextStyle(
-            color: Color(0xFFffffff),
+            color: whiteTextColor,
           ),
           body1: TextStyle(
-            color: Color(0xFFffffff),
+            color: whiteTextColor,
           ),
           body2: TextStyle(
-            color: Color(0xFFffffff),
+            color: whiteTextColor,
           ),
           button: TextStyle(
-            color: Color(0xFFffffff),
+            color: whiteTextColor,
           ),
         ),
-        canvasColor: Color(0xFF212128),
       ),
       home: MyHomePage(title: 'Programs'),
     );
@@ -70,18 +70,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   Map<int, String> _programNames = {};
   var _programIndex = 1;
-  // TextEditingController _textFieldController = TextEditingController();
-  // String _dropdownValue = 'Cycle based';
-
-  // void _dropdownValueChanged(String newValue) {
-  //   setState(() {
-  //     _dropdownValue = newValue;
-  //   });
-  // }
 
   void _newProgram(String name, String type) {
-    //_showDialog();
-
     if (_programNames.length > 0)
       _programIndex = _programNames.keys.last + 1;
     else
@@ -141,35 +131,23 @@ class _MyHomePageState extends State<MyHomePage> {
                 : StartText(),
           ],
         ),
-        // floatingActionButton: NewProgramButton(
-        //   // textFieldController: _textFieldController,
-        //   // dropdownValue: _dropdownValue,
-        //   // dropdownValueChanged: _dropdownValueChanged,
-        //   newProgram: _newProgram,
-        //   programNames: (_programs.keys).map((program) {
-        //     return _programs[program];
-        //   }).toList(),
-        // ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            // print('DIALOG');
-            // showDialog(context: context, builder: (_) {
-            //   return MyDialog();
-            // });
             showDialog(
-                context: context,
-                builder: (_) {
-                  return NewProgramDialog(
-                    newProgram: _newProgram,
-                    programNames: (_programNames.keys).map((program) {
-                      return _programNames[program];
-                    }).toList(),
-                  );
-                });
+              context: context,
+              builder: (_) {
+                return NewProgramDialog(
+                  newProgram: _newProgram,
+                  programNames: (_programNames.keys).map((program) {
+                    return _programNames[program];
+                  }).toList(),
+                );
+              },
+            );
           },
           child: Icon(Icons.add),
           elevation: 0,
-          backgroundColor: Color(0xFFD37C7C),
+          backgroundColor: flamingoColor,
         ),
       ),
     );

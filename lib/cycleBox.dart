@@ -2,38 +2,38 @@ import 'package:flutter/material.dart';
 
 import './global.dart';
 import './deleteDialog.dart';
-import './programHome.dart';
+// import './cycleHome.dart';
 
-class ProgramBox extends StatelessWidget {
-  final String programName;
-  final int programKey;
-  final Function deleteProgram;
+class CycleBox extends StatelessWidget {
+  final String cycleName;
+  final int cycleKey;
+  final Function deleteCycle;
 
-  ProgramBox(this.programName, this.programKey, this.deleteProgram);
+  CycleBox(this.cycleName, this.cycleKey, this.deleteCycle);
 
   void delete() {
-    deleteProgram(programKey);
+    deleteCycle(cycleKey);
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProgramHome(
-                programName: programName,
-              ),
-            ),
-          );
-        },
+        // onTap: () {
+        //   Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (context) => CycleHome(
+        //         cycleName: cycleName,
+        //       ),
+        //     ),
+        //   );
+        // },
         onLongPress: () => showDialog(
             context: context,
             builder: (_) {
               return DeleteDialog(
-                name: programName,
+                name: cycleName,
                 deleteFunction: delete,
               );
             }),
@@ -51,7 +51,7 @@ class ProgramBox extends StatelessWidget {
             ),
           ),
           child: Text(
-            this.programName,
+            this.cycleName,
             style: programBoxTextStyle,
             textAlign: TextAlign.center,
           ),
@@ -61,6 +61,6 @@ class ProgramBox extends StatelessWidget {
   }
 }
 
-// class ProgramData {
+// class CycleData {
 
 // }

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-class NewProgramButton extends StatefulWidget {
+class NewProgramDialog extends StatefulWidget {
   final Function newProgram;
   final List<String> programNames;
 
-  NewProgramButton({this.newProgram, this.programNames});
+  NewProgramDialog({this.newProgram, this.programNames});
 
   @override
-  _NewProgramButtonState createState() => _NewProgramButtonState();
+  _NewProgramDialogState createState() => _NewProgramDialogState();
 }
 
-class _NewProgramButtonState extends State<NewProgramButton> {
+class _NewProgramDialogState extends State<NewProgramDialog> {
   TextEditingController _textFieldController = TextEditingController();
   String _dropdownValue = 'Cycle based';
   String _errorText;
@@ -23,10 +23,18 @@ class _NewProgramButtonState extends State<NewProgramButton> {
     _nameError = false;
   }
 
+  // TODO: rounded corners on AlertDialog
+  // might need custom AlertDialog
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       contentTextStyle: TextStyle(color: Color(0xFF888888)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(5),
+        ),
+      ),
       elevation: 0,
       title: Text(
         'Create program',
@@ -104,8 +112,8 @@ class _NewProgramButtonState extends State<NewProgramButton> {
               setState(() {
                 _nameError = true;
                 _errorText = 'Program name ' +
-                _textFieldController.text +
-                ' already exists.';
+                    _textFieldController.text +
+                    ' already exists.';
                 return;
               });
             } else if (_textFieldController.text.length < 1) {
@@ -127,5 +135,5 @@ class _NewProgramButtonState extends State<NewProgramButton> {
 
 class ProgramNameField extends StatefulWidget {
   @override
-  _NewProgramButtonState createState() => new _NewProgramButtonState();
+  _NewProgramDialogState createState() => new _NewProgramDialogState();
 }

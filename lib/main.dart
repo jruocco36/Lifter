@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:test_app1/newProgramButton.dart';
+// import 'package:test_app1/newProgramButton.dart';
 
 import './programList.dart';
 import './startText.dart';
-import './newProgramButton.dart';
-import './test.dart';
+import './newProgramDialog.dart';
 
 void main() => runApp(MyApp());
 
@@ -69,7 +68,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Map<int, String> _programs = {};
+  Map<int, String> _programNames = {};
   var _programIndex = 1;
   // TextEditingController _textFieldController = TextEditingController();
   // String _dropdownValue = 'Cycle based';
@@ -83,18 +82,18 @@ class _MyHomePageState extends State<MyHomePage> {
   void _newProgram(String name, String type) {
     //_showDialog();
 
-    if (_programs.length > 0)
-      _programIndex = _programs.keys.last + 1;
+    if (_programNames.length > 0)
+      _programIndex = _programNames.keys.last + 1;
     else
       _programIndex = 1;
     setState(() {
-      _programs[_programIndex] = name;
+      _programNames[_programIndex] = name;
     });
   }
 
   void _deleteProgram(int key) {
     setState(() {
-      _programs.remove(key);
+      _programNames.remove(key);
     });
   }
 
@@ -134,9 +133,9 @@ class _MyHomePageState extends State<MyHomePage> {
         body: Column(
           // mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _programs.length > 0
+            _programNames.length > 0
                 ? ProgramList(
-                    programs: _programs,
+                    programs: _programNames,
                     deleteProgram: _deleteProgram,
                   )
                 : StartText(),
@@ -160,10 +159,10 @@ class _MyHomePageState extends State<MyHomePage> {
             showDialog(
                 context: context,
                 builder: (_) {
-                  return NewProgramButton(
+                  return NewProgramDialog(
                     newProgram: _newProgram,
-                    programNames: (_programs.keys).map((program) {
-                      return _programs[program];
+                    programNames: (_programNames.keys).map((program) {
+                      return _programNames[program];
                     }).toList(),
                   );
                 });

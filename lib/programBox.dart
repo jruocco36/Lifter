@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 
-class Program extends StatelessWidget {
+import './programHome.dart';
+
+class ProgramBox extends StatelessWidget {
   final String programName;
   final int programKey;
   final Function deleteProgram;
 
-  Program(this.programName, this.programKey, this.deleteProgram);
+  ProgramBox(this.programName, this.programKey, this.deleteProgram);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: InkWell(
-        onTap: () => print(programName),
+        onTap: () => ProgramHome(programName: programName),
         onLongPress: () => deleteProgram(programKey),
         child: Container(
           width: double.infinity,

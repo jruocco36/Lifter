@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import './program.dart';
+import './programBox.dart';
 
 class ProgramList extends StatelessWidget {
   final Map<int, String> programs;
@@ -18,7 +18,7 @@ class ProgramList extends StatelessWidget {
       child: Column(
         children: [
           ...(programs.keys).map((program) {
-            return Program(programs[program], program, deleteProgram);
+            return ProgramBox(programs[program], program, deleteProgram);
           }).toList()
         ],
       ),

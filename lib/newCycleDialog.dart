@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 
 import './global.dart';
 
+// TODO: pass [_startDate] and [_trainingMaxPercent] to [newCycle()] to store
+
 class NewCycleDialog extends StatefulWidget {
   final Function newCycle;
   final List<String> cycleNames;
@@ -21,30 +23,10 @@ class _NewCycleDialogState extends State<NewCycleDialog> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _autoValidate = false;
   TextEditingController _startDateController = TextEditingController();
-  // TextEditingController _cycleNameController = TextEditingController();
   DateTime _startDate;
   String _cycleName;
   int _trainingMaxPercent;
   String _cycleTypeDropdown;
-
-  // TextEditingController _tmPercentController = TextEditingController();
-  // bool _dateError = false;
-  // bool _nameError = false;
-  // bool _tmError = false;
-  // String _dateErrorText;
-  // String _nameErrorText;
-  // String _tmErrorText;
-
-  // void clearDialog() {
-  //   _cycleName = null;
-  //   _cycleTypeDropdown = '1 Rep Max';
-  //   _dateError = false;
-  //   _nameError = false;
-  //   _tmError = false;
-  //   _dateErrorText = null;
-  //   _nameErrorText = null;
-  //   _tmErrorText = null;
-  // }
 
   @override
   Widget build(BuildContext context) {

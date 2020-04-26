@@ -5,6 +5,8 @@ import './startText.dart';
 import './cycleList.dart';
 import './newCycleDialog.dart';
 
+// TODO: store start date and TM percent
+
 class ProgramHome extends StatefulWidget {
   final String programName;
   List<Cycle> cycles;
@@ -66,12 +68,6 @@ class _ProgramHomeState extends State<ProgramHome> {
                     return _cycleNames[program];
                   }).toList(),
                 );
-                // return NewProgramDialog(
-                //   newProgram: _newProgram,
-                //   programNames: (_programNames.keys).map((program) {
-                //     return _programNames[program];
-                //   }).toList(),
-                // );
               });
         },
         child: Icon(Icons.add),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import './global.dart';
 import './deleteDialog.dart';
-// import './cycleHome.dart';
 
 class CycleBox extends StatelessWidget {
   final String cycleName;

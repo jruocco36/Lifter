@@ -13,17 +13,11 @@ class NewProgramDialog extends StatefulWidget {
 }
 
 class _NewProgramDialogState extends State<NewProgramDialog> {
-  TextEditingController _textFieldController = TextEditingController();
-  String _dropdownValue = 'Cycle based';
-  String _errorText;
-  bool _nameError = false;
-
-  void clearDialog() {
-    _textFieldController.text = null;
-    _dropdownValue = 'Cycle based';
-    _errorText = null;
-    _nameError = false;
-  }
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String _programType;
+  String _programBase;
+  String _programName;
+  bool _autoValidate = false;
 
   @override
   Widget build(BuildContext context) {
@@ -41,47 +35,12 @@ class _NewProgramDialogState extends State<NewProgramDialog> {
         style: dialogTextStyle,
       ),
       content: SingleChildScrollView(
-        child: ListBody(children: <Widget>[
-          Container(
-            child: Text('Program name:'),
-          ),
-          TextField(
-            autofocus: true,
-            cursorColor: Colors.white,
-            controller: _textFieldController,
-            style: dialogTextStyle,
-            decoration: InputDecoration(
-              errorText: _nameError ? _errorText : null,
-            ),
-            onChanged: (String text) {
-              setState(() {
-                _nameError = false;
-              });
-            },
-          ),
-          Container(
-            padding: EdgeInsets.only(top: 10),
-            child: Text('Type of program:'),
-          ),
-          DropdownButton(
-            value: _dropdownValue,
-            elevation: 0,
-            isExpanded: true,
-            style: dialogTextStyle,
-            items: <String>['Cycle based', 'Day based']
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-            onChanged: (String newValue) {
-              setState(() => _dropdownValue = newValue);
-            },
-          )
-        ]),
+        child: Form(
+          key: _formKey,
+          child: _programForm(),
+          autovalidate: _autoValidate,
+        ),
       ),
-      // }),
       actions: <Widget>[
         FlatButton(
           child: Text(
@@ -89,7 +48,7 @@ class _NewProgramDialogState extends State<NewProgramDialog> {
             style: dialogTextStyle,
           ),
           onPressed: () {
-            clearDialog();
+            // clearDialog();
             Navigator.of(context).pop();
           },
         ),
@@ -97,33 +56,110 @@ class _NewProgramDialogState extends State<NewProgramDialog> {
           color: flamingoColor,
           child: Text('OK'),
           onPressed: () {
-            if (widget.programNames.contains(_textFieldController.text)) {
-              setState(() {
-                _nameError = true;
-                _errorText = 'Program name ' +
-                    _textFieldController.text +
-                    ' already exists.';
-                return;
-              });
-            } else if (_textFieldController.text.length < 1) {
-              setState(() {
-                _nameError = true;
-                _errorText = 'Must enter program name';
-                return;
-              });
-            } else {
-              widget.newProgram(_textFieldController.text, _dropdownValue);
-              clearDialog();
-              Navigator.of(context).pop();
-            }
+            _validateInputs();
           },
         ),
       ],
     );
   }
-}
 
-class ProgramNameField extends StatefulWidget {
-  @override
-  _NewProgramDialogState createState() => new _NewProgramDialogState();
+  Widget _programForm() {
+    return ListBody(
+      children: <Widget>[
+        TextFormField(
+          autofocus: true,
+          cursorColor: Colors.white,
+          keyboardType: TextInputType.text,
+          style: dialogTextStyle,
+          decoration: const InputDecoration(
+            labelText: 'Program name',
+          ),
+          validator: (String text) {
+            return _validateProgramName(text);
+          },
+          onSaved: (String text) {
+            _programName = text;
+          },
+        ),
+        DropdownButtonFormField(
+          value: _programType,
+          isDense: true,
+          decoration: const InputDecoration(
+            isDense: true,
+            labelText: 'Type of program',
+          ),
+          items: <String>['Cycle based', 'Day based']
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          validator: (String text) {
+            return _validateProgramType(text);
+          },
+          onChanged: (String text) {
+            setState(() => _programType = text);
+          },
+          onSaved: (String text) {
+            _programType = text;
+          },
+        ),
+        DropdownButtonFormField(
+          value: _programBase,
+          isDense: true,
+          decoration: const InputDecoration(
+            isDense: true,
+            labelText: 'Based 1RM or TM?',
+          ),
+          items: <String>['1 Rep Max', 'Training Max']
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
+          validator: (String text) {
+            return _validateProgramType(text);
+          },
+          onChanged: (String text) {
+            setState(() => _programBase = text);
+          },
+          onSaved: (String text) {
+            _programBase = text;
+          },
+        ),
+      ],
+    );
+  }
+
+  void _validateInputs() {
+    if (_formKey.currentState.validate()) {
+      // If all data are correct then save data to out variables
+      _formKey.currentState.save();
+      widget.newProgram(_programName, _programType, _programBase);
+      Navigator.of(context).pop();
+    } else {
+      // If all data are not valid then start auto validation.
+      setState(() {
+        _autoValidate = true;
+      });
+    }
+  }
+
+  String _validateProgramName(String name) {
+    if (widget.programNames.contains(name)) {
+      return 'Program name ' + name + ' already exists.';
+    } else if (name.length < 1) {
+      return 'Must enter program name';
+    } else
+      return null;
+  }
+
+  String _validateProgramType(String type) {
+    if (type == null) {
+      return 'Must choose';
+    } else
+      return null;
+  }
 }

@@ -6,6 +6,9 @@ import './programList.dart';
 import './startText.dart';
 import './newProgramDialog.dart';
 
+// TODO: cycles not being saved after leaving program home page
+//  need to add data class to hold program and cycle info in Main.dart
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -71,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Map<int, String> _programNames = {};
   var _programIndex = 1;
 
-  void _newProgram(String name, String type) {
+  void _newProgram(String name, String type, String base) {
     if (_programNames.length > 0)
       _programIndex = _programNames.keys.last + 1;
     else

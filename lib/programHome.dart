@@ -7,6 +7,7 @@ import './newCycleDialog.dart';
 
 class ProgramHome extends StatefulWidget {
   final String programName;
+  List<Cycle> cycles;
 
   ProgramHome({
     @required this.programName,
@@ -79,4 +80,10 @@ class _ProgramHomeState extends State<ProgramHome> {
       ),
     );
   }
+}
+
+class Cycle {
+  String name;
+  DateTime startDate;
+  int trainingMaxPercent;
 }

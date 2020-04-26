@@ -1,5 +1,5 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-
 import 'package:intl/intl.dart';
 
 import './global.dart';
@@ -18,27 +18,33 @@ class NewCycleDialog extends StatefulWidget {
 }
 
 class _NewCycleDialogState extends State<NewCycleDialog> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _autoValidate = false;
   TextEditingController _startDateController = TextEditingController();
-  TextEditingController _cycleNameController = TextEditingController();
-  TextEditingController _tmPercentController = TextEditingController();
-  String _cycleTypeDropdown = '1 Rep Max';
-  bool _dateError = false;
-  bool _nameError = false;
-  bool _tmError = false;
-  String _dateErrorText;
-  String _nameErrorText;
-  String _tmErrorText;
+  // TextEditingController _cycleNameController = TextEditingController();
+  DateTime _startDate;
+  String _cycleName;
+  int _trainingMaxPercent;
+  String _cycleTypeDropdown;
 
-  void clearDialog() {
-    _cycleNameController.text = null;
-    _cycleTypeDropdown = '1 Rep Max';
-    _dateError = false;
-    _nameError = false;
-    _tmError = false;
-    _dateErrorText = null;
-    _nameErrorText = null;
-    _tmErrorText = null;
-  }
+  // TextEditingController _tmPercentController = TextEditingController();
+  // bool _dateError = false;
+  // bool _nameError = false;
+  // bool _tmError = false;
+  // String _dateErrorText;
+  // String _nameErrorText;
+  // String _tmErrorText;
+
+  // void clearDialog() {
+  //   _cycleName = null;
+  //   _cycleTypeDropdown = '1 Rep Max';
+  //   _dateError = false;
+  //   _nameError = false;
+  //   _tmError = false;
+  //   _dateErrorText = null;
+  //   _nameErrorText = null;
+  //   _tmErrorText = null;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -56,149 +62,12 @@ class _NewCycleDialogState extends State<NewCycleDialog> {
         style: dialogTextStyle,
       ),
       content: SingleChildScrollView(
-        child: ListBody(
-          children: <Widget>[
-            // Start Date Input
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Text('Start date:'),
-                ),
-                TextField(
-                    autofocus: true,
-                    cursorColor: Colors.white,
-                    controller: _startDateController,
-                    style: dialogTextStyle,
-                    decoration: InputDecoration(
-                      errorText: _dateError ? _dateErrorText : null,
-                    ),
-                    onChanged: (String text) {
-                      setState(() {
-                        _dateError = false;
-                      });
-                    },
-                    onTap: () async {
-                      FocusScope.of(context).requestFocus(new FocusNode());
-
-                      DateTime selectedDate = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime.now().subtract(Duration(days: 365)),
-                        lastDate: DateTime.now().add(Duration(days: 365)),
-                      );
-
-                      print(selectedDate);
-                      if (selectedDate != null) {
-                        setState(() {
-                          _startDateController.text =
-                              DateFormat('MM/dd/yyyy').format(selectedDate);
-                          _dateError = false;
-                        });
-                      }
-
-                      // selectedDate.whenComplete(() => {
-                      //       if (selectedDate != null)
-                      //         {
-                      //           setState(() {
-                      //             _startDateController.text = selectedDate.toString();
-                      //           })
-                      //         }
-                      //     });
-
-                      //     selectedDate.whenComplete(() => {
-                      //   if (selectedDate != null) setState(() {
-                      //     // _startDateController.text = selectedDate.toString();
-                      //   }
-
-                      //     },
-                      // },
-                    }),
-              ],
-            ),
-            // Cycle Name Input
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Text('Cycle name:'),
-                ),
-                TextField(
-                  autofocus: true,
-                  cursorColor: Colors.white,
-                  controller: _cycleNameController,
-                  style: dialogTextStyle,
-                  decoration: InputDecoration(
-                    errorText: _nameError ? _nameErrorText : null,
-                  ),
-                  onChanged: (String text) {
-                    setState(() {
-                      _nameError = false;
-                    });
-                  },
-                ),
-              ],
-            ),
-            // Training Max Percentage Input
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Text('Training Max Percentage:'),
-                ),
-                TextField(
-                  autofocus: true,
-                  cursorColor: Colors.white,
-                  controller: _tmPercentController,
-                  style: dialogTextStyle,
-                  decoration: InputDecoration(
-                    errorText: _tmError ? _tmErrorText : null,
-                    suffix: Text(
-                      '%',
-                      style: dialogTextStyle,
-                    ),
-                  ),
-                  onChanged: (String text) {
-                    setState(() {
-                      _tmError = false;
-                    });
-                  },
-                ),
-              ],
-            ),
-            // Cycle Type Input
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Text('Increase 1RM or TM?'),
-                ),
-                DropdownButton(
-                  value: _cycleTypeDropdown,
-                  elevation: 0,
-                  isExpanded: true,
-                  style: dialogTextStyle,
-                  items: <String>['1 Rep Max', 'Training Max']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String newValue) {
-                    setState(() => _cycleTypeDropdown = newValue);
-                  },
-                )
-              ],
-            ),
-          ],
+        child: Form(
+          key: _formKey,
+          autovalidate: _autoValidate,
+          child: _cycleForm(),
         ),
       ),
-      // }),
       actions: <Widget>[
         FlatButton(
           child: Text(
@@ -206,7 +75,7 @@ class _NewCycleDialogState extends State<NewCycleDialog> {
             style: dialogTextStyle,
           ),
           onPressed: () {
-            clearDialog();
+            // clearDialog();
             Navigator.of(context).pop();
           },
         ),
@@ -214,45 +83,128 @@ class _NewCycleDialogState extends State<NewCycleDialog> {
           color: flamingoColor,
           child: Text('OK'),
           onPressed: () {
-            if (_startDateController.text.length < 1) {
-              setState(() {
-                _dateError = true;
-                _dateErrorText = 'Must enter start date';
-              });
-            }
-            if (widget.cycleNames.contains(_cycleNameController.text)) {
-              setState(() {
-                _nameError = true;
-                _nameErrorText = 'Cycle name ' +
-                    _cycleNameController.text +
-                    ' already exists.';
-              });
-            }
-            if (_cycleNameController.text.length < 1) {
-              setState(() {
-                _nameError = true;
-                _nameErrorText = 'Must enter cycle name';
-              });
-            }
-            if (_tmPercentController.text.length < 1) {
-              setState(() {
-                _tmError = true;
-                _tmErrorText = 'Must enter training max percentage';
-              });
-            }
-
-            if (_dateError == false &&
-                _nameError == false &&
-                _tmError == false) {
-              widget.newCycle(_cycleNameController.text, _cycleTypeDropdown);
-              clearDialog();
-              Navigator.of(context).pop();
-            } else {
-              return;
-            }
+            _validateInputs();
+            // widget.newCycle(_cycleName, _cycleTypeDropdown);
+            // clearDialog();
+            // Navigator.of(context).pop();
           },
         ),
       ],
     );
+  }
+
+  Widget _cycleForm() {
+    return ListBody(
+      children: <Widget>[
+        // Cycle Name Input
+        TextFormField(
+          autofocus: true,
+          cursorColor: whiteTextColor,
+          decoration: const InputDecoration(labelText: 'Cycle name'),
+          keyboardType: TextInputType.text,
+          validator: (String text) {
+            return _validateCycleName(text);
+          },
+          onSaved: (String text) {
+            _cycleName = text;
+          },
+        ),
+
+        // Start Date Input
+        TextFormField(
+          cursorColor: whiteTextColor,
+          decoration: const InputDecoration(labelText: 'Start date'),
+          keyboardType: TextInputType.datetime,
+          controller: _startDateController,
+          validator: (String text) {
+            return _validateStartDate(text);
+          },
+          onTap: () async {
+            FocusScope.of(context).requestFocus(new FocusNode());
+
+            DateTime selectedDate = await showDatePicker(
+              context: context,
+              initialDate: DateTime.now(),
+              firstDate: DateTime.now().subtract(Duration(days: 365)),
+              lastDate: DateTime.now().add(Duration(days: 365)),
+            );
+
+            if (selectedDate != null) {
+              setState(() {
+                _startDateController.text =
+                    DateFormat('MM/dd/yyyy').format(selectedDate);
+              });
+            }
+          },
+          onSaved: (String text) {
+            print(DateFormat.yMd().parse(text));
+            _startDate = DateFormat.yMd().parse(text);
+          },
+        ),
+
+        // Training Max Percentage Input
+        TextFormField(
+          cursorColor: whiteTextColor,
+          decoration: const InputDecoration(
+            labelText: 'Training Max Percentage',
+            suffix: Text('%'),
+          ),
+          keyboardType: TextInputType.number,
+          validator: (String text) {
+            return _validateTmPercent(text);
+          },
+          inputFormatters: <TextInputFormatter>[
+            WhitelistingTextInputFormatter.digitsOnly
+          ],
+          onSaved: (String text) {
+            _trainingMaxPercent = int.parse(text);
+          },
+        ),
+      ],
+    );
+  }
+
+  void _validateInputs() {
+    if (_formKey.currentState.validate()) {
+      // If all data are correct then save data to out variables
+      _formKey.currentState.save();
+      widget.newCycle(_cycleName, _cycleTypeDropdown);
+      Navigator.of(context).pop();
+    } else {
+      // If all data are not valid then start auto validation.
+      setState(() {
+        _autoValidate = true;
+      });
+    }
+  }
+
+  String _validateCycleName(String name) {
+    if (widget.cycleNames.contains(name)) {
+      return 'Cycle name ' + name + ' already exists.';
+    }
+    if (name.length < 1) {
+      return 'Must enter cycle name';
+    } else
+      return null;
+  }
+
+  String _validateStartDate(String date) {
+    if (date.length < 1) {
+      return 'Must enter start date';
+    } else {
+      try {
+        DateFormat.yMd().parseStrict(date);
+        return null;
+      } on FormatException {
+        return 'Not a valid start date';
+      }
+    }
+  }
+
+  String _validateTmPercent(String percent) {
+    if (percent.length < 1) {
+      return 'Must enter training max percentage';
+    } else
+      return null;
   }
 }

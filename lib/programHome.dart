@@ -9,7 +9,6 @@ import './newCycleDialog.dart';
 
 class ProgramHome extends StatefulWidget {
   final String programName;
-  List<Cycle> cycles;
 
   ProgramHome({
     @required this.programName,
@@ -47,7 +46,6 @@ class _ProgramHomeState extends State<ProgramHome> {
         centerTitle: true,
       ),
       body: Column(
-        // mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _cycleNames.length > 0
               ? CycleList(
@@ -76,10 +74,4 @@ class _ProgramHomeState extends State<ProgramHome> {
       ),
     );
   }
-}
-
-class Cycle {
-  String name;
-  DateTime startDate;
-  int trainingMaxPercent;
 }

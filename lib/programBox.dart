@@ -11,7 +11,7 @@ class ProgramBox extends StatelessWidget {
 
   ProgramBox(this.programName, this.programKey, this.deleteProgram);
 
-  void delete() {
+  void _delete() {
     deleteProgram(programKey);
   }
 
@@ -34,7 +34,7 @@ class ProgramBox extends StatelessWidget {
             builder: (_) {
               return DeleteDialog(
                 name: programName,
-                deleteFunction: delete,
+                deleteFunction: _delete,
               );
             }),
         child: Container(

@@ -25,11 +25,6 @@ class DeleteDialog extends StatelessWidget {
         style: dialogTextStyle,
         // textAlign: TextAlign.center,
       ),
-      // content: Text(
-      //   'Delete ' + programName + '?',
-      //   style: dialogTextStyle,
-      //   textAlign: TextAlign.center,
-      // ),
       backgroundColor: lightGreyColor,
       actions: <Widget>[
         FlatButton(

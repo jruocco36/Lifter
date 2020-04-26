@@ -59,7 +59,3 @@ class CycleBox extends StatelessWidget {
     );
   }
 }
-
-// class CycleData {
-
-// }

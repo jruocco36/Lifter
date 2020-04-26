@@ -57,7 +57,6 @@ class _NewCycleDialogState extends State<NewCycleDialog> {
             style: dialogTextStyle,
           ),
           onPressed: () {
-            // clearDialog();
             Navigator.of(context).pop();
           },
         ),
@@ -66,9 +65,6 @@ class _NewCycleDialogState extends State<NewCycleDialog> {
           child: Text('OK'),
           onPressed: () {
             _validateInputs();
-            // widget.newCycle(_cycleName, _cycleTypeDropdown);
-            // clearDialog();
-            // Navigator.of(context).pop();
           },
         ),
       ],

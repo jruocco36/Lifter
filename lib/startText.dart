@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import './global.dart';
+
 class StartText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -11,7 +13,7 @@ class StartText extends StatelessWidget {
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: 16,
-          color: Color(0xFF888888),
+          color: greyTextColor,
         ),
       ),
     );

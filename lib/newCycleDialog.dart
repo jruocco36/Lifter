@@ -26,7 +26,6 @@ class _NewCycleDialogState extends State<NewCycleDialog> {
   DateTime _startDate;
   String _cycleName;
   int _trainingMaxPercent;
-  String _cycleTypeDropdown;
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +145,7 @@ class _NewCycleDialogState extends State<NewCycleDialog> {
     if (_formKey.currentState.validate()) {
       // If all data are correct then save data to out variables
       _formKey.currentState.save();
-      widget.newCycle(_cycleName, _cycleTypeDropdown);
+      widget.newCycle(_cycleName, _startDate, _trainingMaxPercent);
       Navigator.of(context).pop();
     } else {
       // If all data are not valid then start auto validation.

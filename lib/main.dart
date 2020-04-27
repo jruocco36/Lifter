@@ -4,6 +4,7 @@ import './global.dart';
 import './programList.dart';
 import './startText.dart';
 import './newProgramDialog.dart';
+import './programData.dart';
 
 // TODO: cycles not being saved after leaving program home page
 //  need to add data class to hold program and cycle info in Main.dart
@@ -44,7 +45,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-  
+
   final String title;
 
   @override
@@ -52,16 +53,24 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Map<int, Program> _programs = {};
   Map<int, String> _programNames = {};
   var _programIndex = 1;
 
-  void _newProgram(String name, String type, String base) {
+  void _newProgram(String name, String baseType, String progressType) {
     if (_programNames.length > 0)
       _programIndex = _programNames.keys.last + 1;
     else
       _programIndex = 1;
     setState(() {
       _programNames[_programIndex] = name;
+      Program program = new Program(
+        id: _programIndex,
+        name: name,
+        baseType: baseType,
+        progressType: progressType
+      );
+      _programs[_programIndex] = program;
     });
   }
 
@@ -69,6 +78,10 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _programNames.remove(key);
     });
+  }
+
+  Program _getProgram(int key) {
+    return _programs[key];
   }
 
   @override
@@ -106,6 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ? ProgramList(
                     programs: _programNames,
                     deleteProgram: _deleteProgram,
+                    getProgram: _getProgram,
                   )
                 : StartText(),
           ],

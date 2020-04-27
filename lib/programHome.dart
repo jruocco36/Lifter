@@ -4,14 +4,18 @@ import './global.dart';
 import './startText.dart';
 import './cycleList.dart';
 import './newCycleDialog.dart';
+// import './cycleData.dart';
+import './programData.dart';
 
 // TODO: store start date and TM percent
 
 class ProgramHome extends StatefulWidget {
+  final Program program;
   final String programName;
 
   ProgramHome({
     @required this.programName,
+    @required this.program,
   });
 
   @override
@@ -22,12 +26,18 @@ class _ProgramHomeState extends State<ProgramHome> {
   Map<int, String> _cycleNames = {};
   var _cycleIndex = 1;
 
-  void _newCycle(String name, String type) {
+   void initState() {
+    super.initState();
+    widget.program.getCycles().forEach((e) => _cycleNames[e.id] = e.name);
+  }
+
+  void _newCycle(String name, DateTime startDate, int tmPercent) {
     if (_cycleNames.length > 0)
       _cycleIndex = _cycleNames.keys.last + 1;
     else
       _cycleIndex = 1;
     setState(() {
+      widget.program.newCycle(_cycleIndex, name, startDate, tmPercent);
       _cycleNames[_cycleIndex] = name;
     });
   }

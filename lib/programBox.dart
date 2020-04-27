@@ -8,8 +8,14 @@ class ProgramBox extends StatelessWidget {
   final String programName;
   final int programKey;
   final Function deleteProgram;
+  final Function getProgram;
 
-  ProgramBox(this.programName, this.programKey, this.deleteProgram);
+  ProgramBox(
+    this.programName,
+    this.programKey,
+    this.deleteProgram,
+    this.getProgram,
+  );
 
   void _delete() {
     deleteProgram(programKey);
@@ -25,6 +31,7 @@ class ProgramBox extends StatelessWidget {
             MaterialPageRoute(
               builder: (context) => ProgramHome(
                 programName: programName,
+                program: getProgram(programKey),
               ),
             ),
           );

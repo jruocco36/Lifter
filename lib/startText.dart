@@ -9,7 +9,7 @@ class StartText extends StatelessWidget {
       height: MediaQuery.of(context).copyWith().size.height / 3,
       alignment: Alignment.center,
       child: Text(
-        'Tap \'+\' to get started.',
+        'Tap + to get started.',
         textAlign: TextAlign.center,
         style: TextStyle(
           fontSize: 16,

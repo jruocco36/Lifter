@@ -14,8 +14,8 @@ class NewProgramDialog extends StatefulWidget {
 
 class _NewProgramDialogState extends State<NewProgramDialog> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String _programType;
-  String _programBase;
+  String _programBaseType;
+  String _programProgressType;
   String _programName;
   bool _autoValidate = false;
 
@@ -82,7 +82,7 @@ class _NewProgramDialogState extends State<NewProgramDialog> {
           },
         ),
         DropdownButtonFormField(
-          value: _programType,
+          value: _programBaseType,
           isDense: true,
           decoration: const InputDecoration(
             isDense: true,
@@ -99,18 +99,18 @@ class _NewProgramDialogState extends State<NewProgramDialog> {
             return _validateProgramType(text);
           },
           onChanged: (String text) {
-            setState(() => _programType = text);
+            setState(() => _programBaseType = text);
           },
           onSaved: (String text) {
-            _programType = text;
+            _programBaseType = text;
           },
         ),
         DropdownButtonFormField(
-          value: _programBase,
+          value: _programProgressType,
           isDense: true,
           decoration: const InputDecoration(
             isDense: true,
-            labelText: 'Based 1RM or TM?',
+            labelText: 'Progress 1RM or TM?',
           ),
           items: <String>['1 Rep Max', 'Training Max']
               .map<DropdownMenuItem<String>>((String value) {
@@ -123,10 +123,10 @@ class _NewProgramDialogState extends State<NewProgramDialog> {
             return _validateProgramType(text);
           },
           onChanged: (String text) {
-            setState(() => _programBase = text);
+            setState(() => _programProgressType = text);
           },
           onSaved: (String text) {
-            _programBase = text;
+            _programProgressType = text;
           },
         ),
       ],
@@ -137,7 +137,7 @@ class _NewProgramDialogState extends State<NewProgramDialog> {
     if (_formKey.currentState.validate()) {
       // If all data are correct then save data to out variables
       _formKey.currentState.save();
-      widget.newProgram(_programName, _programType, _programBase);
+      widget.newProgram(_programName, _programBaseType, _programProgressType);
       Navigator.of(context).pop();
     } else {
       // If all data are not valid then start auto validation.

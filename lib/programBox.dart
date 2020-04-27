@@ -10,12 +10,12 @@ class ProgramBox extends StatelessWidget {
   final Function deleteProgram;
   final Function getProgram;
 
-  ProgramBox(
+  ProgramBox({
     this.programName,
     this.programKey,
     this.deleteProgram,
     this.getProgram,
-  );
+  });
 
   void _delete() {
     deleteProgram(programKey);

@@ -54,29 +54,26 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Map<int, Program> _programs = {};
-  Map<int, String> _programNames = {};
   var _programIndex = 1;
 
   void _newProgram(String name, String baseType, String progressType) {
-    if (_programNames.length > 0)
-      _programIndex = _programNames.keys.last + 1;
+    if (_programs.length > 0)
+      _programIndex = _programs.keys.last + 1;
     else
       _programIndex = 1;
     setState(() {
-      _programNames[_programIndex] = name;
       Program program = new Program(
-        id: _programIndex,
-        name: name,
-        baseType: baseType,
-        progressType: progressType
-      );
+          id: _programIndex,
+          name: name,
+          baseType: baseType,
+          progressType: progressType);
       _programs[_programIndex] = program;
     });
   }
 
   void _deleteProgram(int key) {
     setState(() {
-      _programNames.remove(key);
+      _programs.remove(key);
     });
   }
 
@@ -115,9 +112,11 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         body: Column(
           children: [
-            _programNames.length > 0
+            _programs.length > 0
                 ? ProgramList(
-                    programs: _programNames,
+                    programs: _programs.map((id, program) {
+                      return MapEntry(id, program.name);
+                    }),
                     deleteProgram: _deleteProgram,
                     getProgram: _getProgram,
                   )
@@ -131,8 +130,8 @@ class _MyHomePageState extends State<MyHomePage> {
               builder: (_) {
                 return NewProgramDialog(
                   newProgram: _newProgram,
-                  programNames: (_programNames.keys).map((program) {
-                    return _programNames[program];
+                  programNames: (_programs.keys).map((program) {
+                    return _programs[program].name;
                   }).toList(),
                 );
               },

@@ -22,10 +22,10 @@ class ProgramList extends StatelessWidget {
         children: [
           ...(programs.keys).map((program) {
             return ProgramBox(
-              programs[program],
-              program,
-              deleteProgram,
-              getProgram,
+              programName: programs[program],
+              programKey: program,
+              deleteProgram: deleteProgram,
+              getProgram: getProgram,
             );
           }).toList()
         ],

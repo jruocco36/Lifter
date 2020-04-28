@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 
 import './global.dart';
 import './startText.dart';
+import './cycleBox.dart';
 import './cycleList.dart';
 import './newCycleDialog.dart';
-// import './cycleData.dart';
 import './programData.dart';
 
-// TODO: store start date and TM percent
+// TODO: cyles not updating in set state
+//     : cycle listed in reverse order
 
 class ProgramHome extends StatefulWidget {
   final Program program;
@@ -25,27 +26,31 @@ class ProgramHome extends StatefulWidget {
 
 class _ProgramHomeState extends State<ProgramHome> {
   Map<DocumentReference, String> _cycleNames = {};
-  var _cycleIndex = 1;
 
-   void initState() {
+  void initState() {
     super.initState();
-    widget.program.getCycles().forEach((e) => _cycleNames[e.reference] = e.name);
+    getCycles();
+    // widget.program
+    //     .getCycles()
+    //     .forEach((e) => _cycleNames[e.reference] = e.name);
   }
 
-  void _newCycle(String name, DateTime startDate, int tmPercent) {
-    // if (_cycleNames.length > 0)
-    //   _cycleIndex = _cycleNames.keys.last + 1;
-    // else
-    //   _cycleIndex = 1;
-    // setState(() {
-    //   widget.program.newCycle(_cycleIndex, name, startDate, tmPercent);
-    //   _cycleNames[_cycleIndex] = name;
-    // });
+  Future getCycles() async {
+    await widget.program
+        .getCycles()
+        .forEach((e) => _cycleNames[e.reference] = e.name);
   }
 
-  void _deleteCycle(int key) {
+  void addCycle(String name, DateTime startDate, int tmPercent) {
     setState(() {
-      _cycleNames.remove(key);
+      widget.program.addCycle(name, startDate, tmPercent);
+    });
+  }
+
+  void _deleteCycle(DocumentReference ref) {
+    setState(() {
+      widget.program.deleteCycle(ref);
+      // _cycleNames.remove(key);
     });
   }
 
@@ -56,15 +61,22 @@ class _ProgramHomeState extends State<ProgramHome> {
         title: Text(widget.programName),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          _cycleNames.length > 0
-              ? CycleList(
-                  cycles: _cycleNames,
-                  deleteCycle: _deleteCycle,
-                )
-              : StartText(),
+      body: ListView(
+        padding: const EdgeInsets.only(top: 20),
+        children: <Widget>[
+          ...(widget.program.cycles.keys).map((cycle) {
+            return CycleBox(
+                widget.program.cycles[cycle].name, cycle, _deleteCycle);
+          }).toList()
         ],
+        // children: [
+        //   _cycleNames.length > 0
+        //       ? CycleList(
+        //           cycles: _cycleNames,
+        //           deleteCycle: _deleteCycle,
+        //         )
+        //       : StartText(),
+        // ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -72,7 +84,7 @@ class _ProgramHomeState extends State<ProgramHome> {
               context: context,
               builder: (_) {
                 return NewCycleDialog(
-                  newCycle: _newCycle,
+                  addCycle: addCycle,
                   cycleNames: (_cycleNames.keys).map((program) {
                     return _cycleNames[program];
                   }).toList(),
@@ -83,6 +95,13 @@ class _ProgramHomeState extends State<ProgramHome> {
         elevation: 0,
         backgroundColor: flamingoColor,
       ),
+    );
+  }
+
+  Widget _cycles(BuildContext context) {
+    return CycleList(
+      cycles: _cycleNames,
+      deleteCycle: _deleteCycle,
     );
   }
 }

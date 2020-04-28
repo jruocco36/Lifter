@@ -4,17 +4,12 @@ import 'package:flutter/material.dart';
 import './cycleData.dart';
 
 class Program {
-  // final int id;
+  DocumentReference
+      reference; // reference to Firestore document for this Program
   String name;
   String baseType;
   String progressType;
   Map<DocumentReference, Cycle> cycles = {};
-
-  // reference to Firestore document for this Program
-  DocumentReference reference;
-
-  // TODO: pull in cycles from Firebase
-  // see subcollections: https://firebase.google.com/docs/firestore/data-model
 
   Program.fromMap(Map<String, dynamic> map, {this.reference})
       : assert(map['name'] != null),
@@ -37,11 +32,8 @@ class Program {
     this.reference = snapshot.reference;
     reference.collection('cycle').getDocuments().then((QuerySnapshot snapshot) {
       snapshot.documents.forEach((DocumentSnapshot doc) {
-        newCycle(
-            doc.reference,
-            doc['name'],
-            (doc['startDate'] as Timestamp).toDate(),
-            doc['tmPercent']);
+        Cycle cycle = Cycle.fromSnapshot(doc);
+        cycles[doc.reference] = cycle;
       });
     });
     fromMap(snapshot.data);
@@ -64,17 +56,17 @@ class Program {
     this.cycles,
   });
 
-  // TODO: redo newCycle with Firebase
+  void addCycle(String name, DateTime startDate, int tmPercent) {
+    Cycle cycle = Cycle(name: name, startDate: startDate, tmPercent: tmPercent);
+    reference.collection('cycle').add(cycle.toJson());
+  }
 
-  void newCycle(DocumentReference reference, String name, DateTime startDate,
-      int tmPercent) {
-    if (cycles == null) cycles = {};
-    cycles[reference] = new Cycle(
-      reference: reference,
-      name: name,
-      startDate: startDate,
-      tmPercent: tmPercent,
-    );
+  void updateCycle(Cycle cycle) async {
+    await reference.collection('cycle').document(cycle.reference.documentID).updateData(cycle.toJson());
+  }
+
+  void deleteCycle(DocumentReference ref) async {
+    await reference.collection('cycle').document(ref.documentID).delete();
   }
 
   List<Cycle> getCycles() {

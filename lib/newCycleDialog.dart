@@ -4,14 +4,12 @@ import 'package:intl/intl.dart';
 
 import './global.dart';
 
-// TODO: pass [_startDate] and [_trainingMaxPercent] to [newCycle()] to store
-
 class NewCycleDialog extends StatefulWidget {
-  final Function newCycle;
+  final Function addCycle;
   final List<String> cycleNames;
 
   NewCycleDialog({
-    @required this.newCycle,
+    @required this.addCycle,
     @required this.cycleNames,
   });
 
@@ -114,7 +112,6 @@ class _NewCycleDialogState extends State<NewCycleDialog> {
             }
           },
           onSaved: (String text) {
-            print(DateFormat.yMd().parse(text));
             _startDate = DateFormat.yMd().parse(text);
           },
         ),
@@ -145,7 +142,7 @@ class _NewCycleDialogState extends State<NewCycleDialog> {
     if (_formKey.currentState.validate()) {
       // If all data are correct then save data to out variables
       _formKey.currentState.save();
-      widget.newCycle(_cycleName, _startDate, _trainingMaxPercent);
+      widget.addCycle(_cycleName, _startDate, _trainingMaxPercent);
       Navigator.of(context).pop();
     } else {
       // If all data are not valid then start auto validation.

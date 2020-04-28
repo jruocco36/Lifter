@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
+import './firebase.dart';
 import './global.dart';
-import './programList.dart';
-import './startText.dart';
 import './newProgramDialog.dart';
 import './programData.dart';
-
-// TODO: cycles not being saved after leaving program home page
-//  need to add data class to hold program and cycle info in Main.dart
+import './programBox.dart';
 
 void main() => runApp(MyApp());
 
@@ -53,31 +51,32 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  Map<int, Program> _programs = {};
-  var _programIndex = 1;
+  final DataRepository repository = DataRepository();
+  Map<DocumentReference, Program> _programs = {};
 
   void _newProgram(String name, String baseType, String progressType) {
-    if (_programs.length > 0)
-      _programIndex = _programs.keys.last + 1;
-    else
-      _programIndex = 1;
     setState(() {
-      Program program = new Program(
-          id: _programIndex,
+      Program program = Program(
           name: name,
           baseType: baseType,
           progressType: progressType);
-      _programs[_programIndex] = program;
+      repository.addProgram(program);
     });
   }
 
-  void _deleteProgram(int key) {
+  void _deleteProgram(DocumentReference reference) {
     setState(() {
-      _programs.remove(key);
+      repository.deleteProgram(reference);
     });
   }
 
-  Program _getProgram(int key) {
+  List<String> _programNames() {
+    List<String> names = [];
+    _programs.entries.forEach((e) => names.add(e.value.name));
+    return names;
+  }
+
+  Program _getProgram(DocumentReference key) {
     return _programs[key];
   }
 
@@ -110,19 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
           centerTitle: true,
           title: Text('Programs'),
         ),
-        body: Column(
-          children: [
-            _programs.length > 0
-                ? ProgramList(
-                    programs: _programs.map((id, program) {
-                      return MapEntry(id, program.name);
-                    }),
-                    deleteProgram: _deleteProgram,
-                    getProgram: _getProgram,
-                  )
-                : StartText(),
-          ],
-        ),
+        body: _buildBody(context),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             showDialog(
@@ -142,6 +129,39 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: flamingoColor,
         ),
       ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: repository.getStream(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return LinearProgressIndicator();
+        return _buildList(context, snapshot.data.documents);
+      },
+    );
+  }
+
+  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
+    return ListView(
+      padding: const EdgeInsets.only(top: 20),
+      children: snapshot.map((data) => _buildListItem(context, data)).toList(),
+    );
+  }
+
+  Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
+    final program = Program.fromSnapshot(data);
+    _programs[program.reference] = program;
+
+    return Column(
+      children: [
+        ProgramBox(
+          programName: program.name,
+          programKey: program.reference,
+          getProgram: _getProgram,
+          deleteProgram: _deleteProgram,
+        ),
+      ],
     );
   }
 }

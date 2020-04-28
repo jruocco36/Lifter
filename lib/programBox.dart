@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import './global.dart';
@@ -6,7 +7,7 @@ import './programHome.dart';
 
 class ProgramBox extends StatelessWidget {
   final String programName;
-  final int programKey;
+  final DocumentReference programKey;
   final Function deleteProgram;
   final Function getProgram;
 
@@ -67,7 +68,3 @@ class ProgramBox extends StatelessWidget {
     );
   }
 }
-
-// class ProgramData {
-
-// }

@@ -23,7 +23,7 @@ class ProgramList extends StatelessWidget {
           ...(programs.keys).map((program) {
             return ProgramBox(
               programName: programs[program],
-              programKey: program,
+              // programKey: program,
               deleteProgram: deleteProgram,
               getProgram: getProgram,
             );

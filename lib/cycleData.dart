@@ -1,13 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class Cycle {
-  int id;
+  DocumentReference reference;
   String name;
   DateTime startDate;
   int tmPercent;
 
   Cycle({
-    @required this.id,
+    @required this.reference,
     @required this.name,
     @required this.startDate,
     @required this.tmPercent,

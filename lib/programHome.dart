@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import './global.dart';
@@ -23,23 +24,23 @@ class ProgramHome extends StatefulWidget {
 }
 
 class _ProgramHomeState extends State<ProgramHome> {
-  Map<int, String> _cycleNames = {};
+  Map<DocumentReference, String> _cycleNames = {};
   var _cycleIndex = 1;
 
    void initState() {
     super.initState();
-    widget.program.getCycles().forEach((e) => _cycleNames[e.id] = e.name);
+    widget.program.getCycles().forEach((e) => _cycleNames[e.reference] = e.name);
   }
 
   void _newCycle(String name, DateTime startDate, int tmPercent) {
-    if (_cycleNames.length > 0)
-      _cycleIndex = _cycleNames.keys.last + 1;
-    else
-      _cycleIndex = 1;
-    setState(() {
-      widget.program.newCycle(_cycleIndex, name, startDate, tmPercent);
-      _cycleNames[_cycleIndex] = name;
-    });
+    // if (_cycleNames.length > 0)
+    //   _cycleIndex = _cycleNames.keys.last + 1;
+    // else
+    //   _cycleIndex = 1;
+    // setState(() {
+    //   widget.program.newCycle(_cycleIndex, name, startDate, tmPercent);
+    //   _cycleNames[_cycleIndex] = name;
+    // });
   }
 
   void _deleteCycle(int key) {

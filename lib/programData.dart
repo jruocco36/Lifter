@@ -8,11 +8,11 @@ class Program {
   String name;
   String baseType;
   String progressType;
-  Map<int, Cycle> cycles = {};
+  Map<DocumentReference, Cycle> cycles = {};
 
   // reference to Firestore document for this Program
   DocumentReference reference;
-  
+
   // TODO: pull in cycles from Firebase
   // see subcollections: https://firebase.google.com/docs/firestore/data-model
 
@@ -22,17 +22,37 @@ class Program {
         assert(map['progressType'] != null),
         name = map['name'],
         baseType = map['baseType'],
-        progressType = map['progressType'],
-        cycles = map['cycle'];
+        progressType = map['progressType'];
 
-  Program.fromSnapshot(DocumentSnapshot snapshot)
-      : this.fromMap(snapshot.data, reference: snapshot.reference);
+  void fromMap(Map<String, dynamic> map) {
+    assert(map['name'] != null);
+    assert(map['baseType'] != null);
+    assert(map['progressType'] != null);
+    name = map['name'];
+    baseType = map['baseType'];
+    progressType = map['progressType'];
+  }
+
+  Program.fromSnapshot(DocumentSnapshot snapshot) {
+    this.reference = snapshot.reference;
+    reference.collection('cycle').getDocuments().then((QuerySnapshot snapshot) {
+      snapshot.documents.forEach((DocumentSnapshot doc) {
+        newCycle(
+            doc.reference,
+            doc['name'],
+            (doc['startDate'] as Timestamp).toDate(),
+            doc['tmPercent']);
+      });
+    });
+    fromMap(snapshot.data);
+  }
+  // : this.fromMap(snapshot.data, reference: snapshot.reference);
 
   Map<String, dynamic> toJson() => {
-      'name': name,
-      'baseType': baseType,
-      'progressType': progressType,
-  };
+        'name': name,
+        'baseType': baseType,
+        'progressType': progressType,
+      };
 
   @override
   String toString() => "Record<$name>";
@@ -44,10 +64,13 @@ class Program {
     this.cycles,
   });
 
-  void newCycle(int id, String name, DateTime startDate, int tmPercent) {
+  // TODO: redo newCycle with Firebase
+
+  void newCycle(DocumentReference reference, String name, DateTime startDate,
+      int tmPercent) {
     if (cycles == null) cycles = {};
-    cycles[id] = new Cycle(
-      id: id,
+    cycles[reference] = new Cycle(
+      reference: reference,
       name: name,
       startDate: startDate,
       tmPercent: tmPercent,

@@ -1,9 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import './cycleBox.dart';
 
 class CycleList extends StatelessWidget {
-  final Map<int, String> cycles;
+  final Map<DocumentReference, String> cycles;
   final Function deleteCycle;
 
   CycleList({

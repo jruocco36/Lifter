@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import './global.dart';
@@ -5,7 +6,7 @@ import './deleteDialog.dart';
 
 class CycleBox extends StatelessWidget {
   final String cycleName;
-  final int cycleKey;
+  final DocumentReference cycleKey;
   final Function deleteCycle;
 
   CycleBox(this.cycleName, this.cycleKey, this.deleteCycle);

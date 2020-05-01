@@ -17,11 +17,11 @@ class DatabaseService {
   }
 
   // update a program for this user
-  Future updateProgram(String programUID, String programName,
-      String programType, String progressType, Timestamp createdDate) async {
+  Future updateProgram(String programId, String programName, String programType,
+      String progressType, Timestamp createdDate) async {
     return await userRef
         .collection('programs')
-        .document(programUID ?? null)
+        .document(programId ?? null)
         .setData({
       'programName': programName,
       'programType': programType,
@@ -31,8 +31,8 @@ class DatabaseService {
   }
 
   // delete a program for this user
-  Future deleteProgram(String programUID) async {
-    return await userRef.collection('programs').document(programUID).delete();
+  Future deleteProgram(String programId) async {
+    return await userRef.collection('programs').document(programId).delete();
   }
 
   // program list from snapshot
@@ -71,10 +71,10 @@ class DatabaseService {
   }
 
   // get program data stream for specific program id
-  Stream<Program> getProgramData(String programUID) {
+  Stream<Program> getProgramData(String programId) {
     return userRef
         .collection('programs')
-        .document(programUID)
+        .document(programId)
         .snapshots()
         .map(_programDataFromSnapshot);
   }
@@ -86,8 +86,8 @@ class DatabaseService {
         uid: uid,
         programId: programId,
         cycleId: doc.documentID,
-        name: doc['programName'],
-        startDate: doc['startDate'],
+        name: doc['cycleName'],
+        startDate: doc['startDate'].toDate(),
         trainingMaxPercent: doc['trainingMaxPercent'],
       );
     }).toList();
@@ -100,6 +100,56 @@ class DatabaseService {
         .document(programId)
         .collection('cycles')
         .snapshots()
-        .map((doc) => _cycleListFromSnapshot(doc, programId));
+        .map((snapshot) => _cycleListFromSnapshot(snapshot, programId));
+  }
+
+  // program data from snapshot
+  Cycle _cycleDataFromSnapshot(DocumentSnapshot snapshot, String programId) {
+    return Cycle(
+      uid: uid,
+      programId: programId,
+      cycleId: snapshot.documentID,
+      name: snapshot['cycleName'],
+      startDate: snapshot['startDate'].toDate(),
+      trainingMaxPercent: snapshot['trainingMaxPercent'],
+    );
+  }
+
+  // get cycle data stream for specific program id and cycle id
+  Stream<Cycle> getCycleData(String programId, String cycleId) {
+    return userRef
+        .collection('programs')
+        .document(programId)
+        .collection('cycles')
+        .document(cycleId)
+        .snapshots()
+        .map((snapshot) => _cycleDataFromSnapshot(snapshot, programId));
+  }
+
+  // update a cycle
+  Future updateCycle(String programId, String cycleId, String cycleName,
+      DateTime startDate, int trainingMaxPercent) async {
+    return await userRef
+        .collection('programs')
+        .document(programId)
+        .collection('cycles')
+        .document(cycleId)
+        .setData({
+      'uid': uid,
+      'programId': programId,
+      'cycleName': cycleName,
+      'startDate': Timestamp.fromDate(startDate),
+      'trainingMaxPercent': trainingMaxPercent,
+    });
+  }
+
+  // delete a cycle
+  Future deleteCycle(String programId, String cycleId) async {
+    return await userRef
+        .collection('programs')
+        .document(programId)
+        .collection('cycles')
+        .document(cycleId)
+        .delete();
   }
 }

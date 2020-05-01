@@ -12,15 +12,23 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  final user = Provider.of<User>(context);
-    
+    final user = Provider.of<User>(context);
+
     void _newProgramPanel() {
       showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
         builder: (context) {
-          return Container(
-            padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
-            child: ProgramSettingsForm(),
+          return SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 20.0, horizontal: 60.0),
+                child: ProgramSettingsForm(),
+              ),
+            ),
           );
         },
       );

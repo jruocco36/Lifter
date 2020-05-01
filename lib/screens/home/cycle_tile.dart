@@ -1,16 +1,16 @@
 import 'package:Lifter/Services/database.dart';
-import 'package:Lifter/models/program.dart';
+import 'package:Lifter/models/cycle.dart';
+import 'package:Lifter/screens/home/cycle_settings_form.dart';
 import 'package:Lifter/screens/home/delete_dialog.dart';
-import 'package:Lifter/screens/home/program_home.dart';
-import 'package:Lifter/screens/home/program_settings_form.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class ProgramTile extends StatelessWidget {
-  final Program program;
-  final Function programHome;
+class CycleTile extends StatelessWidget {
+  final Cycle cycle;
+  final Function cycleHome;
 
-  ProgramTile({this.program, this.programHome});
+  CycleTile({this.cycle, this.cycleHome});
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +20,9 @@ class ProgramTile extends StatelessWidget {
         color: lightGreyColor,
         margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
         child: ListTile(
-          title: Text(program.name),
-          subtitle: Text('${program.programType}'),
-          leading: Icon(program.programType == 'Cycle based'
-              ? Icons.autorenew
-              : Icons.calendar_today),
+          title: Text(cycle.name),
+          subtitle: Text('${DateFormat('MM/dd/yyyy').format(cycle.startDate)}'),
+          // leading: ,
           trailing: PopupMenuButton(
             icon: Icon(Icons.more_vert),
             color: darkGreyColor,
@@ -51,8 +49,10 @@ class ProgramTile extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                               vertical: 20.0, horizontal: 60.0),
-                          child: ProgramSettingsForm(
-                              programDocumentId: program.programId),
+                          child: CycleSettingsForm(
+                            programDocumentId: cycle.programId,
+                            cycleDocumentId: cycle.cycleId,
+                          ),
                         ),
                       ),
                     );
@@ -62,24 +62,25 @@ class ProgramTile extends StatelessWidget {
                 final delete = await showDialog(
                     context: context,
                     builder: (_) {
-                      return DeleteDialog(program.name);
+                      return DeleteDialog(cycle.name);
                     });
                 if (delete) {
-                  DatabaseService(uid: program.uid)
-                      .deleteProgram(program.programId);
+                  DatabaseService(uid: cycle.uid)
+                      .deleteCycle(cycle.programId, cycle.cycleId);
                 }
               }
             },
           ),
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ProgramHome(
-                  program: program,
-                ),
-              ),
-            );
+            print(cycle.name);
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => CycleHome(
+            //       cycle: cycle,
+            //     ),
+            //   ),
+            // );
           },
         ),
       ),

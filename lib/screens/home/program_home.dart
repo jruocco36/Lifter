@@ -3,8 +3,9 @@ import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/cycle.dart';
 import 'package:Lifter/models/program.dart';
 import 'package:Lifter/models/user.dart';
+import 'package:Lifter/screens/home/cycle_list.dart';
+import 'package:Lifter/screens/home/cycle_settings_form.dart';
 import 'package:Lifter/screens/home/program_settings_form.dart';
-import 'package:Lifter/screens/home/program_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,55 +14,71 @@ class ProgramHome extends StatelessWidget {
   final Program program;
 
   ProgramHome({this.program});
-  
+
   @override
   Widget build(BuildContext context) {
-  final user = Provider.of<User>(context);
+    final user = Provider.of<User>(context);
 
-    
-    void _newCyclePanel() {
+    void _editProgramPanel() {
       showModalBottomSheet(
         context: context,
+        isScrollControlled: true,
         builder: (context) {
-          return Container(
-            padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
-            // child: CycleSettingsForm(),
+          return SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 20.0, horizontal: 60.0),
+                child: ProgramSettingsForm(
+                  programDocumentId: program.programId,
+                ),
+              ),
+            ),
           );
         },
       );
     }
 
-    // listen for any changes to 'program' collection stored DatabaseService
+    void _newCyclePanel() {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (context) {
+          return SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 20.0, horizontal: 60.0),
+                child: CycleSettingsForm(programDocumentId: program.programId),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
+    // listen for any changes to 'cycles' collection stored DatabaseService
     return StreamProvider<List<Cycle>>.value(
       value: DatabaseService(uid: user.uid).getCycles(program.programId),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Programs'),
+          title: Text('${program.name}'),
           elevation: 0.0,
           actions: <Widget>[
-            FlatButton.icon(
-              icon: Icon(Icons.person),
-              label: Text('Log out'),
+            IconButton(
+              icon: Icon(Icons.settings),
+              tooltip: 'Edit program',
               onPressed: () async {
-                await _auth.signOut();
+                _editProgramPanel();
               },
             ),
-            // FlatButton.icon(
-            //   icon: Icon(Icons.settings),
-            //   label: Text('settings'),
-            //   onPressed: () => _showSettingsPanel(),
-            // ),
           ],
         ),
-        body: Container(
-          // decoration: BoxDecoration(
-          //   image: DecorationImage(
-          //     image: AssetImage('assets/coffee_bg.png'),
-          //     fit: BoxFit.cover,
-          //   ),
-          // ),
-          child: ProgramList(),
-        ),
+        body: CycleList(),
         floatingActionButton: FloatingActionButton(
           elevation: 0,
           child: Icon(Icons.add),

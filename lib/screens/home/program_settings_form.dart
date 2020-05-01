@@ -48,16 +48,19 @@ class _ProgramSettingsFormState extends State<ProgramSettingsForm> {
                   style: TextStyle(fontSize: 18.0),
                 ),
                 SizedBox(height: 20.0),
+
                 // program name
                 TextFormField(
+                  autofocus: true,
                   initialValue:
-                      _programType ?? (program != null ? program.name : ''),
+                      _programName ?? (program != null ? program.name : ''),
                   decoration:
                       textInputDecoration.copyWith(hintText: 'Program name'),
                   validator: (val) => val.isEmpty ? 'Enter program name' : null,
                   onChanged: (val) => setState(() => _programName = val),
                 ),
                 SizedBox(height: 20.0),
+
                 // Program type dropdown
                 DropdownButtonFormField(
                   decoration: textInputDecoration,
@@ -73,6 +76,7 @@ class _ProgramSettingsFormState extends State<ProgramSettingsForm> {
                   onChanged: (val) => setState(() => _programType = val),
                 ),
                 SizedBox(height: 20.0),
+
                 // Progress type dropdown
                 DropdownButtonFormField(
                   decoration: textInputDecoration,
@@ -87,6 +91,7 @@ class _ProgramSettingsFormState extends State<ProgramSettingsForm> {
                   }).toList(),
                   onChanged: (val) => setState(() => _progressType = val),
                 ),
+
                 RaisedButton(
                   color: flamingoColor,
                   child: Text(

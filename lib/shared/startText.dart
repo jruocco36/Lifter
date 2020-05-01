@@ -1,6 +1,5 @@
+import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
-
-import './global.dart';
 
 class StartText extends StatelessWidget {
   @override

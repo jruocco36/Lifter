@@ -1,15 +1,14 @@
+import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
-
-import './global.dart';
 
 class DeleteDialog extends StatelessWidget {
   final String name;
-  final Function deleteFunction;
 
-  DeleteDialog({
-    @required this.name,
-    @required this.deleteFunction,
-  });
+  DeleteDialog(this.name);
+
+  bool get result {
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,15 +32,14 @@ class DeleteDialog extends StatelessWidget {
             style: dialogTextStyle,
           ),
           onPressed: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(false);
           },
         ),
         FlatButton(
           color: flamingoColor,
           child: Text('OK'),
           onPressed: () {
-            deleteFunction();
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(true);
           },
         ),
       ],

@@ -5,7 +5,7 @@ class StartText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).copyWith().size.height / 3,
+      height: MediaQuery.of(context).size.height * .25,
       alignment: Alignment.center,
       child: Text(
         'Tap + to get started.',

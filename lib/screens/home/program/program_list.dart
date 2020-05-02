@@ -1,5 +1,6 @@
 import 'package:Lifter/models/program.dart';
 import 'package:Lifter/screens/home/program/program_tile.dart';
+import 'package:Lifter/shared/startText.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,12 +19,14 @@ class _ProgramListState extends State<ProgramList> {
 
     // iterates through our list and creates an array of widgets with
     // one widget for each item
-    return ListView.builder(
-      itemCount: programs.length,
-      padding: EdgeInsets.only(top: 10.0),
-      itemBuilder: (context, index) {
-        return ProgramTile(program: programs[index]);
-      },
-    );
+    return programs.length < 1
+        ? StartText()
+        : ListView.builder(
+            itemCount: programs.length,
+            padding: EdgeInsets.only(top: 10.0),
+            itemBuilder: (context, index) {
+              return ProgramTile(program: programs[index]);
+            },
+          );
   }
 }

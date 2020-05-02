@@ -10,9 +10,8 @@ import 'package:intl/intl.dart';
 
 class WeekTile extends StatelessWidget {
   final Week week;
-  final Function weekHome;
 
-  WeekTile({this.week, this.weekHome});
+  WeekTile({this.week});
 
   @override
   Widget build(BuildContext context) {

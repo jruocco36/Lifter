@@ -20,6 +20,8 @@ class _WeekListState extends State<WeekList> {
     // one widget for each item
     return ListView.builder(
       itemCount: weeks.length,
+      scrollDirection: Axis.vertical,
+      shrinkWrap: true,
       padding: EdgeInsets.only(top: 10.0),
       itemBuilder: (context, index) {
         return WeekTile(week: weeks[index]);

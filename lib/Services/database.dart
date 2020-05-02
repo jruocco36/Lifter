@@ -1,7 +1,9 @@
 import 'package:Lifter/models/cycle.dart';
+import 'package:Lifter/models/day.dart';
 import 'package:Lifter/models/program.dart';
 import 'package:Lifter/models/week.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class DatabaseService {
   // current user's id
@@ -81,27 +83,26 @@ class DatabaseService {
   }
 
   // program's cycle data from snapshot
-  List<Cycle> _cycleListFromSnapshot(QuerySnapshot snapshot, String programId) {
+  List<Cycle> _cycleListFromSnapshot(QuerySnapshot snapshot, Program program) {
     return snapshot.documents.map((doc) {
-      return _cycleDataFromSnapshot(doc, programId);
+      return _cycleDataFromSnapshot(doc, program);
     }).toList();
   }
 
   // get stream for program's cycles
-  Stream<List<Cycle>> getCycles(String programId) {
+  Stream<List<Cycle>> getCycles(Program program) {
     return userRef
         .collection('programs')
-        .document(programId)
+        .document(program.programId)
         .collection('cycles')
         .snapshots()
-        .map((snapshot) => _cycleListFromSnapshot(snapshot, programId));
+        .map((snapshot) => _cycleListFromSnapshot(snapshot, program));
   }
 
   // program data from snapshot
-  Cycle _cycleDataFromSnapshot(DocumentSnapshot snapshot, String programId) {
+  Cycle _cycleDataFromSnapshot(DocumentSnapshot snapshot, Program program) {
     return Cycle(
-      uid: uid,
-      programId: programId,
+      program: program,
       cycleId: snapshot.documentID,
       name: snapshot['cycleName'],
       startDate: snapshot['startDate'].toDate(),
@@ -110,14 +111,14 @@ class DatabaseService {
   }
 
   // get cycle data stream for specific program id and cycle id
-  Stream<Cycle> getCycleData(String programId, String cycleId) {
+  Stream<Cycle> getCycleData(Program program, String cycleId) {
     return userRef
         .collection('programs')
-        .document(programId)
+        .document(program.programId)
         .collection('cycles')
         .document(cycleId)
         .snapshots()
-        .map((snapshot) => _cycleDataFromSnapshot(snapshot, programId));
+        .map((snapshot) => _cycleDataFromSnapshot(snapshot, program));
   }
 
   // update a cycle
@@ -147,9 +148,8 @@ class DatabaseService {
         .delete();
   }
 
-  // program's cycle data from snapshot
-  List<Week> _weekListFromSnapshot(
-      QuerySnapshot snapshot, Cycle cycle) {
+  // program's week data from snapshot
+  List<Week> _weekListFromSnapshot(QuerySnapshot snapshot, Cycle cycle) {
     return snapshot.documents.map((doc) {
       return _weekDataFromSnapshot(doc, cycle);
     }).toList();
@@ -159,7 +159,7 @@ class DatabaseService {
   Stream<List<Week>> getWeeks(Cycle cycle) {
     return userRef
         .collection('programs')
-        .document(cycle.programId)
+        .document(cycle.program.programId)
         .collection('cycles')
         .document(cycle.cycleId)
         .collection('weeks')
@@ -181,8 +181,7 @@ class DatabaseService {
   }
 
   // week data from snapshot
-  Week _weekDataFromSnapshot(
-      DocumentSnapshot snapshot, Cycle cycle) {
+  Week _weekDataFromSnapshot(DocumentSnapshot snapshot, Cycle cycle) {
     return Week(
       cycle: cycle,
       weekId: snapshot.documentID,
@@ -196,7 +195,7 @@ class DatabaseService {
   Stream<Week> getWeekData(Cycle cycle, String weekId) {
     return userRef
         .collection('programs')
-        .document(cycle.programId)
+        .document(cycle.program.programId)
         .collection('cycles')
         .document(cycle.cycleId)
         .collection('weeks')
@@ -207,7 +206,18 @@ class DatabaseService {
 
   // update a week
   Future updateWeek(String programId, String cycleId, String weekId,
-      String weekName, DateTime startDate, Map<String, bool> days) async {
+      String weekName, DateTime startDate, Map<String, dynamic> days) async {
+    if (days == null) {
+      days = days = {
+        'Monday': false,
+        'Tuesday': false,
+        'Wednesday': false,
+        'Thursday': false,
+        'Friday': false,
+        'Saturday': false,
+        'Sunday': false,
+      };
+    }
     return await userRef
         .collection('programs')
         .document(programId)
@@ -222,6 +232,96 @@ class DatabaseService {
       'weekName': weekName,
       'startDate': Timestamp.fromDate(startDate),
       'days': days,
+    });
+  }
+
+  // program's day data from snapshot
+  List<Day> _dayListFromSnapshot(QuerySnapshot snapshot, Week week) {
+    return snapshot.documents.map((doc) {
+      return _dayDataFromSnapshot(doc, week);
+    }).toList();
+  }
+
+  // get stream for week's days
+  Stream<List<Day>> getDays(Week week) {
+    return userRef
+        .collection('programs')
+        .document(week.cycle.program.programId)
+        .collection('cycles')
+        .document(week.cycle.cycleId)
+        .collection('weeks')
+        .document(week.weekId)
+        .collection('days')
+        .orderBy('startDate')
+        .snapshots()
+        .map((snapshot) => _dayListFromSnapshot(snapshot, week));
+  }
+
+  // delete a day
+  Future deleteDay(
+      String programId, String cycleId, String weekId, String dayId) async {
+    return await userRef
+        .collection('programs')
+        .document(programId)
+        .collection('cycles')
+        .document(cycleId)
+        .collection('weeks')
+        .document(weekId)
+        .collection('days')
+        .document(dayId)
+        .delete();
+  }
+
+  // day data from snapshot
+  Day _dayDataFromSnapshot(DocumentSnapshot snapshot, Week week) {
+    return Day(
+      date: snapshot['date'],
+      bodyWeight: snapshot['bodyweight'],
+      week: week,
+      dayId: snapshot.documentID,
+      dayName: snapshot['dayName'],
+    );
+  }
+
+  // get day data stream for specific program id and cycle id
+  Stream<Day> getDayData(Week week, String dayId) {
+    return userRef
+        .collection('programs')
+        .document(week.cycle.program.programId)
+        .collection('cycles')
+        .document(week.cycle.cycleId)
+        .collection('weeks')
+        .document(week.weekId)
+        .collection('days')
+        .document(dayId)
+        .snapshots()
+        .map((snapshot) => _dayDataFromSnapshot(snapshot, week));
+  }
+
+  // update a day
+  Future updateDay(Week week, String dayId, DateTime date, double bodyWeight,
+      String dayName) async {
+    return await userRef
+        .collection('programs')
+        .document(week.cycle.program.programId)
+        .collection('cycles')
+        .document(week.cycle.cycleId)
+        .collection('weeks')
+        .document(week.weekId)
+        .collection('days')
+        .document(dayId)
+        .setData({
+      'uid': uid,
+      'programId': week.cycle.program.programId,
+      'cycleId': week.cycle.cycleId,
+      'weekId': week.weekId,
+      'dayName': dayName,
+      'date': Timestamp.fromDate(date),
+      'bodyWeight': bodyWeight,
+    }).whenComplete(() {
+      week.days[DateFormat('EEEE').format(date)] = true;
+      updateWeek(week.cycle.program.programId, week.cycle.cycleId, week.weekId,
+          week.weekName, week.startDate, week.days);
     });
   }
 }

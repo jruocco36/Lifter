@@ -1,20 +1,16 @@
 import 'package:Lifter/Services/database.dart';
-import 'package:Lifter/models/week.dart';
-// import 'package:Lifter/screens/home/week_home.dart';
-// import 'package:Lifter/screens/home/week_settings_form.dart';
+import 'package:Lifter/models/day.dart';
 import 'package:Lifter/screens/home/delete_dialog.dart';
-import 'package:Lifter/screens/home/week/week_home.dart';
-import 'package:Lifter/screens/home/week/week_settings_form.dart';
+import 'package:Lifter/screens/home/day/day_home.dart';
+// import 'package:Lifter/screens/home/day/day_settings_form.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-// TODO: display icon for each day in week
+class DayTile extends StatelessWidget {
+  final Day day;
 
-class WeekTile extends StatelessWidget {
-  final Week week;
-
-  WeekTile({this.week});
+  DayTile({this.day});
 
   @override
   Widget build(BuildContext context) {
@@ -24,20 +20,9 @@ class WeekTile extends StatelessWidget {
         color: lightGreyColor,
         margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
         child: ListTile(
-          title: Text(week.weekName),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text('${DateFormat('MM/dd/yyyy').format(week.startDate)}'),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  // if (week.days != null) Text(week.days.toString())
-                ],
-              )
-            ],
-          ),
-          isThreeLine: true,
+          title: Text(day.dayName),
+          subtitle: Text('${DateFormat('MM/dd/yyyy').format(day.date)}'),
+          // leading: ,
           trailing: PopupMenuButton(
             icon: Icon(Icons.more_vert),
             color: darkGreyColor,
@@ -64,10 +49,10 @@ class WeekTile extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                               vertical: 20.0, horizontal: 60.0),
-                          child: WeekSettingsForm(
-                            cycle: week.cycle,
-                            weekId: week.weekId,
-                          ),
+                          // child: DaySettingsForm(
+                          //   cycle: day.cycle,
+                          //   dayId: day.dayId,
+                          // ),
                         ),
                       ),
                     );
@@ -77,23 +62,24 @@ class WeekTile extends StatelessWidget {
                 final delete = await showDialog(
                     context: context,
                     builder: (_) {
-                      return DeleteDialog(week.weekName);
+                      return DeleteDialog(day.dayName);
                     });
                 if (delete) {
-                  DatabaseService(uid: week.cycle.program.uid).deleteWeek(
-                      week.cycle.program.programId,
-                      week.cycle.cycleId,
-                      week.weekId);
+                  DatabaseService(uid: day.week.cycle.program.uid).deleteDay(
+                      day.week.cycle.program.programId,
+                      day.week.cycle.cycleId,
+                      day.week.weekId,
+                      day.dayId);
                 }
               }
             },
           ),
           onTap: () {
-            // print(week.weekName);
+            // print(day.dayName);
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => WeekHome(week: week),
+                builder: (context) => DayHome(day: day),
               ),
             );
           },

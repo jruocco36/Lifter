@@ -48,7 +48,7 @@ class ProgramHome extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                     vertical: 20.0, horizontal: 60.0),
-                child: CycleSettingsForm(programId: program.programId),
+                child: CycleSettingsForm(program: program),
               ),
             ),
           );
@@ -58,7 +58,7 @@ class ProgramHome extends StatelessWidget {
 
     // listen for any changes to 'cycles' collection stored DatabaseService
     return StreamProvider<List<Cycle>>.value(
-      value: DatabaseService(uid: program.uid).getCycles(program.programId),
+      value: DatabaseService(uid: program.uid).getCycles(program),
       child: Scaffold(
         appBar: AppBar(
           title: Text('${program.name}'),

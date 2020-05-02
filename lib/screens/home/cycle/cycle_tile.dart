@@ -8,11 +8,10 @@ import 'package:Lifter/screens/home/week/week_list.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:overlay_container/overlay_container.dart';
 import 'package:provider/provider.dart';
 
 // TODO: animate week drawer
-// TODO: use overlay widget to display weeks over other cycles
+// TODO: hide week drawer when new/edit cycle or edit programs
 
 class CycleTile extends StatefulWidget {
   final Cycle cycle;
@@ -25,7 +24,12 @@ class CycleTile extends StatefulWidget {
 }
 
 class _CycleTileState extends State<CycleTile> {
-  bool weekDrawer = false;
+  bool showWeekDrawer = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +38,7 @@ class _CycleTileState extends State<CycleTile> {
       child: Column(
         children: <Widget>[
           Card(
-            elevation: weekDrawer ? 4 : 0,
+            elevation: showWeekDrawer ? 4 : 0,
             color: lightGreyColor,
             margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
             child: ListTile(
@@ -70,7 +74,7 @@ class _CycleTileState extends State<CycleTile> {
                               padding: const EdgeInsets.symmetric(
                                   vertical: 20.0, horizontal: 60.0),
                               child: CycleSettingsForm(
-                                programId: widget.cycle.programId,
+                                program: widget.cycle.program,
                                 cycleId: widget.cycle.cycleId,
                               ),
                             ),
@@ -85,24 +89,14 @@ class _CycleTileState extends State<CycleTile> {
                           return DeleteDialog(widget.cycle.name);
                         });
                     if (delete) {
-                      DatabaseService(uid: widget.cycle.uid).deleteCycle(
-                          widget.cycle.programId, widget.cycle.cycleId);
+                      DatabaseService(uid: widget.cycle.program.uid).deleteCycle(
+                          widget.cycle.program.programId, widget.cycle.cycleId);
                     }
                   }
                 },
               ),
               onTap: () {
-                setState(() => weekDrawer = !weekDrawer);
-
-                // print(cycle.name);
-                //   Navigator.push(
-                //     context,
-                //     MaterialPageRoute(
-                //       builder: (context) => CycleHome(
-                //         cycle: cycle,
-                //       ),
-                //     ),
-                //   );
+                setState(() => showWeekDrawer = !showWeekDrawer);
               },
               onLongPress: () {
                 // print(cycle.name);
@@ -117,29 +111,54 @@ class _CycleTileState extends State<CycleTile> {
               },
             ),
           ),
-          Container(
-            margin: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
-            child: OverlayContainer(
-              show: weekDrawer,
-              asWideAsParent: true,
+          if (showWeekDrawer)
+            Container(
+              margin: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
               child: Container(
                 alignment: Alignment.center,
                 padding: EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(
-                  color: greyTextColor,
+                  color: Colors.grey[400],
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(5),
                     bottomRight: Radius.circular(5),
                   ),
                 ),
                 child: StreamProvider<List<Week>>.value(
-                  value: DatabaseService(uid: widget.cycle.uid)
+                  value: DatabaseService(uid: widget.cycle.program.uid)
                       .getWeeks(widget.cycle),
                   child: WeekList(),
                 ),
               ),
             ),
-          ),
+
+          // Focus(
+          //   debugLabel: 'Scope',
+          //   autofocus: true,
+          //   onFocusChange: (hasFocus) {
+          //     print(hasFocus);
+          //     // if (!hasFocus) setState(() => showWeekDrawer = false);
+          //   },
+          //   child: Container(
+          //     margin: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
+          //     child: Container(
+          //       alignment: Alignment.center,
+          //       padding: EdgeInsets.only(bottom: 10),
+          //       decoration: BoxDecoration(
+          //         color: Colors.grey[400],
+          //         borderRadius: BorderRadius.only(
+          //           bottomLeft: Radius.circular(5),
+          //           bottomRight: Radius.circular(5),
+          //         ),
+          //       ),
+          //       child: StreamProvider<List<Week>>.value(
+          //         value: DatabaseService(uid: widget.cycle.uid)
+          //             .getWeeks(widget.cycle),
+          //         child: WeekList(),
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

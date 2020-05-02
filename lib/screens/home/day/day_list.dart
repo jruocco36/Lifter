@@ -1,33 +1,33 @@
-import 'package:Lifter/models/week.dart';
-import 'package:Lifter/screens/home/week/week_tile.dart';
+import 'package:Lifter/models/day.dart';
+import 'package:Lifter/screens/home/day/day_tile.dart';
 import 'package:Lifter/shared/startText.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class WeekList extends StatefulWidget {
+class DayList extends StatefulWidget {
   @override
-  _WeekListState createState() => _WeekListState();
+  _DayListState createState() => _DayListState();
 }
 
-class _WeekListState extends State<WeekList> {
+class _DayListState extends State<DayList> {
   @override
   Widget build(BuildContext context) {
-    // grab current list of weeks from DatabaseService through provider
+    // grab current list of days from DatabaseService through provider
     // provider is StreamProvider from the parent 'Home' widget that is
-    // listening to changes to the DatabaseService 'weeks' collection stream
-    final weeks = Provider.of<List<Week>>(context) ?? [];
+    // listening to changes to the DatabaseService 'days' collection stream
+    final days = Provider.of<List<Day>>(context) ?? [];
 
     // iterates through our list and creates an array of widgets with
     // one widget for each item
-    return weeks.length < 1
+    return days.length < 1
         ? StartText()
         : ListView.builder(
-            itemCount: weeks.length,
+            itemCount: days.length,
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
             padding: EdgeInsets.only(top: 10.0),
             itemBuilder: (context, index) {
-              return WeekTile(week: weeks[index]);
+              return DayTile(day: days[index]);
             },
           );
   }

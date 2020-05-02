@@ -7,7 +7,7 @@ class Week {
   final String weekName;
   final DateTime startDate;
 
-  Map<String, bool> days = {
+  Map<String, dynamic> days = {
     'Monday': false,
     'Tuesday': false,
     'Wednesday': false,

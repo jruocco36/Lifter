@@ -1,16 +1,15 @@
+import 'package:Lifter/models/program.dart';
 import 'package:flutter/material.dart';
 
 class Cycle {
-  final String uid;
-  final String programId;
+  final Program program;
   final String cycleId;
   final String name;
   final DateTime startDate;
   final int trainingMaxPercent;
 
   Cycle({
-    @required this.uid,
-    @required this.programId,
+    @required this.program,
     @required this.cycleId,
     @required this.name,
     @required this.startDate,

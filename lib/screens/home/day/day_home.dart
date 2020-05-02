@@ -1,19 +1,20 @@
+import 'package:Lifter/models/day.dart';
 import 'package:flutter/material.dart';
 
-class Day extends StatefulWidget {
-  final DateTime day;
+class DayHome extends StatefulWidget {
+  final Day day;
 
-  Day({this.day});
+  DayHome({this.day});
 
   @override
-  _DayState createState() => _DayState();
+  _DayHomeState createState() => _DayHomeState();
 }
 
-class _DayState extends State<Day> {
+class _DayHomeState extends State<DayHome> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Text('Day ${widget.day.toString()}'),
+      child: Text('Day ${widget.day.dayName.toString()}'),
     );
   }
 }

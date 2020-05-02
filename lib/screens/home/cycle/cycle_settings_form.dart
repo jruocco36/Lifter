@@ -1,5 +1,6 @@
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/cycle.dart';
+import 'package:Lifter/models/program.dart';
 import 'package:Lifter/models/user.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:Lifter/shared/loading.dart';
@@ -9,11 +10,11 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class CycleSettingsForm extends StatefulWidget {
-  final String programId;
+  final Program program;
   final String cycleId;
 
   CycleSettingsForm({
-    @required this.programId,
+    @required this.program,
     this.cycleId,
   });
 
@@ -37,7 +38,7 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
 
     return StreamBuilder<Cycle>(
       stream: DatabaseService(uid: user.uid)
-          .getCycleData(widget.programId, widget.cycleId),
+          .getCycleData(widget.program, widget.cycleId),
       builder: (context, snapshot) {
         if (snapshot.hasData || widget.cycleId == null) {
           Cycle cycle = snapshot.data;
@@ -142,7 +143,7 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                           _trainingMaxPercent == null) return;
 
                       await DatabaseService(uid: user.uid).updateCycle(
-                        widget.programId,
+                        widget.program.programId,
                         widget.cycleId,
                         _cycleName ?? cycle.name,
                         _startDate != null ? _startDate : cycle.startDate,

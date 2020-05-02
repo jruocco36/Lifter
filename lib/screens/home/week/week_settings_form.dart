@@ -122,7 +122,7 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
                       Navigator.pop(context);
                       if (_weekName == null && _startDate == null) return;
                       await DatabaseService(uid: user.uid).updateWeek(
-                        widget.cycle.programId,
+                        widget.cycle.program.programId,
                         widget.cycle.cycleId,
                         widget.weekId,
                         _weekName ?? week.weekName,

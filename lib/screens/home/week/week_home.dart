@@ -1,20 +1,23 @@
 import 'package:Lifter/Services/database.dart';
-import 'package:Lifter/models/cycle.dart';
+import 'package:Lifter/models/day.dart';
 import 'package:Lifter/models/week.dart';
-import 'package:Lifter/screens/home/cycle/cycle_settings_form.dart';
-import 'package:Lifter/screens/home/week/week_list.dart';
+import 'package:Lifter/screens/home/day/day_list.dart';
+import 'package:Lifter/screens/home/day/day_settings_form.dart';
 import 'package:Lifter/screens/home/week/week_settings_form.dart';
+import 'package:Lifter/screens/home/week/week_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class CycleHome extends StatelessWidget {
-  final Cycle cycle;
+// TODO: day list not working
 
-  CycleHome({this.cycle});
+class WeekHome extends StatelessWidget {
+  final Week week;
+
+  WeekHome({this.week});
 
   @override
   Widget build(BuildContext context) {
-    void _editCyclePanel() {
+    void _editWeekPanel() {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -26,9 +29,9 @@ class CycleHome extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                     vertical: 20.0, horizontal: 60.0),
-                child: CycleSettingsForm(
-                  program: cycle.program,
-                  cycleId: cycle.cycleId,
+                child: WeekSettingsForm(
+                  cycle: week.cycle,
+                  weekId: week.weekId,
                 ),
               ),
             ),
@@ -37,7 +40,7 @@ class CycleHome extends StatelessWidget {
       );
     }
 
-    void _newWeekPanel() {
+    void _newDayPanel() {
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -49,7 +52,7 @@ class CycleHome extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                     vertical: 20.0, horizontal: 60.0),
-                child: WeekSettingsForm(cycle: cycle),
+                child: DaySettingsForm(week: week),
               ),
             ),
           );
@@ -57,29 +60,29 @@ class CycleHome extends StatelessWidget {
       );
     }
 
-    // listen for any changes to 'cycles' collection stored DatabaseService
-    return StreamProvider<List<Week>>.value(
-      value: DatabaseService(uid: cycle.program.uid)
-          .getWeeks(cycle),
+    // listen for any changes to 'weeks' collection stored DatabaseService
+    return StreamProvider<List<Day>>.value(
+      value: DatabaseService(uid: week.cycle.program.uid)
+          .getDays(week),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('${cycle.name}'),
+          title: Text('${week.weekName}'),
           elevation: 0.0,
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.settings),
-              tooltip: 'Edit cycle',
+              tooltip: 'Edit week',
               onPressed: () async {
-                _editCyclePanel();
+                _editWeekPanel();
               },
             ),
           ],
         ),
-        body: WeekList(),
+        body: DayList(),
         floatingActionButton: FloatingActionButton(
           elevation: 0,
           child: Icon(Icons.add),
-          onPressed: () => _newWeekPanel(),
+          onPressed: () => _newDayPanel(),
         ),
       ),
     );

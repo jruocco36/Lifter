@@ -8,9 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ProgramSettingsForm extends StatefulWidget {
-  final String programDocumentId;
+  final String programId;
 
-  ProgramSettingsForm({this.programDocumentId});
+  ProgramSettingsForm({this.programId});
 
   @override
   _ProgramSettingsFormState createState() => _ProgramSettingsFormState();
@@ -32,9 +32,9 @@ class _ProgramSettingsFormState extends State<ProgramSettingsForm> {
 
     return StreamBuilder<Program>(
       stream: DatabaseService(uid: user.uid)
-          .getProgramData(widget.programDocumentId),
+          .getProgramData(widget.programId),
       builder: (context, snapshot) {
-        if (snapshot.hasData || widget.programDocumentId == null) {
+        if (snapshot.hasData || widget.programId == null) {
           Program program = snapshot.data;
           Timestamp _createdDate =
               program != null ? program.createdDate : Timestamp.now();
@@ -55,7 +55,7 @@ class _ProgramSettingsFormState extends State<ProgramSettingsForm> {
                   initialValue:
                       _programName ?? (program != null ? program.name : ''),
                   decoration:
-                      textInputDecoration.copyWith(hintText: 'Program name'),
+                      textInputDecoration.copyWith(labelText: 'Program name'),
                   validator: (val) => val.isEmpty ? 'Enter program name' : null,
                   onChanged: (val) => setState(() => _programName = val),
                 ),
@@ -102,7 +102,7 @@ class _ProgramSettingsFormState extends State<ProgramSettingsForm> {
                     if (_formKey.currentState.validate()) {
                       Navigator.pop(context);
                       await DatabaseService(uid: user.uid).updateProgram(
-                          widget.programDocumentId,
+                          widget.programId,
                           _programName ?? program.name,
                           _programType ??
                               (program != null

@@ -1,5 +1,5 @@
 import 'package:Lifter/models/program.dart';
-import 'package:Lifter/screens/home/program_tile.dart';
+import 'package:Lifter/screens/home/program/program_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

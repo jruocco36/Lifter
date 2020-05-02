@@ -1,16 +1,18 @@
 import 'package:Lifter/Services/database.dart';
-import 'package:Lifter/models/program.dart';
+import 'package:Lifter/models/week.dart';
+// import 'package:Lifter/screens/home/week_home.dart';
+// import 'package:Lifter/screens/home/week_settings_form.dart';
 import 'package:Lifter/screens/home/delete_dialog.dart';
-import 'package:Lifter/screens/home/program_home.dart';
-import 'package:Lifter/screens/home/program_settings_form.dart';
+import 'package:Lifter/screens/home/week/week_settings_form.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class ProgramTile extends StatelessWidget {
-  final Program program;
-  final Function programHome;
+class WeekTile extends StatelessWidget {
+  final Week week;
+  final Function weekHome;
 
-  ProgramTile({this.program, this.programHome});
+  WeekTile({this.week, this.weekHome});
 
   @override
   Widget build(BuildContext context) {
@@ -20,11 +22,9 @@ class ProgramTile extends StatelessWidget {
         color: lightGreyColor,
         margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
         child: ListTile(
-          title: Text(program.name),
-          subtitle: Text('${program.programType}'),
-          leading: Icon(program.programType == 'Cycle based'
-              ? Icons.autorenew
-              : Icons.calendar_today),
+          title: Text(week.weekName),
+          subtitle: Text('${DateFormat('MM/dd/yyyy').format(week.startDate)}'),
+          // leading: ,
           trailing: PopupMenuButton(
             icon: Icon(Icons.more_vert),
             color: darkGreyColor,
@@ -51,8 +51,10 @@ class ProgramTile extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                               vertical: 20.0, horizontal: 60.0),
-                          child: ProgramSettingsForm(
-                              programDocumentId: program.programId),
+                          child: WeekSettingsForm(
+                            cycle: week.cycle,
+                            weekId: week.weekId,
+                          ),
                         ),
                       ),
                     );
@@ -62,24 +64,25 @@ class ProgramTile extends StatelessWidget {
                 final delete = await showDialog(
                     context: context,
                     builder: (_) {
-                      return DeleteDialog(program.name);
+                      return DeleteDialog(week.weekName);
                     });
                 if (delete) {
-                  DatabaseService(uid: program.uid)
-                      .deleteProgram(program.programId);
+                  DatabaseService(uid: week.cycle.uid).deleteWeek(
+                      week.cycle.programId, week.cycle.cycleId, week.weekId);
                 }
               }
             },
           ),
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ProgramHome(
-                  program: program,
-                ),
-              ),
-            );
+            print(week.weekName);
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (context) => WeekHome(
+            //       week: week,
+            //     ),
+            //   ),
+            // );
           },
         ),
       ),

@@ -1,5 +1,5 @@
 import 'package:Lifter/models/cycle.dart';
-import 'package:Lifter/screens/home/cycle_tile.dart';
+import 'package:Lifter/screens/home/cycle/cycle_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

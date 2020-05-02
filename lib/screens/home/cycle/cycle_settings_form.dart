@@ -3,19 +3,18 @@ import 'package:Lifter/models/cycle.dart';
 import 'package:Lifter/models/user.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:Lifter/shared/loading.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class CycleSettingsForm extends StatefulWidget {
-  final String programDocumentId;
-  final String cycleDocumentId;
+  final String programId;
+  final String cycleId;
 
   CycleSettingsForm({
-    @required this.programDocumentId,
-    this.cycleDocumentId,
+    @required this.programId,
+    this.cycleId,
   });
 
   @override
@@ -29,7 +28,7 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
   String _cycleName;
   DateTime _startDate;
   String _trainingMaxPercent;
-  TextEditingController _textEditingController = TextEditingController();
+  TextEditingController _startDateController = TextEditingController();
   bool newStartDate = false;
 
   @override
@@ -38,12 +37,12 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
 
     return StreamBuilder<Cycle>(
       stream: DatabaseService(uid: user.uid)
-          .getCycleData(widget.programDocumentId, widget.cycleDocumentId),
+          .getCycleData(widget.programId, widget.cycleId),
       builder: (context, snapshot) {
-        if (snapshot.hasData || widget.cycleDocumentId == null) {
+        if (snapshot.hasData || widget.cycleId == null) {
           Cycle cycle = snapshot.data;
           if (cycle != null && !newStartDate) {
-            _textEditingController.text =
+            _startDateController.text =
                 DateFormat('MM/dd/yyyy').format(cycle.startDate);
           }
 
@@ -62,7 +61,7 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                   autofocus: true,
                   initialValue: _cycleName ?? (cycle != null ? cycle.name : ''),
                   decoration:
-                      textInputDecoration.copyWith(hintText: 'Cycle name'),
+                      textInputDecoration.copyWith(labelText: 'Cycle name'),
                   validator: (val) => val.isEmpty ? 'Enter cycle name' : null,
                   onChanged: (val) => setState(() => _cycleName = val),
                 ),
@@ -74,9 +73,9 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                   // decoration: const InputDecoration(labelText: 'Start date'),
                   // initialValue: _startDate ??
                   // (cycle != null ? cycle.startDate.toString() : ''),
-                  controller: _textEditingController,
+                  controller: _startDateController,
                   decoration:
-                      textInputDecoration.copyWith(hintText: 'Start date'),
+                      textInputDecoration.copyWith(labelText: 'Start date'),
                   keyboardType: TextInputType.datetime,
                   validator: (val) {
                     if (val.isEmpty) return 'Enter start date';
@@ -87,8 +86,6 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                       return 'Not a valid date';
                     }
                   },
-                  // onChanged: (val) => setState(
-                  //     () => _startDate = DateFormat.yMd().parseStrict(val)),
                   onSaved: (val) =>
                       setState(() => _startDate = DateFormat.yMd().parse(val)),
                   onTap: () async {
@@ -104,7 +101,7 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                     if (selectedDate != null) {
                       setState(() {
                         newStartDate = true;
-                        _textEditingController.text =
+                        _startDateController.text =
                             DateFormat('MM/dd/yyyy').format(selectedDate);
                       });
                     }
@@ -123,7 +120,7 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                           ? cycle.trainingMaxPercent.toString()
                           : ''),
                   decoration: textInputDecoration.copyWith(
-                      hintText: 'Training Max Percent', suffix: Text('%')),
+                      labelText: 'Training Max Percent', suffix: Text('%')),
                   validator: (val) =>
                       val.isEmpty ? 'Enter training max percent' : null,
                   onChanged: (val) => setState(() => _trainingMaxPercent = val),
@@ -140,8 +137,8 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                       _formKey.currentState.save();
                       Navigator.pop(context);
                       await DatabaseService(uid: user.uid).updateCycle(
-                        widget.programDocumentId,
-                        widget.cycleDocumentId,
+                        widget.programId,
+                        widget.cycleId,
                         _cycleName ?? cycle.name,
                         _startDate != null ? _startDate : cycle.startDate,
                         _trainingMaxPercent != null

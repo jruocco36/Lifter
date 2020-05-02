@@ -6,10 +6,6 @@ class DeleteDialog extends StatelessWidget {
 
   DeleteDialog(this.name);
 
-  bool get result {
-
-  }
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(

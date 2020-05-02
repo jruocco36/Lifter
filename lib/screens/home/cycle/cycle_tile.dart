@@ -1,6 +1,7 @@
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/cycle.dart';
-import 'package:Lifter/screens/home/cycle_settings_form.dart';
+import 'package:Lifter/screens/home/cycle/cycle_home.dart';
+import 'package:Lifter/screens/home/cycle/cycle_settings_form.dart';
 import 'package:Lifter/screens/home/delete_dialog.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
@@ -50,8 +51,8 @@ class CycleTile extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               vertical: 20.0, horizontal: 60.0),
                           child: CycleSettingsForm(
-                            programDocumentId: cycle.programId,
-                            cycleDocumentId: cycle.cycleId,
+                            programId: cycle.programId,
+                            cycleId: cycle.cycleId,
                           ),
                         ),
                       ),
@@ -72,15 +73,15 @@ class CycleTile extends StatelessWidget {
             },
           ),
           onTap: () {
-            print(cycle.name);
-            // Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) => CycleHome(
-            //       cycle: cycle,
-            //     ),
-            //   ),
-            // );
+            // print(cycle.name);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CycleHome(
+                  cycle: cycle,
+                ),
+              ),
+            );
           },
         ),
       ),

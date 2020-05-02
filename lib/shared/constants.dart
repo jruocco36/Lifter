@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const Color darkGreyColor = Color(0xFF212128);
+const Color darkGreyColor = Color(0xFF212125);
 const Color lightGreyColor = Color(0xFF484850);
 const Color primaryDarkColor = Color(0xFF000000);
 const Color flamingoColor = Color(0xFFd37c7c);

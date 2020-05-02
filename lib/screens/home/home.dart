@@ -2,8 +2,8 @@ import 'package:Lifter/Services/auth.dart';
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/program.dart';
 import 'package:Lifter/models/user.dart';
-import 'package:Lifter/screens/home/program_settings_form.dart';
-import 'package:Lifter/screens/home/program_list.dart';
+import 'package:Lifter/screens/home/program/program_list.dart';
+import 'package:Lifter/screens/home/program/program_settings_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

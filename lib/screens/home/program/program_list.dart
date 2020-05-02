@@ -1,5 +1,6 @@
 import 'package:Lifter/models/program.dart';
 import 'package:Lifter/screens/home/program/program_tile.dart';
+import 'package:Lifter/shared/loading.dart';
 import 'package:Lifter/shared/startText.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,8 @@ class _ProgramListState extends State<ProgramList> {
 
     // iterates through our list and creates an array of widgets with
     // one widget for each item
+    if (programs.length > 0 && programs[0].programId == 'loading')
+      return Loading();
     return programs.length < 1
         ? StartText()
         : ListView.builder(

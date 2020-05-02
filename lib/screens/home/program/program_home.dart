@@ -58,6 +58,14 @@ class ProgramHome extends StatelessWidget {
 
     // listen for any changes to 'cycles' collection stored DatabaseService
     return StreamProvider<List<Cycle>>.value(
+      initialData: [
+        Cycle(
+            cycleId: 'loading',
+            program: null,
+            name: null,
+            startDate: null,
+            trainingMaxPercent: null)
+      ],
       value: DatabaseService(uid: program.uid).getCycles(program),
       child: Scaffold(
         appBar: AppBar(

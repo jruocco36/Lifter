@@ -25,6 +25,7 @@ class CycleTile extends StatefulWidget {
 
 class _CycleTileState extends State<CycleTile> {
   bool showWeekDrawer = false;
+  List<Week> dummyWeek = [];
 
   @override
   void initState() {
@@ -89,8 +90,9 @@ class _CycleTileState extends State<CycleTile> {
                           return DeleteDialog(widget.cycle.name);
                         });
                     if (delete) {
-                      DatabaseService(uid: widget.cycle.program.uid).deleteCycle(
-                          widget.cycle.program.programId, widget.cycle.cycleId);
+                      DatabaseService(uid: widget.cycle.program.uid)
+                          .deleteCycle(widget.cycle.program.programId,
+                              widget.cycle.cycleId);
                     }
                   }
                 },
@@ -125,6 +127,14 @@ class _CycleTileState extends State<CycleTile> {
                   ),
                 ),
                 child: StreamProvider<List<Week>>.value(
+                  initialData: [
+                    Week(
+                      weekId: 'loading',
+                      cycle: null,
+                      startDate: null,
+                      weekName: null,
+                    )
+                  ],
                   value: DatabaseService(uid: widget.cycle.program.uid)
                       .getWeeks(widget.cycle),
                   child: WeekList(),

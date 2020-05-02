@@ -93,7 +93,8 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
 
                     DateTime selectedDate = await showDatePicker(
                       context: context,
-                      initialDate: DateTime.now(),
+                      initialDate: _startDate ??
+                          (cycle != null ? cycle.startDate : DateTime.now()),
                       firstDate: DateTime.now().subtract(Duration(days: 365)),
                       lastDate: DateTime.now().add(Duration(days: 365)),
                     );
@@ -104,6 +105,7 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                         _startDateController.text =
                             DateFormat('MM/dd/yyyy').format(selectedDate);
                       });
+                      _formKey.currentState.save();
                     }
                   },
                 ),
@@ -133,9 +135,12 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                     style: TextStyle(color: Colors.white),
                   ),
                   onPressed: () async {
+                    Navigator.pop(context);
                     if (_formKey.currentState.validate()) {
-                      _formKey.currentState.save();
-                      Navigator.pop(context);
+                      if (_cycleName == null &&
+                          _startDate == null &&
+                          _trainingMaxPercent == null) return;
+
                       await DatabaseService(uid: user.uid).updateCycle(
                         widget.programId,
                         widget.cycleId,

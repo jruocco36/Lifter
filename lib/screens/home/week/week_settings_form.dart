@@ -36,7 +36,8 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
     final user = Provider.of<User>(context);
 
     return StreamBuilder<Week>(
-      stream: DatabaseService(uid: user.uid).getWeekData(widget.cycle, widget.weekId),
+      stream: DatabaseService(uid: user.uid)
+          .getWeekData(widget.cycle, widget.weekId),
       builder: (context, snapshot) {
         if (snapshot.hasData || widget.weekId == null) {
           Week week = snapshot.data;
@@ -93,7 +94,8 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
 
                     DateTime selectedDate = await showDatePicker(
                       context: context,
-                      initialDate: DateTime.now(),
+                      initialDate: _startDate ??
+                          (week != null ? week.startDate : DateTime.now()),
                       firstDate: DateTime.now().subtract(Duration(days: 365)),
                       lastDate: DateTime.now().add(Duration(days: 365)),
                     );
@@ -104,6 +106,7 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
                         _startDateController.text =
                             DateFormat('MM/dd/yyyy').format(selectedDate);
                       });
+                      _formKey.currentState.save();
                     }
                   },
                 ),
@@ -116,8 +119,8 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
                   ),
                   onPressed: () async {
                     if (_formKey.currentState.validate()) {
-                      _formKey.currentState.save();
                       Navigator.pop(context);
+                      if (_weekName == null && _startDate == null) return;
                       await DatabaseService(uid: user.uid).updateWeek(
                         widget.cycle.programId,
                         widget.cycle.cycleId,

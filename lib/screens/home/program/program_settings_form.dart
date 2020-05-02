@@ -31,8 +31,7 @@ class _ProgramSettingsFormState extends State<ProgramSettingsForm> {
     final user = Provider.of<User>(context);
 
     return StreamBuilder<Program>(
-      stream: DatabaseService(uid: user.uid)
-          .getProgramData(widget.programId),
+      stream: DatabaseService(uid: user.uid).getProgramData(widget.programId),
       builder: (context, snapshot) {
         if (snapshot.hasData || widget.programId == null) {
           Program program = snapshot.data;
@@ -76,7 +75,7 @@ class _ProgramSettingsFormState extends State<ProgramSettingsForm> {
                   onChanged: (val) => setState(() => _programType = val),
                 ),
                 SizedBox(height: 20.0),
-
+                
                 // Progress type dropdown
                 DropdownButtonFormField(
                   decoration: textInputDecoration,
@@ -101,6 +100,10 @@ class _ProgramSettingsFormState extends State<ProgramSettingsForm> {
                   onPressed: () async {
                     if (_formKey.currentState.validate()) {
                       Navigator.pop(context);
+                      if (_programName == null &&
+                          _programType == null &&
+                          _progressType == null) return;
+
                       await DatabaseService(uid: user.uid).updateProgram(
                           widget.programId,
                           _programName ?? program.name,

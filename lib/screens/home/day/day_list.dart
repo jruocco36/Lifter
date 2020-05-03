@@ -1,5 +1,6 @@
 import 'package:Lifter/models/day.dart';
 import 'package:Lifter/screens/home/day/day_tile.dart';
+import 'package:Lifter/shared/loading.dart';
 import 'package:Lifter/shared/startText.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +20,7 @@ class _DayListState extends State<DayList> {
 
     // iterates through our list and creates an array of widgets with
     // one widget for each item
+    if (days.length > 0 && days[0].dayId == 'loading') return Loading();
     return days.length < 1
         ? StartText()
         : ListView.builder(

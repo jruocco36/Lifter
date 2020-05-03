@@ -59,8 +59,7 @@ class CycleHome extends StatelessWidget {
 
     // listen for any changes to 'cycles' collection stored DatabaseService
     return StreamProvider<List<Week>>.value(
-      value: DatabaseService(uid: cycle.program.uid)
-          .getWeeks(cycle),
+      value: DatabaseService(uid: cycle.program.uid).getWeeks(cycle),
       child: Scaffold(
         appBar: AppBar(
           title: Text('${cycle.name}'),
@@ -75,7 +74,7 @@ class CycleHome extends StatelessWidget {
             ),
           ],
         ),
-        body: WeekList(),
+        body: WeekList(weekDrawer: false),
         floatingActionButton: FloatingActionButton(
           elevation: 0,
           child: Icon(Icons.add),

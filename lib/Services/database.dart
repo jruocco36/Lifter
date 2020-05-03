@@ -252,7 +252,7 @@ class DatabaseService {
         .collection('weeks')
         .document(week.weekId)
         .collection('days')
-        .orderBy('startDate')
+        .orderBy('date')
         .snapshots()
         .map((snapshot) => _dayListFromSnapshot(snapshot, week));
   }
@@ -275,8 +275,8 @@ class DatabaseService {
   // day data from snapshot
   Day _dayDataFromSnapshot(DocumentSnapshot snapshot, Week week) {
     return Day(
-      date: snapshot['date'],
-      bodyWeight: snapshot['bodyweight'],
+      date: snapshot['date'].toDate(),
+      bodyweight: snapshot['bodyweight'],
       week: week,
       dayId: snapshot.documentID,
       dayName: snapshot['dayName'],
@@ -299,7 +299,7 @@ class DatabaseService {
   }
 
   // update a day
-  Future updateDay(Week week, String dayId, DateTime date, double bodyWeight,
+  Future updateDay(Week week, String dayId, DateTime date, double bodyweight,
       String dayName) async {
     return await userRef
         .collection('programs')
@@ -317,7 +317,7 @@ class DatabaseService {
       'weekId': week.weekId,
       'dayName': dayName,
       'date': Timestamp.fromDate(date),
-      'bodyWeight': bodyWeight,
+      'bodyweight' : bodyweight,
     }).whenComplete(() {
       week.days[DateFormat('EEEE').format(date)] = true;
       updateWeek(week.cycle.program.programId, week.cycle.cycleId, week.weekId,

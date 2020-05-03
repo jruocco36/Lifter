@@ -9,6 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+// TODO: date for day has to be within week
+
 class DaySettingsForm extends StatefulWidget {
   final Week week;
   final String dayId;
@@ -57,17 +59,6 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                 ),
                 SizedBox(height: 20.0),
 
-                // day name
-                TextFormField(
-                  autofocus: true,
-                  initialValue: _dayName ?? (day != null ? day.dayName : ''),
-                  decoration:
-                      textInputDecoration.copyWith(labelText: 'Day name'),
-                  validator: (val) => val.isEmpty ? 'Enter day name' : null,
-                  onChanged: (val) => setState(() => _dayName = val),
-                ),
-                SizedBox(height: 20.0),
-
                 // Date Input
                 TextFormField(
                   // cursorColor: whiteTextColor,
@@ -111,15 +102,27 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                 ),
                 SizedBox(height: 20.0),
 
+                // day name
+                TextFormField(
+                  // autofocus: true,
+                  initialValue: _dayName ?? (day != null ? day.dayName : ''),
+                  decoration:
+                      textInputDecoration.copyWith(labelText: 'Day name'),
+                  validator: (val) => val.isEmpty ? 'Enter day name' : null,
+                  onChanged: (val) => setState(() => _dayName = val),
+                ),
+                SizedBox(height: 20.0),
+
                 // bodyweight
                 TextFormField(
-                  initialValue:
-                      _bodyweight ?? (day != null ? day.bodyWeight : ''),
+                  initialValue: _bodyweight ??
+                      (day != null ? day.bodyweight.toString() : ''),
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration:
                       textInputDecoration.copyWith(labelText: 'Bodyweight'),
                   validator: (val) {
-                    if (val.isEmpty) return 'Enter bodyweight';
+                    // if (val.isEmpty) return 'Enter bodyweight';
+                    if (val.isEmpty) return null;
                     try {
                       double weight = double.parse(val);
                       if (weight < 0)
@@ -149,7 +152,7 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                         _date != null ? _date : day.date,
                         _bodyweight != null
                             ? double.parse(_bodyweight)
-                            : day.bodyWeight,
+                            : (day != null ? day.bodyweight : null),
                         _dayName ?? day.dayName,
                       );
                     }

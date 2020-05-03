@@ -1,5 +1,6 @@
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/day.dart';
+import 'package:Lifter/screens/home/day/day_settings_form.dart';
 import 'package:Lifter/screens/home/delete_dialog.dart';
 import 'package:Lifter/screens/home/day/day_home.dart';
 // import 'package:Lifter/screens/home/day/day_settings_form.dart';
@@ -21,7 +22,7 @@ class DayTile extends StatelessWidget {
         margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
         child: ListTile(
           title: Text(day.dayName),
-          subtitle: Text('${DateFormat('MM/dd/yyyy').format(day.date)}'),
+          subtitle: Text('${DateFormat('EEE - MM/dd/yyyy').format(day.date)}'),
           // leading: ,
           trailing: PopupMenuButton(
             icon: Icon(Icons.more_vert),
@@ -49,10 +50,10 @@ class DayTile extends StatelessWidget {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                               vertical: 20.0, horizontal: 60.0),
-                          // child: DaySettingsForm(
-                          //   cycle: day.cycle,
-                          //   dayId: day.dayId,
-                          // ),
+                          child: DaySettingsForm(
+                            week: day.week,
+                            dayId: day.dayId,
+                          ),
                         ),
                       ),
                     );

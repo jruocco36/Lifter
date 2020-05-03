@@ -6,13 +6,13 @@ class Day {
   final Week week;
   final DateTime date;
   final String dayName;
-  double bodyWeight;
+  double bodyweight;
 
   Day({
     @required this.dayId,
     @required this.week,
     @required this.date,
     @required this.dayName,
-    this.bodyWeight,
+    this.bodyweight,
   });
 }

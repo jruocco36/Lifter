@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 // TODO: animate week drawer
-// TODO: hide week drawer when new/edit cycle or edit programs
+// TODO: week drawer not scrollable
 
 class CycleTile extends StatefulWidget {
   final Cycle cycle;
@@ -39,13 +39,13 @@ class _CycleTileState extends State<CycleTile> {
       child: Column(
         children: <Widget>[
           Card(
-            elevation: showWeekDrawer ? 4 : 0,
+            elevation: showWeekDrawer ? 10 : 0,
             color: lightGreyColor,
             margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
             child: ListTile(
               title: Text(widget.cycle.name),
               subtitle: Text(
-                  '${DateFormat('MM/dd/yyyy').format(widget.cycle.startDate)}'),
+                  '${DateFormat('EEE - MM/dd/yyyy').format(widget.cycle.startDate)}'),
               // leading: ,
               trailing: PopupMenuButton(
                 icon: Icon(Icons.more_vert),
@@ -101,7 +101,6 @@ class _CycleTileState extends State<CycleTile> {
                 setState(() => showWeekDrawer = !showWeekDrawer);
               },
               onLongPress: () {
-                // print(cycle.name);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -113,32 +112,33 @@ class _CycleTileState extends State<CycleTile> {
               },
             ),
           ),
+
           if (showWeekDrawer)
             Container(
-              margin: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
-              child: Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
-                  color: Colors.grey[400],
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(5),
-                    bottomRight: Radius.circular(5),
-                  ),
+              constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * .55),
+              margin: EdgeInsets.fromLTRB(25.0, 0.0, 25.0, 0.0),
+              alignment: Alignment.center,
+              padding: EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(5),
+                  bottomRight: Radius.circular(5),
                 ),
-                child: StreamProvider<List<Week>>.value(
-                  initialData: [
-                    Week(
-                      weekId: 'loading',
-                      cycle: null,
-                      startDate: null,
-                      weekName: null,
-                    )
-                  ],
-                  value: DatabaseService(uid: widget.cycle.program.uid)
-                      .getWeeks(widget.cycle),
-                  child: WeekList(),
-                ),
+              ),
+              child: StreamProvider<List<Week>>.value(
+                initialData: [
+                  Week(
+                    weekId: 'loading',
+                    cycle: null,
+                    startDate: null,
+                    weekName: null,
+                  )
+                ],
+                value: DatabaseService(uid: widget.cycle.program.uid)
+                    .getWeeks(widget.cycle),
+                child: WeekList(weekDrawer: true),
               ),
             ),
 

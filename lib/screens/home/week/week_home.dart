@@ -8,8 +8,6 @@ import 'package:Lifter/screens/home/week/week_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// TODO: day list not working
-
 class WeekHome extends StatelessWidget {
   final Week week;
 
@@ -62,8 +60,16 @@ class WeekHome extends StatelessWidget {
 
     // listen for any changes to 'weeks' collection stored DatabaseService
     return StreamProvider<List<Day>>.value(
-      value: DatabaseService(uid: week.cycle.program.uid)
-          .getDays(week),
+      initialData: [
+        Day(
+          dayId: 'loading',
+          date: null,
+          dayName: null,
+          week: null,
+          bodyweight: null,
+        )
+      ],
+      value: DatabaseService(uid: week.cycle.program.uid).getDays(week),
       child: Scaffold(
         appBar: AppBar(
           title: Text('${week.weekName}'),

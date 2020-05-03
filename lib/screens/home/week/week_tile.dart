@@ -13,31 +13,169 @@ import 'package:intl/intl.dart';
 
 class WeekTile extends StatelessWidget {
   final Week week;
+  final bool weekDrawer;
 
-  WeekTile({this.week});
+  WeekTile({this.week, this.weekDrawer});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 10.0),
+      padding: weekDrawer ?
+      EdgeInsets.only(top: 0.0) :
+      EdgeInsets.only(top: 10.0),
       child: Card(
         color: lightGreyColor,
-        margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
+        margin: weekDrawer
+            ? EdgeInsets.fromLTRB(10.0, 6.0, 10.0, 0.0)
+            : EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
         child: ListTile(
-          title: Text(week.weekName),
+          title: Text(week.weekName, overflow: TextOverflow.ellipsis),
+          isThreeLine: true,
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('${DateFormat('MM/dd/yyyy').format(week.startDate)}'),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  // if (week.days != null) Text(week.days.toString())
-                ],
-              )
+              Text('${DateFormat('EEE - MM/dd/yyyy').format(week.startDate)}'),
+              if (week.days != null)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      width: 25,
+                      height: 25,
+                      decoration: week.days['Monday']
+                          ? BoxDecoration(
+                              border:
+                                  Border.all(width: 1, color: flamingoColor),
+                              shape: BoxShape.circle,
+                            )
+                          : null,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text('M', style: TextStyle(fontSize: 10)),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      width: 25,
+                      height: 25,
+                      decoration: week.days['Tuesday']
+                          ? BoxDecoration(
+                              border:
+                                  Border.all(width: 1, color: flamingoColor),
+                              shape: BoxShape.circle,
+                            )
+                          : null,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text('T', style: TextStyle(fontSize: 10)),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      width: 25,
+                      height: 25,
+                      decoration: week.days['Wednesday']
+                          ? BoxDecoration(
+                              border:
+                                  Border.all(width: 1, color: flamingoColor),
+                              shape: BoxShape.circle,
+                            )
+                          : null,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text('W', style: TextStyle(fontSize: 10)),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      width: 25,
+                      height: 25,
+                      decoration: week.days['Thursday']
+                          ? BoxDecoration(
+                              border:
+                                  Border.all(width: 1, color: flamingoColor),
+                              shape: BoxShape.circle,
+                            )
+                          : null,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text('T', style: TextStyle(fontSize: 10)),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      width: 25,
+                      height: 25,
+                      decoration: week.days['Friday']
+                          ? BoxDecoration(
+                              border:
+                                  Border.all(width: 1, color: flamingoColor),
+                              shape: BoxShape.circle,
+                            )
+                          : null,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text('F', style: TextStyle(fontSize: 10)),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      width: 25,
+                      height: 25,
+                      decoration: week.days['Saturday']
+                          ? BoxDecoration(
+                              border:
+                                  Border.all(width: 1, color: flamingoColor),
+                              shape: BoxShape.circle,
+                            )
+                          : null,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text('S', style: TextStyle(fontSize: 10)),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      width: 25,
+                      height: 25,
+                      decoration: week.days['Sunday']
+                          ? BoxDecoration(
+                              border:
+                                  Border.all(width: 1, color: flamingoColor),
+                              shape: BoxShape.circle,
+                            )
+                          : null,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text('S', style: TextStyle(fontSize: 10)),
+                        ],
+                      ),
+                    ),
+                  ],
+                )
             ],
           ),
-          isThreeLine: true,
           trailing: PopupMenuButton(
             icon: Icon(Icons.more_vert),
             color: darkGreyColor,

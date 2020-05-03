@@ -38,8 +38,7 @@ dependencies:
 
   provider: ^4.0.5+1  # provider for state management - https://pub.dev/packages/provider
   flutter_spinkit: "^4.1.2"  # spinner loading widget - https://pub.dev/packages/flutter_spinkit
-
-  overlay_container: ^0.0.4+1
+  animations: ^1.0.0+5
 
 dev_dependencies:
   flutter_test:

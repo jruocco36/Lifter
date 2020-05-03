@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/cycle.dart';
 import 'package:Lifter/models/week.dart';
@@ -10,8 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-// TODO: animate week drawer
-// TODO: week drawer not scrollable
+// TODO: animate when clicking item from week drawer
+// TODO: animation when deleting item
+//       https://www.youtube.com/watch?v=ZtfItHwFlZ8
 
 class CycleTile extends StatefulWidget {
   final Cycle cycle;
@@ -25,7 +28,12 @@ class CycleTile extends StatefulWidget {
 
 class _CycleTileState extends State<CycleTile> {
   bool showWeekDrawer = false;
-  List<Week> dummyWeek = [];
+  double maxHeight = 0.0;
+
+  double _width = 50;
+  double _height = 50;
+  Color _color = Colors.green;
+  BorderRadiusGeometry _borderRadius = BorderRadius.circular(8);
 
   @override
   void initState() {
@@ -98,7 +106,14 @@ class _CycleTileState extends State<CycleTile> {
                 },
               ),
               onTap: () {
-                setState(() => showWeekDrawer = !showWeekDrawer);
+                setState(() {
+                  showWeekDrawer = !showWeekDrawer;
+                  if (showWeekDrawer) {
+                    maxHeight = MediaQuery.of(context).size.height * .55;
+                  } else {
+                    maxHeight = 0.0;
+                  }
+                });
               },
               onLongPress: () {
                 Navigator.push(
@@ -113,62 +128,37 @@ class _CycleTileState extends State<CycleTile> {
             ),
           ),
 
-          if (showWeekDrawer)
-            Container(
-              constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * .55),
-              margin: EdgeInsets.fromLTRB(25.0, 0.0, 25.0, 0.0),
-              alignment: Alignment.center,
-              padding: EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                color: Colors.grey[400],
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(5),
-                  bottomRight: Radius.circular(5),
-                ),
-              ),
-              child: StreamProvider<List<Week>>.value(
-                initialData: [
-                  Week(
-                    weekId: 'loading',
-                    cycle: null,
-                    startDate: null,
-                    weekName: null,
-                  )
-                ],
-                value: DatabaseService(uid: widget.cycle.program.uid)
-                    .getWeeks(widget.cycle),
-                child: WeekList(weekDrawer: true),
+          // Week drawer
+          AnimatedContainer(
+            duration: Duration(milliseconds: 250),
+            curve: Curves.fastOutSlowIn,
+            constraints: BoxConstraints(maxHeight: maxHeight),
+            margin: EdgeInsets.fromLTRB(25.0, 0.0, 25.0, 0.0),
+            alignment: Alignment.center,
+            padding: EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+              color: Colors.grey[400],
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(5),
+                bottomRight: Radius.circular(5),
               ),
             ),
-
-          // Focus(
-          //   debugLabel: 'Scope',
-          //   autofocus: true,
-          //   onFocusChange: (hasFocus) {
-          //     print(hasFocus);
-          //     // if (!hasFocus) setState(() => showWeekDrawer = false);
-          //   },
-          //   child: Container(
-          //     margin: EdgeInsets.fromLTRB(30.0, 0.0, 30.0, 0.0),
-          //     child: Container(
-          //       alignment: Alignment.center,
-          //       padding: EdgeInsets.only(bottom: 10),
-          //       decoration: BoxDecoration(
-          //         color: Colors.grey[400],
-          //         borderRadius: BorderRadius.only(
-          //           bottomLeft: Radius.circular(5),
-          //           bottomRight: Radius.circular(5),
-          //         ),
-          //       ),
-          //       child: StreamProvider<List<Week>>.value(
-          //         value: DatabaseService(uid: widget.cycle.uid)
-          //             .getWeeks(widget.cycle),
-          //         child: WeekList(),
-          //       ),
-          //     ),
-          //   ),
-          // ),
+            child: showWeekDrawer
+                ? StreamProvider<List<Week>>.value(
+                    initialData: [
+                      Week(
+                        weekId: 'loading',
+                        cycle: null,
+                        startDate: null,
+                        weekName: null,
+                      )
+                    ],
+                    value: DatabaseService(uid: widget.cycle.program.uid)
+                        .getWeeks(widget.cycle),
+                    child: WeekList(weekDrawer: true),
+                  )
+                : null,
+          ),
         ],
       ),
     );

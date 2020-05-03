@@ -9,8 +9,6 @@ import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-// TODO: display icon for each day in week
-
 class WeekTile extends StatelessWidget {
   final Week week;
   final bool weekDrawer;

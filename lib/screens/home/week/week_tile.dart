@@ -19,12 +19,12 @@ class WeekTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: weekDrawer ?
-      EdgeInsets.only(top: 0.0) :
+      EdgeInsets.only(top: 0.0, bottom: 6.0) :
       EdgeInsets.only(top: 10.0),
       child: Card(
         color: lightGreyColor,
         margin: weekDrawer
-            ? EdgeInsets.fromLTRB(10.0, 6.0, 10.0, 0.0)
+            ? EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0)
             : EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
         child: ListTile(
           title: Text(week.weekName, overflow: TextOverflow.ellipsis),
@@ -38,7 +38,7 @@ class WeekTile extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Container(
-                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                       width: 25,
                       height: 25,
                       decoration: week.days['Monday']
@@ -57,7 +57,7 @@ class WeekTile extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                       width: 25,
                       height: 25,
                       decoration: week.days['Tuesday']
@@ -76,7 +76,7 @@ class WeekTile extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                       width: 25,
                       height: 25,
                       decoration: week.days['Wednesday']
@@ -95,7 +95,7 @@ class WeekTile extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                       width: 25,
                       height: 25,
                       decoration: week.days['Thursday']
@@ -114,7 +114,7 @@ class WeekTile extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                       width: 25,
                       height: 25,
                       decoration: week.days['Friday']
@@ -133,7 +133,7 @@ class WeekTile extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                       width: 25,
                       height: 25,
                       decoration: week.days['Saturday']
@@ -152,7 +152,7 @@ class WeekTile extends StatelessWidget {
                       ),
                     ),
                     Container(
-                      margin: EdgeInsets.only(left: 3, right: 3, top: 3),
+                      margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                       width: 25,
                       height: 25,
                       decoration: week.days['Sunday']

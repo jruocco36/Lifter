@@ -1,5 +1,6 @@
 import 'package:Lifter/models/day.dart';
 import 'package:Lifter/screens/home/day/day_tile.dart';
+import 'package:Lifter/shared/constants.dart';
 import 'package:Lifter/shared/loading.dart';
 import 'package:Lifter/shared/startText.dart';
 import 'package:flutter/material.dart';

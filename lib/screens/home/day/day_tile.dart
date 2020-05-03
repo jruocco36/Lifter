@@ -66,11 +66,8 @@ class DayTile extends StatelessWidget {
                       return DeleteDialog(day.dayName);
                     });
                 if (delete) {
-                  DatabaseService(uid: day.week.cycle.program.uid).deleteDay(
-                      day.week.cycle.program.programId,
-                      day.week.cycle.cycleId,
-                      day.week.weekId,
-                      day.dayId);
+                  DatabaseService(uid: day.week.cycle.program.uid)
+                      .deleteDay(day);
                 }
               }
             },

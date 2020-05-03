@@ -25,7 +25,8 @@ class _WeekListState extends State<WeekList> {
 
     // iterates through our list and creates an array of widgets with
     // one widget for each item
-    if (weeks.length > 0 && weeks[0].weekId == 'loading') return Loading();
+    if (weeks.length > 0 && weeks[0].weekId == 'loading')
+      return Loading(showBackground: !widget.weekDrawer);
     return weeks.length < 1
         ? (widget.weekDrawer
             ? Text(

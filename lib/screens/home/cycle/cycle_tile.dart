@@ -30,11 +30,6 @@ class _CycleTileState extends State<CycleTile> {
   bool showWeekDrawer = false;
   double maxHeight = 0.0;
 
-  double _width = 50;
-  double _height = 50;
-  Color _color = Colors.green;
-  BorderRadiusGeometry _borderRadius = BorderRadius.circular(8);
-
   @override
   void initState() {
     super.initState();
@@ -135,7 +130,7 @@ class _CycleTileState extends State<CycleTile> {
             constraints: BoxConstraints(maxHeight: maxHeight),
             margin: EdgeInsets.fromLTRB(25.0, 0.0, 25.0, 0.0),
             alignment: Alignment.center,
-            padding: EdgeInsets.only(bottom: 10),
+            // padding: EdgeInsets.only(bottom: 10),
             decoration: BoxDecoration(
               color: Colors.grey[400],
               borderRadius: BorderRadius.only(

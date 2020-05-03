@@ -258,18 +258,27 @@ class DatabaseService {
   }
 
   // delete a day
-  Future deleteDay(
-      String programId, String cycleId, String weekId, String dayId) async {
+  Future deleteDay(Day day) async {
     return await userRef
         .collection('programs')
-        .document(programId)
+        .document(day.week.cycle.program.programId)
         .collection('cycles')
-        .document(cycleId)
+        .document(day.week.cycle.cycleId)
         .collection('weeks')
-        .document(weekId)
+        .document(day.week.weekId)
         .collection('days')
-        .document(dayId)
-        .delete();
+        .document(day.dayId)
+        .delete()
+        .whenComplete(() {
+      day.week.days[DateFormat('EEEE').format(day.date)] = false;
+      updateWeek(
+          day.week.cycle.program.programId,
+          day.week.cycle.cycleId,
+          day.week.weekId,
+          day.week.weekName,
+          day.week.startDate,
+          day.week.days);
+    });
   }
 
   // day data from snapshot
@@ -317,7 +326,7 @@ class DatabaseService {
       'weekId': week.weekId,
       'dayName': dayName,
       'date': Timestamp.fromDate(date),
-      'bodyweight' : bodyweight,
+      'bodyweight': bodyweight,
     }).whenComplete(() {
       week.days[DateFormat('EEEE').format(date)] = true;
       updateWeek(week.cycle.program.programId, week.cycle.cycleId, week.weekId,

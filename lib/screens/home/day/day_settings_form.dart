@@ -116,7 +116,11 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                 // bodyweight
                 TextFormField(
                   initialValue: _bodyweight ??
-                      (day != null ? day.bodyweight.toString() : ''),
+                      (day != null
+                          ? (day.bodyweight != null
+                              ? day.bodyweight.toString()
+                              : null)
+                          : ''),
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration:
                       textInputDecoration.copyWith(labelText: 'Bodyweight'),

@@ -26,8 +26,8 @@ class CycleTile extends StatefulWidget {
 
 class _CycleTileState extends State<CycleTile>
     with SingleTickerProviderStateMixin {
-  bool showWeekDrawer = false;
-  double maxHeight = 0.0;
+  // bool showWeekDrawer = false;
+  // double maxHeight = 0.0;
   AnimationController _animationController;
 
   @override
@@ -52,7 +52,8 @@ class _CycleTileState extends State<CycleTile>
       child: Column(
         children: <Widget>[
           Card(
-            elevation: showWeekDrawer ? 10 : 0,
+            // elevation: showWeekDrawer ? 10 : 0,
+            elevation: 0,
             color: lightGreyColor,
             margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
             child: ListTile(
@@ -111,11 +112,14 @@ class _CycleTileState extends State<CycleTile>
                 },
               ),
               onTap: () {
-                showWeekDrawer = !showWeekDrawer;
-                if (showWeekDrawer) {
-                  _animationController.forward();
-                } else {
+                // print(_animationController.status);
+                // print(_animationController.value);
+                // print(showWeekDrawer);
+                if (_animationController.isAnimating ||
+                    _animationController.isCompleted) {
                   _animationController.reverse();
+                } else {
+                  _animationController.forward();
                 }
               },
               onLongPress: () {
@@ -162,10 +166,15 @@ class _CycleTileState extends State<CycleTile>
                     ],
                     value: DatabaseService(uid: widget.cycle.program.uid)
                         .getWeeks(widget.cycle),
-                    child: Visibility(
-                      visible: _animationController.value < 1,
-                      child: WeekList(weekDrawer: true),
-                    ),
+                    child: WeekList(weekDrawer: true),
+                    // visibility is causing bug
+                    // after returning from week home, animation is still 'open'
+                    // but visibility is off. this causes values for visibility
+                    // to be reversed
+                    // child: Visibility(
+                    //   visible: _animationController.isDismissed,
+                    //   child: WeekList(weekDrawer: true),
+                    // ),
                   ),
                 ),
               ],

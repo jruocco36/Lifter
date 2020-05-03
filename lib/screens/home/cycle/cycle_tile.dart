@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/cycle.dart';
 import 'package:Lifter/models/week.dart';
@@ -26,13 +24,25 @@ class CycleTile extends StatefulWidget {
   _CycleTileState createState() => _CycleTileState();
 }
 
-class _CycleTileState extends State<CycleTile> {
+class _CycleTileState extends State<CycleTile>
+    with SingleTickerProviderStateMixin {
   bool showWeekDrawer = false;
   double maxHeight = 0.0;
+  AnimationController _animationController;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 250),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -101,14 +111,12 @@ class _CycleTileState extends State<CycleTile> {
                 },
               ),
               onTap: () {
-                setState(() {
-                  showWeekDrawer = !showWeekDrawer;
-                  if (showWeekDrawer) {
-                    maxHeight = MediaQuery.of(context).size.height * .55;
-                  } else {
-                    maxHeight = 0.0;
-                  }
-                });
+                showWeekDrawer = !showWeekDrawer;
+                if (showWeekDrawer) {
+                  _animationController.forward();
+                } else {
+                  _animationController.reverse();
+                }
               },
               onLongPress: () {
                 Navigator.push(
@@ -124,22 +132,26 @@ class _CycleTileState extends State<CycleTile> {
           ),
 
           // Week drawer
-          AnimatedContainer(
-            duration: Duration(milliseconds: 250),
-            curve: Curves.fastOutSlowIn,
-            constraints: BoxConstraints(maxHeight: maxHeight),
-            margin: EdgeInsets.fromLTRB(25.0, 0.0, 25.0, 0.0),
-            alignment: Alignment.center,
-            // padding: EdgeInsets.only(bottom: 10),
-            decoration: BoxDecoration(
-              color: Colors.grey[400],
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(5),
-                bottomRight: Radius.circular(5),
-              ),
-            ),
-            child: showWeekDrawer
-                ? StreamProvider<List<Week>>.value(
+          AnimatedBuilder(
+            animation: _animationController,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * .55,
+                    minWidth: double.infinity,
+                  ),
+                  margin: EdgeInsets.fromLTRB(25.0, 0.0, 25.0, 0.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[400],
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(5),
+                      bottomRight: Radius.circular(5),
+                    ),
+                  ),
+                  child: StreamProvider<List<Week>>.value(
                     initialData: [
                       Week(
                         weekId: 'loading',
@@ -150,10 +162,23 @@ class _CycleTileState extends State<CycleTile> {
                     ],
                     value: DatabaseService(uid: widget.cycle.program.uid)
                         .getWeeks(widget.cycle),
-                    child: WeekList(weekDrawer: true),
-                  )
-                : null,
-          ),
+                    child: Visibility(
+                      visible: _animationController.value < 1,
+                      child: WeekList(weekDrawer: true),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            builder: (BuildContext context, Widget child) {
+              return SizeTransition(
+                  axis: Axis.vertical,
+                  sizeFactor: CurvedAnimation(
+                      curve: Curves.fastOutSlowIn,
+                      parent: _animationController),
+                  child: child);
+            },
+          )
         ],
       ),
     );

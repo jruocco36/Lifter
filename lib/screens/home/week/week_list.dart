@@ -29,13 +29,17 @@ class _WeekListState extends State<WeekList> {
       return Loading(showBackground: !widget.weekDrawer);
     return weeks.length < 1
         ? (widget.weekDrawer
-            ? Text(
-                'No weeks for this cycle',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: greyTextColor,
+            ? Padding(
+              padding: const EdgeInsets.all(40.0),
+              child: Text(
+                  'No weeks for this cycle',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: greyTextColor,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              )
+            )
             : StartText())
         : ListView.builder(
             itemCount: weeks.length,

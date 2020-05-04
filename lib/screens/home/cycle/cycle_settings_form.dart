@@ -9,6 +9,10 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+// TODO: date can't be same as other cycles
+// check week settings form for how to do this
+// will need to pull weeks for each cycle
+
 class CycleSettingsForm extends StatefulWidget {
   final Program program;
   final String cycleId;

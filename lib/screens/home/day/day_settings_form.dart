@@ -9,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-// TODO: date for day has to be within week
+// TODO: date can't be same as existing day
 
 class DaySettingsForm extends StatefulWidget {
   final Week week;
@@ -84,10 +84,12 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
 
                     DateTime selectedDate = await showDatePicker(
                       context: context,
-                      initialDate:
-                          _date ?? (day != null ? day.date : DateTime.now()),
-                      firstDate: DateTime.now().subtract(Duration(days: 365)),
-                      lastDate: DateTime.now().add(Duration(days: 365)),
+                      initialDate: _date ??
+                          (day != null ? day.date : widget.week.startDate),
+                      // firstDate: DateTime.now().subtract(Duration(days: 365)),
+                      // lastDate: DateTime.now().add(Duration(days: 365)),
+                      firstDate: widget.week.startDate,
+                      lastDate: widget.week.startDate.add(Duration(days: 6)),
                     );
 
                     if (selectedDate != null) {

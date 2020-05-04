@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 class CycleHome extends StatelessWidget {
   final Cycle cycle;
+  // List<Week> weeks;
 
   CycleHome({this.cycle});
 
@@ -37,7 +38,8 @@ class CycleHome extends StatelessWidget {
       );
     }
 
-    void _newWeekPanel() {
+    void _newWeekPanel(List<Week> weeks) {
+      // final weeks = Provider.of<List<Week>>(context) ?? [];
       showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -49,7 +51,7 @@ class CycleHome extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                     vertical: 20.0, horizontal: 60.0),
-                child: WeekSettingsForm(cycle: cycle),
+                child: WeekSettingsForm(cycle: cycle, weeks: weeks),
               ),
             ),
           );
@@ -68,26 +70,32 @@ class CycleHome extends StatelessWidget {
               : cycleUpdates = cycle;
           return StreamProvider<List<Week>>.value(
             value: DatabaseService(uid: cycle.program.uid).getWeeks(cycle),
-            child: Scaffold(
-              appBar: AppBar(
-                title: Text('${cycleUpdates.name}'),
-                elevation: 0.0,
-                actions: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.settings),
-                    tooltip: 'Edit cycle',
-                    onPressed: () async {
-                      _editCyclePanel();
-                    },
+            child: Builder(
+              builder: (context) {
+                List<Week> weeks = Provider.of<List<Week>>(context);
+                // print(weeks);
+                return Scaffold(
+                  appBar: AppBar(
+                    title: Text('${cycleUpdates.name}'),
+                    elevation: 0.0,
+                    actions: <Widget>[
+                      IconButton(
+                        icon: Icon(Icons.settings),
+                        tooltip: 'Edit cycle',
+                        onPressed: () async {
+                          _editCyclePanel();
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              body: WeekList(weekDrawer: false),
-              floatingActionButton: FloatingActionButton(
-                elevation: 0,
-                child: Icon(Icons.add),
-                onPressed: () => _newWeekPanel(),
-              ),
+                  body: WeekList(weekDrawer: false),
+                  floatingActionButton: FloatingActionButton(
+                    elevation: 0,
+                    child: Icon(Icons.add),
+                    onPressed: () => _newWeekPanel(weeks),
+                  ),
+                );
+              },
             ),
           );
         });

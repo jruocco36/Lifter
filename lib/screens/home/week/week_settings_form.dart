@@ -12,9 +12,11 @@ import 'package:provider/provider.dart';
 class WeekSettingsForm extends StatefulWidget {
   final Cycle cycle;
   final String weekId;
+  final List<Week> weeks;
 
   WeekSettingsForm({
     @required this.cycle,
+    this.weeks,
     this.weekId,
   });
 
@@ -34,6 +36,7 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
+    print(widget.weeks);
 
     return StreamBuilder<Week>(
       stream: DatabaseService(uid: user.uid)
@@ -93,12 +96,24 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
                     FocusScope.of(context).requestFocus(new FocusNode());
 
                     DateTime selectedDate = await showDatePicker(
-                      context: context,
-                      initialDate: _startDate ??
-                          (week != null ? week.startDate : DateTime.now()),
-                      firstDate: DateTime.now().subtract(Duration(days: 365)),
-                      lastDate: DateTime.now().add(Duration(days: 365)),
-                    );
+                        context: context,
+                        initialDate: getWeekDate(),
+                        firstDate: widget.cycle.startDate,
+                        lastDate: DateTime.now().add(Duration(days: 365)),
+                        selectableDayPredicate: (date) {
+                          bool selectable = true;
+                          widget.weeks.forEach((week) {
+                            if ((date.isAfter(week.startDate) ||
+                                    date.isAtSameMomentAs(week.startDate)) &&
+                                (date.isBefore(week.startDate
+                                        .add(Duration(days: 6))) ||
+                                    date.isAtSameMomentAs(week.startDate
+                                        .add(Duration(days: 6))))) {
+                              selectable = false;
+                            }
+                          });
+                          return selectable;
+                        });
 
                     if (selectedDate != null) {
                       setState(() {
@@ -140,5 +155,18 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
         }
       },
     );
+  }
+
+  DateTime getWeekDate() {
+    DateTime date = widget.cycle.startDate;
+    widget.weeks.forEach((week) {
+      if ((date.isAfter(week.startDate) ||
+              date.isAtSameMomentAs(week.startDate)) &&
+          (date.isBefore(week.startDate.add(Duration(days: 6))) ||
+              date.isAtSameMomentAs(week.startDate.add(Duration(days: 6))))) {
+        date = week.startDate.add(Duration(days: 7));
+      }
+    });
+    return date;
   }
 }

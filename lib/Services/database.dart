@@ -383,7 +383,7 @@ class DatabaseService {
 
   // update a base exercise
   Future updateExerciseBase(String id, String name, String type) async {
-    return await userRef.collection('exercises').document(id).setData({
+    return await userRef.collection('exerciseBases').document(id).setData({
       'name': name,
       'type': type,
     });
@@ -408,7 +408,7 @@ class DatabaseService {
   // get stream exerciseBases
   Stream<List<ExerciseBase>> getExerciseBases() {
     return userRef
-        .collection('exercises')
+        .collection('exerciseBases')
         .snapshots()
         .map((snapshot) => _exerciseBaseListFromSnapshot(snapshot));
   }
@@ -436,13 +436,19 @@ class DatabaseService {
 
   // exercise data from snapshot
   Exercise _exerciseDataFromSnapshot(DocumentSnapshot snapshot, Day day) {
+    DocumentSnapshot baseSnap;
+    userRef
+        .collection('exerciseBases')
+        .document(snapshot['exerciseBaseId'])
+        .snapshots()
+        .forEach((doc) => {baseSnap = doc});
     return Exercise(
-      exerciseId: snapshot.documentID,
-      name: snapshot.data['name'],
-      day: day,
-      // exerciseBase: _exerciseBaseDataFromSnapshot()
-      // set: 
-    );
+        exerciseId: snapshot.documentID,
+        name: snapshot.data['name'],
+        day: day,
+        exerciseBase: _exerciseBaseDataFromSnapshot(baseSnap)
+        // set:
+        );
   }
 
   // program's exercise data from snapshot
@@ -455,8 +461,23 @@ class DatabaseService {
   // get stream for week's exercises
   Stream<List<Exercise>> getExercises(Day day) {
     return userRef
-        .collection('exercises')
+        .collection('exerciseBases')
         .snapshots()
         .map((snapshot) => _exerciseListFromSnapshot(snapshot, day));
+  }
+
+  // get exercise data stream for specific program id and cycle id
+  Stream<Exercise> getExerciseData(Day day, String exerciseId) {
+    return userRef
+        .collection('programs')
+        .document(day.week.cycle.program.programId)
+        .collection('cycles')
+        .document(day.week.cycle.cycleId)
+        .collection('weeks')
+        .document(day.week.weekId)
+        .collection('exercises')
+        .document(exerciseId)
+        .snapshots()
+        .map((snapshot) => _exerciseDataFromSnapshot(snapshot, day));
   }
 }

@@ -1,13 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:Lifter/models/day.dart';
 
-enum ExerciseType { main, accessory, optional }
+enum ExerciseType { Main, Accessory, Optional }
 
 ExerciseType getExerciseTypeFromString(String type) {
+  if (!type.contains('ExerciseType.')){
     type = 'ExerciseType.$type';
-    return ExerciseType.values
-        .firstWhere((f) => f.toString() == type, orElse: () => null);
   }
+  else {
+    type = '$type';
+  }
+  return ExerciseType.values
+      .firstWhere((f) => f.toString() == type, orElse: () => null);
+}
+
+List<String> exercistTypesToStrings() {
+  List<String> strings = [];
+  ExerciseType.values.forEach((f) => strings.add(exerciseTypeToString(f)));
+  return strings;
+}
+
+String exerciseTypeToString(ExerciseType type) {
+  return type.toString().split('.').last;
+}
 
 class ExerciseBase {
   final String exerciseName;
@@ -21,6 +36,10 @@ class ExerciseBase {
     @required this.exerciseBaseId,
     @required this.exerciseType,
   });
+
+  String get type {
+    return exerciseTypeToString(exerciseType);
+  }
 }
 
 class Exercise {

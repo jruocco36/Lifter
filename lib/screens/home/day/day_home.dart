@@ -3,6 +3,7 @@ import 'package:Lifter/models/day.dart';
 import 'package:Lifter/models/exercise.dart';
 import 'package:Lifter/screens/home/day/day_list.dart';
 import 'package:Lifter/screens/home/day/day_settings_form.dart';
+import 'package:Lifter/screens/home/exercise/exercise_settings_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -48,7 +49,7 @@ class DayHome extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                     vertical: 20.0, horizontal: 60.0),
-                child: DaySettingsForm(week: day.week),
+                child: ExerciseSettingsForm(day: day),
               ),
             ),
           );

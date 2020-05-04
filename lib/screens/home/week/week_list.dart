@@ -32,7 +32,7 @@ class _WeekListState extends State<WeekList> {
             ? Padding(
               padding: const EdgeInsets.all(40.0),
               child: Text(
-                  'No weeks for this cycle',
+                  'Long press cycle to add some weeks.',
                   style: TextStyle(
                     fontSize: 16,
                     color: greyTextColor,
@@ -44,7 +44,7 @@ class _WeekListState extends State<WeekList> {
         : ListView.builder(
             itemCount: weeks.length,
             // scrollDirection: Axis.vertical,
-            // shrinkWrap: true,
+            shrinkWrap: widget.weekDrawer ? true : false,
             padding: widget.weekDrawer
                 ? EdgeInsets.only(top: 5.0)
                 : EdgeInsets.only(top: 10.0, bottom: 100),

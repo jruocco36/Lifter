@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 // TODO: bug checking for date check with no days, editing existing day
-// TODO: can't select date if no days already in week
 
 class DaySettingsForm extends StatefulWidget {
   final Week week;
@@ -181,7 +180,7 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
     DateTime date = widget.week.startDate;
 
     if (widget.week.days == null) return date;
-    
+
     widget.week.days.forEach((day, scheduled) {
       if (!validDate(date)) {
         date = date.add(Duration(days: 1));

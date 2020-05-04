@@ -5,9 +5,6 @@ import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// TODO: look into using providers without Provider.value()
-// https://pub.dev/packages/provider
-
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {

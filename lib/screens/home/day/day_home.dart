@@ -65,11 +65,9 @@ class DayHome extends StatelessWidget {
         Day dayUpdates;
         snapshot.hasData ? dayUpdates = snapshot.data : dayUpdates = day;
 
-        Future exerciseBases = DatabaseService(uid: day.week.cycle.program.uid)
-            .getExerciseBaseList();
-
-        return FutureBuilder(
-          future: exerciseBases,
+        return StreamBuilder<List<ExerciseBase>>(
+          stream: DatabaseService(uid: day.week.cycle.program.uid)
+              .getExerciseBases(),
           builder: (context, snap) {
             List<ExerciseBase> bases = [];
             if (snap.hasData) {

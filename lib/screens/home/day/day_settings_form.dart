@@ -26,12 +26,12 @@ class DaySettingsForm extends StatefulWidget {
 
 class _DaySettingsFormState extends State<DaySettingsForm> {
   final _formKey = GlobalKey<FormState>();
+  TextEditingController _dateTextController = TextEditingController();
+  bool newDate = false;
 
   // form values
   String _dayName;
   DateTime _date;
-  TextEditingController _dateTextController = TextEditingController();
-  bool newDate = false;
   String _bodyweight;
 
   @override
@@ -86,8 +86,6 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                         context: context,
                         initialDate:
                             _date ?? (day != null ? day.date : getDate()),
-                        // firstDate: DateTime.now().subtract(Duration(days: 365)),
-                        // lastDate: DateTime.now().add(Duration(days: 365)),
                         firstDate: widget.week.startDate,
                         lastDate: widget.week.startDate.add(Duration(days: 6)),
                         selectableDayPredicate: (date) {
@@ -153,14 +151,29 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                   onPressed: () async {
                     if (_formKey.currentState.validate()) {
                       Navigator.pop(context);
-                      if (_dayName == null && _date == null) return;
+                      
+                      String bw;
+                      if (_bodyweight == null) {
+                        if (day != null) {
+                          bw = day.bodyweight.toString();
+                        } else {
+                          bw = null;
+                        }
+                      } else if (_bodyweight == '') {
+                        bw = null;
+                      } else {
+                        bw = _bodyweight;
+                      }
+
+
+                      if (_dayName == null &&
+                          _date == null &&
+                          _bodyweight == null) return;
                       await DatabaseService(uid: user.uid).updateDay(
                         widget.week,
                         widget.dayId,
                         _date != null ? _date : day.date,
-                        _bodyweight != null
-                            ? double.parse(_bodyweight)
-                            : (day != null ? day.bodyweight : null),
+                        bw != null ? double.parse(bw) : null,
                         _dayName ?? day.dayName,
                       );
                     }

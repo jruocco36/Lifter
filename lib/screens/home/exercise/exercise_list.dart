@@ -5,16 +5,9 @@ import 'package:Lifter/shared/startText.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// TODO: getting error here
-
-// The following assertion was thrown:
-// An exception was throw by _MapStream<QuerySnapshot, List<Exercise>> listened by
-
-// StreamProvider<List<Exercise>>, but no `catchError` was provided.
-
-// Exception:
-// Bad state: No element
-
+// TODO: design exercise display
+// Exercises should be displayed in Row() for each set
+// with weight, reps, target rep range, notes, etc.s
 
 class ExerciseList extends StatefulWidget {
   @override

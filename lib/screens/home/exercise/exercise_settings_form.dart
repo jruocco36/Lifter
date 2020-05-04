@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 
-// TODO: Add exercise for day, not just base exercise. Display on screen
 // TODO: suggestions should only show for exercises that are close
 //       to [_exerciseName]
 

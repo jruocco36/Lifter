@@ -367,50 +367,50 @@ class DatabaseService {
     }
   }
 
-  Future getDaysForDate(DateTime date) async {
-    List<String> days = [];
+  // Future getDaysForDate(DateTime date) async {
+  //   List<String> days = [];
 
-    await userRef.collection('programs').getDocuments().then((snapshot) => {
-          snapshot.documents.forEach((doc) => {
-                doc.reference
-                    .collection('cycles')
-                    .getDocuments()
-                    .then((snapshot) => {
-                          snapshot.documents.forEach((doc) => {
-                                doc.reference
-                                    .collection('weeks')
-                                    .getDocuments()
-                                    .then((snapshot) => {
-                                          snapshot.documents.forEach((doc) => {
-                                                doc.reference
-                                                    .collection('days')
-                                                    // .where('date', isEqualTo: Timestamp.fromDate(date))
-                                                    .where('date',
-                                                        isGreaterThanOrEqualTo:
-                                                            date)
-                                                    .where('date',
-                                                        isLessThan: date.add(
-                                                            Duration(days: 1)))
-                                                    .getDocuments()
-                                                    .then((snapshot) => {
-                                                          snapshot.documents
-                                                              .forEach(
-                                                                  (doc) => {
-                                                                        // print(doc.documentID),
-                                                                        // print(doc.data['date'].toDate().toString()),
-                                                                        days.add(
-                                                                            doc.documentID)
-                                                                      })
-                                                        })
-                                              })
-                                        })
-                              })
-                        })
-              })
-        });
+  //   await userRef.collection('programs').getDocuments().then((snapshot) => {
+  //         snapshot.documents.forEach((doc) => {
+  //               doc.reference
+  //                   .collection('cycles')
+  //                   .getDocuments()
+  //                   .then((snapshot) => {
+  //                         snapshot.documents.forEach((doc) => {
+  //                               doc.reference
+  //                                   .collection('weeks')
+  //                                   .getDocuments()
+  //                                   .then((snapshot) => {
+  //                                         snapshot.documents.forEach((doc) => {
+  //                                               doc.reference
+  //                                                   .collection('days')
+  //                                                   // .where('date', isEqualTo: Timestamp.fromDate(date))
+  //                                                   .where('date',
+  //                                                       isGreaterThanOrEqualTo:
+  //                                                           date)
+  //                                                   .where('date',
+  //                                                       isLessThan: date.add(
+  //                                                           Duration(days: 1)))
+  //                                                   .getDocuments()
+  //                                                   .then((snapshot) => {
+  //                                                         snapshot.documents
+  //                                                             .forEach(
+  //                                                                 (doc) => {
+  //                                                                       // print(doc.documentID),
+  //                                                                       // print(doc.data['date'].toDate().toString()),
+  //                                                                       days.add(
+  //                                                                           doc.documentID)
+  //                                                                     })
+  //                                                       })
+  //                                             })
+  //                                       })
+  //                             })
+  //                       })
+  //             })
+  //       });
 
-    return days;
-  }
+  //   return days;
+  // }
 
   // update a base exercise
   Future updateExerciseBase(String id, String name, String type) async {
@@ -447,57 +447,53 @@ class DatabaseService {
   // update a base exercise
   Future updateExercise(String id, String name, String type, Day day,
       String exerciseId, String baseId) async {
-    try {
-      if (baseId == null) {
-        return await userRef.collection('exerciseBases').add({
-          'name': name,
-          'type': type,
-        }).then((doc) {
-          userRef
-              .collection('programs')
-              .document(day.week.cycle.program.programId)
-              .collection('cycles')
-              .document(day.week.cycle.cycleId)
-              .collection('weeks')
-              .document(day.week.weekId)
-              .collection('days')
-              .document(day.dayId)
-              .collection('exercises')
-              .document(exerciseId)
-              .setData({
-            'dayId': day.dayId,
-            'exerciseBaseId': doc.documentID,
-            'name': name,
-          });
-        });
-      } else {
-        return await userRef
-            .collection('exerciseBases')
-            .document(baseId)
+    if (baseId == null) {
+      return await userRef.collection('exerciseBases').add({
+        'name': name,
+        'type': type,
+      }).then((doc) {
+        userRef
+            .collection('programs')
+            .document(day.week.cycle.program.programId)
+            .collection('cycles')
+            .document(day.week.cycle.cycleId)
+            .collection('weeks')
+            .document(day.week.weekId)
+            .collection('days')
+            .document(day.dayId)
+            .collection('exercises')
+            .document(exerciseId)
             .setData({
+          'dayId': day.dayId,
+          'exerciseBaseId': doc.documentID,
           'name': name,
-          'type': type,
-        }).whenComplete(() {
-          userRef
-              .collection('programs')
-              .document(day.week.cycle.program.programId)
-              .collection('cycles')
-              .document(day.week.cycle.cycleId)
-              .collection('weeks')
-              .document(day.week.weekId)
-              .collection('days')
-              .document(day.dayId)
-              .collection('exercises')
-              .document(exerciseId)
-              .setData({
-            'dayId': day.dayId,
-            'exerciseBaseId': baseId,
-            'name': name,
-          });
         });
-      }
-    } catch (e) {
-      print(e);
+      });
+    } else {
+      return await userRef
+          .collection('exerciseBases')
+          .document(baseId)
+          .setData({
+        'name': name,
+        'type': type,
+      }).whenComplete(() {
+        userRef
+            .collection('programs')
+            .document(day.week.cycle.program.programId)
+            .collection('cycles')
+            .document(day.week.cycle.cycleId)
+            .collection('weeks')
+            .document(day.week.weekId)
+            .collection('days')
+            .document(day.dayId)
+            .collection('exercises')
+            .document(exerciseId)
+            .setData({
+          'dayId': day.dayId,
+          'exerciseBaseId': baseId,
+          'name': name,
+        });
+      });
     }
   }
 
@@ -526,7 +522,6 @@ class DatabaseService {
 
   // get stream for week's exercises
   Stream<List<Exercise>> getExercises(Day day, List<ExerciseBase> bases) {
-    try {
     return userRef
         .collection('programs')
         .document(day.week.cycle.program.programId)
@@ -538,12 +533,7 @@ class DatabaseService {
         .document(day.dayId)
         .collection('exercises')
         .snapshots()
-        .map((snapshot) => _exerciseListFromSnapshot(snapshot, day, bases));  
-    } catch (e) {
-      print('getExercises ERROR');
-      print(e);
-    }
-    
+        .map((snapshot) => _exerciseListFromSnapshot(snapshot, day, bases));
   }
 
   // get exercise data stream for specific program id and cycle id
@@ -564,13 +554,19 @@ class DatabaseService {
         .map((snapshot) => _exerciseDataFromSnapshot(snapshot, day, bases));
   }
 
-  Future getExerciseBaseList() async {
-    List<ExerciseBase> bases = [];
-    await userRef.collection('exerciseBases').getDocuments().then((docs) {
-      docs.documents.forEach((doc) {
-        bases.add(_exerciseBaseDataFromSnapshot(doc));
-      });
-    });
-    return bases;
+  // delete an exercise from a day
+  Future deleteExercise(Exercise exercise) async {
+    return await userRef
+        .collection('programs')
+        .document(exercise.day.week.cycle.program.programId)
+        .collection('cycles')
+        .document(exercise.day.week.cycle.cycleId)
+        .collection('weeks')
+        .document(exercise.day.week.weekId)
+        .collection('days')
+        .document(exercise.day.dayId)
+        .collection('exercises')
+        .document(exercise.exerciseId)
+        .delete();
   }
 }

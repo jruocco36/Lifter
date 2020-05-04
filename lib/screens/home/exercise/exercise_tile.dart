@@ -2,10 +2,8 @@ import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/exercise.dart';
 import 'package:Lifter/screens/home/exercise/exercise_settings_form.dart';
 import 'package:Lifter/screens/home/delete_dialog.dart';
-// import 'package:Lifter/screens/home/exercise/exercise_settings_form.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class ExerciseTile extends StatelessWidget {
   final Exercise exercise;
@@ -21,8 +19,7 @@ class ExerciseTile extends StatelessWidget {
         margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
         child: ListTile(
           title: Text(exercise.name),
-          // subtitle: Text('${DateFormat('EEE - MM/dd/yyyy').format(exercise.date)}'),
-          // leading: ,
+          // subtitle: Text('${DateFormat('EEE 
           trailing: PopupMenuButton(
             icon: Icon(Icons.more_vert),
             color: darkGreyColor,
@@ -65,8 +62,8 @@ class ExerciseTile extends StatelessWidget {
                       return DeleteDialog(exercise.name);
                     });
                 if (delete) {
-                  // DatabaseService(uid: exercise.day.week.cycle.program.uid)
-                  //     .deleteExercise(exercise);
+                  DatabaseService(uid: exercise.day.week.cycle.program.uid)
+                      .deleteExercise(exercise);
                 }
               }
             },

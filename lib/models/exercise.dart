@@ -51,7 +51,7 @@ class Exercise {
 
   Exercise({
     @required this.exerciseId,
-    @required this.exerciseBase,
+    this.exerciseBase,
     @required this.day,
     @required this.name,
     this.sets,

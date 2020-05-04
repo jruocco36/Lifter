@@ -9,6 +9,8 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 
 // TODO: Add exercise for day, not just base exercise. Display on screen
+// TODO: suggestions should only show for exercises that are close
+//       to [_exerciseName]
 
 class ExerciseSettingsForm extends StatefulWidget {
   final Day day;
@@ -34,7 +36,7 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
   ExerciseType _exerciseType;
   bool newExerciseBase = true;
   Exercise exercise;
-  String exerciseId;
+  String exerciseBaseId;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +44,7 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
 
     return StreamBuilder<Exercise>(
       stream: DatabaseService(uid: user.uid)
-          .getExerciseData(widget.day, widget.exerciseId),
+          .getExerciseData(widget.day, widget.exerciseId, exerciseBases),
       builder: (context, snapshot) {
         if (snapshot.hasData || widget.exerciseId == null) {
           exercise = snapshot.data;
@@ -83,11 +85,11 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                             _exerciseName = val;
                             if (exerciseBaseStrings.contains(_exerciseName)) {
                               exerciseType();
-                              exerciseId = getExerciseId(_exerciseName);
+                              exerciseBaseId = getExerciseBaseId(_exerciseName);
                               newExerciseBase = false;
                             } else {
                               newExerciseBase = true;
-                              exerciseId = null;
+                              exerciseBaseId = null;
                             }
                           }),
                         ),
@@ -97,18 +99,18 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                           _exerciseName = val;
                           if (exerciseBaseStrings.contains(_exerciseName)) {
                             exerciseType();
-                            exerciseId = getExerciseId(_exerciseName);
+                            exerciseBaseId = getExerciseBaseId(_exerciseName);
                             newExerciseBase = false;
                           } else {
                             newExerciseBase = true;
-                            exerciseId = null;
+                            exerciseBaseId = null;
                           }
                         }),
                         onSuggestionSelected: (suggestion) {
                           setState(() {
                             _exerciseName = suggestion;
                             textEditingController.text = suggestion;
-                            exerciseId = getExerciseId(_exerciseName);
+                            exerciseBaseId = getExerciseBaseId(_exerciseName);
                             newExerciseBase = false;
                           });
                           exerciseType();
@@ -160,25 +162,25 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                             Navigator.pop(context);
                             _formKey.currentState.save();
                             // if (newExerciseBase) {
-                            DatabaseService(
-                                    uid: widget.day.week.cycle.program.uid)
-                                .updateExerciseBase(
-                                    exerciseId,
-                                    _exerciseName,
-                                    _exerciseType != null
-                                        ? exerciseTypeToString(_exerciseType)
-                                        : 'Main');
+                            DatabaseService database = DatabaseService(
+                                uid: widget.day.week.cycle.program.uid);
+                            // await database.updateExerciseBase(
+                            //     exerciseBaseId,
+                            //     _exerciseName,
+                            //     _exerciseType != null
+                            //         ? exerciseTypeToString(_exerciseType)
+                            //         : 'Main');
                             // }
-                            // if (_exerciseName == null && _date == null) return;
-                            // await DatabaseService(uid: user.uid).updateExercise(
-                            //   widget.week,
-                            //   widget.exerciseId,
-                            //   _date != null ? _date : exercise.date,
-                            //   _bodyweight != null
-                            //       ? double.parse(_bodyweight)
-                            //       : (exercise != null ? exercise.bodyweight : null),
-                            //   _exerciseName ?? exercise.exerciseName,
-                            // );
+                            await database.updateExercise(
+                              exerciseBaseId,
+                              _exerciseName,
+                              _exerciseType != null
+                                  ? exerciseTypeToString(_exerciseType)
+                                  : 'Main',
+                              widget.day,
+                              widget.exerciseId,
+                              exerciseBaseId,
+                            );
                           }
                         },
                       ),
@@ -193,7 +195,7 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
     );
   }
 
-  String getExerciseId(String exerciseName) {
+  String getExerciseBaseId(String exerciseName) {
     String id;
     exerciseBases.forEach((e) => {
           if (e.exerciseName == exerciseName) {id = e.exerciseBaseId}

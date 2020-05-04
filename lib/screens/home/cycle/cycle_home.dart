@@ -58,29 +58,38 @@ class CycleHome extends StatelessWidget {
     }
 
     // listen for any changes to 'cycles' collection stored DatabaseService
-    return StreamProvider<List<Week>>.value(
-      value: DatabaseService(uid: cycle.program.uid).getWeeks(cycle),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('${cycle.name}'),
-          elevation: 0.0,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.settings),
-              tooltip: 'Edit cycle',
-              onPressed: () async {
-                _editCyclePanel();
-              },
+    return StreamBuilder<Cycle>(
+        stream: DatabaseService(uid: cycle.program.uid)
+            .getCycleData(cycle.program, cycle.cycleId),
+        builder: (context, snapshot) {
+          Cycle cycleUpdates;
+          snapshot.hasData
+              ? cycleUpdates = snapshot.data
+              : cycleUpdates = cycle;
+          return StreamProvider<List<Week>>.value(
+            value: DatabaseService(uid: cycle.program.uid).getWeeks(cycle),
+            child: Scaffold(
+              appBar: AppBar(
+                title: Text('${cycleUpdates.name}'),
+                elevation: 0.0,
+                actions: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.settings),
+                    tooltip: 'Edit cycle',
+                    onPressed: () async {
+                      _editCyclePanel();
+                    },
+                  ),
+                ],
+              ),
+              body: WeekList(weekDrawer: false),
+              floatingActionButton: FloatingActionButton(
+                elevation: 0,
+                child: Icon(Icons.add),
+                onPressed: () => _newWeekPanel(),
+              ),
             ),
-          ],
-        ),
-        body: WeekList(weekDrawer: false),
-        floatingActionButton: FloatingActionButton(
-          elevation: 0,
-          child: Icon(Icons.add),
-          onPressed: () => _newWeekPanel(),
-        ),
-      ),
-    );
+          );
+        });
   }
 }

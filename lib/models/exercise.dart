@@ -1,27 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:Lifter/models/day.dart';
 
-// class ExerciseBase {
-//   final String exerciseName;
-//   final String exerciseBaseId;
+enum ExerciseType { main, accessory, optional }
 
-//   ExerciseBase({
-//     @required this.exerciseName,
-//     @required this.exerciseBaseId,
-//   });
-// }
+ExerciseType getExerciseTypeFromString(String type) {
+    type = 'ExerciseType.$type';
+    return ExerciseType.values
+        .firstWhere((f) => f.toString() == type, orElse: () => null);
+  }
+
+class ExerciseBase {
+  final String exerciseName;
+  final String exerciseBaseId;
+
+  /// main, accessory, or optional
+  final ExerciseType exerciseType;
+
+  ExerciseBase({
+    @required this.exerciseName,
+    @required this.exerciseBaseId,
+    @required this.exerciseType,
+  });
+}
 
 class Exercise {
-  final Day day;
   final String exerciseId;
+  final ExerciseBase exerciseBase;
+  final Day day;
   final List<Set> sets;
   final String name;
 
   Exercise({
-    // @required String exerciseBaseName,
-    // @required String exerciseBaseId,
-    @required this.day,
     @required this.exerciseId,
+    @required this.exerciseBase,
+    @required this.day,
     @required this.name,
     this.sets,
   });
@@ -49,8 +61,8 @@ class Set {
   });
 
   /// Reset weight and reps for this set.
-  /// 
-  /// Can be used for starting new cycles without 
+  ///
+  /// Can be used for starting new cycles without
   /// losing rep ranges and set types.
   void startNew() {
     this.weight = null;

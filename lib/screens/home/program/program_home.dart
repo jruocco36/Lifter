@@ -57,37 +57,46 @@ class ProgramHome extends StatelessWidget {
     }
 
     // listen for any changes to 'cycles' collection stored DatabaseService
-    return StreamProvider<List<Cycle>>.value(
-      initialData: [
-        Cycle(
-            cycleId: 'loading',
-            program: null,
-            name: null,
-            startDate: null,
-            trainingMaxPercent: null)
-      ],
-      value: DatabaseService(uid: program.uid).getCycles(program),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('${program.name}'),
-          elevation: 0.0,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.settings),
-              tooltip: 'Edit program',
-              onPressed: () async {
-                _editProgramPanel();
-              },
+    return StreamBuilder<Program>(
+        stream:
+            DatabaseService(uid: program.uid).getProgramData(program.programId),
+        builder: (context, snapshot) {
+          Program programUpdates;
+          snapshot.hasData
+              ? programUpdates = snapshot.data
+              : programUpdates = program;
+          return StreamProvider<List<Cycle>>.value(
+            initialData: [
+              Cycle(
+                  cycleId: 'loading',
+                  program: null,
+                  name: null,
+                  startDate: null,
+                  trainingMaxPercent: null)
+            ],
+            value: DatabaseService(uid: program.uid).getCycles(program),
+            child: Scaffold(
+              appBar: AppBar(
+                title: Text('${programUpdates.name}'),
+                elevation: 0.0,
+                actions: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.settings),
+                    tooltip: 'Edit program',
+                    onPressed: () async {
+                      _editProgramPanel();
+                    },
+                  ),
+                ],
+              ),
+              body: CycleList(),
+              floatingActionButton: FloatingActionButton(
+                elevation: 0,
+                child: Icon(Icons.add),
+                onPressed: () => _newCyclePanel(),
+              ),
             ),
-          ],
-        ),
-        body: CycleList(),
-        floatingActionButton: FloatingActionButton(
-          elevation: 0,
-          child: Icon(Icons.add),
-          onPressed: () => _newCyclePanel(),
-        ),
-      ),
-    );
+          );
+        });
   }
 }

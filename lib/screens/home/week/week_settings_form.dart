@@ -127,7 +127,7 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
                         widget.weekId,
                         _weekName ?? week.weekName,
                         _startDate != null ? _startDate : week.startDate,
-                        null,
+                        week != null ? week.days : null,
                       );
                     }
                   },

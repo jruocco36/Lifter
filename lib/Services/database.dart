@@ -2,6 +2,7 @@ import 'package:Lifter/models/cycle.dart';
 import 'package:Lifter/models/day.dart';
 import 'package:Lifter/models/program.dart';
 import 'package:Lifter/models/week.dart';
+import 'package:Lifter/models/exercise.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
@@ -235,6 +236,17 @@ class DatabaseService {
     });
   }
 
+  // day data from snapshot
+  Day _dayDataFromSnapshot(DocumentSnapshot snapshot, Week week) {
+    return Day(
+      date: snapshot['date'].toDate(),
+      bodyweight: snapshot['bodyweight'],
+      week: week,
+      dayId: snapshot.documentID,
+      dayName: snapshot['dayName'],
+    );
+  }
+
   // program's day data from snapshot
   List<Day> _dayListFromSnapshot(QuerySnapshot snapshot, Week week) {
     return snapshot.documents.map((doc) {
@@ -281,17 +293,6 @@ class DatabaseService {
     });
   }
 
-  // day data from snapshot
-  Day _dayDataFromSnapshot(DocumentSnapshot snapshot, Week week) {
-    return Day(
-      date: snapshot['date'].toDate(),
-      bodyweight: snapshot['bodyweight'],
-      week: week,
-      dayId: snapshot.documentID,
-      dayName: snapshot['dayName'],
-    );
-  }
-
   // get day data stream for specific program id and cycle id
   Stream<Day> getDayData(Week week, String dayId) {
     return userRef
@@ -308,8 +309,9 @@ class DatabaseService {
   }
 
   // update a day
-  Future updateDay(Week week, String dayId, DateTime date, double bodyweight,
-      String dayName) async {
+  Future updateDay(
+      Week week, String dayId, DateTime date, double bodyweight, String dayName,
+      [bool merge]) async {
     return await userRef
         .collection('programs')
         .document(week.cycle.program.programId)
@@ -325,12 +327,136 @@ class DatabaseService {
       'cycleId': week.cycle.cycleId,
       'weekId': week.weekId,
       'dayName': dayName,
-      'date': Timestamp.fromDate(date),
+      'date': date,
       'bodyweight': bodyweight,
-    }).whenComplete(() {
+    }, merge: true).whenComplete(() {
       week.days[DateFormat('EEEE').format(date)] = true;
       updateWeek(week.cycle.program.programId, week.cycle.cycleId, week.weekId,
           week.weekName, week.startDate, week.days);
     });
+  }
+
+  Future getDaysForDate(DateTime date) async {
+    List<String> days = [];
+
+    await userRef.collection('programs').getDocuments().then((snapshot) => {
+          snapshot.documents.forEach((doc) => {
+                doc.reference
+                    .collection('cycles')
+                    .getDocuments()
+                    .then((snapshot) => {
+                          snapshot.documents.forEach((doc) => {
+                                doc.reference
+                                    .collection('weeks')
+                                    .getDocuments()
+                                    .then((snapshot) => {
+                                          snapshot.documents.forEach((doc) => {
+                                                doc.reference
+                                                    .collection('days')
+                                                    // .where('date', isEqualTo: Timestamp.fromDate(date))
+                                                    .where('date',
+                                                        isGreaterThanOrEqualTo:
+                                                            date)
+                                                    .where('date',
+                                                        isLessThan: date.add(
+                                                            Duration(days: 1)))
+                                                    .getDocuments()
+                                                    .then((snapshot) => {
+                                                          snapshot.documents
+                                                              .forEach(
+                                                                  (doc) => {
+                                                                        // print(doc.documentID),
+                                                                        // print(doc.data['date'].toDate().toString()),
+                                                                        days.add(
+                                                                            doc.documentID)
+                                                                      })
+                                                        })
+                                              })
+                                        })
+                              })
+                        })
+              })
+        });
+
+    return days;
+  }
+
+  // update a base exercise
+  Future updateExerciseBase(String id, String name, String type) async {
+    return await userRef.collection('exercises').document(id).setData({
+      'name': name,
+      'type': type,
+    });
+  }
+
+  // exerciseBase data from snapshot
+  ExerciseBase _exerciseBaseDataFromSnapshot(DocumentSnapshot snapshot) {
+    return ExerciseBase(
+      exerciseBaseId: snapshot.documentID,
+      exerciseName: snapshot.data['name'],
+      exerciseType: getExerciseTypeFromString(snapshot.data['type']),
+    );
+  }
+
+  // program's exerciseBase data from snapshot
+  List<ExerciseBase> _exerciseBaseListFromSnapshot(QuerySnapshot snapshot) {
+    return snapshot.documents.map((doc) {
+      return _exerciseBaseDataFromSnapshot(doc);
+    }).toList();
+  }
+
+  // get stream exerciseBases
+  Stream<List<ExerciseBase>> getExerciseBases() {
+    return userRef
+        .collection('exercises')
+        .snapshots()
+        .map((snapshot) => _exerciseBaseListFromSnapshot(snapshot));
+  }
+
+  // update a base exercise
+  Future updateExercise(
+      Day day, String exerciseId, String baseId, String name) async {
+    return await userRef
+        .collection('programs')
+        .document(day.week.cycle.program.programId)
+        .collection('cycles')
+        .document(day.week.cycle.cycleId)
+        .collection('weeks')
+        .document(day.week.weekId)
+        .collection('days')
+        .document(day.dayId)
+        .collection('exercises')
+        .document(exerciseId)
+        .setData({
+      'dayId': day.dayId,
+      'exerciseBaseId': baseId,
+      'name': name,
+    });
+  }
+
+  // exercise data from snapshot
+  Exercise _exerciseDataFromSnapshot(DocumentSnapshot snapshot, Day day) {
+    return Exercise(
+      exerciseId: snapshot.documentID,
+      name: snapshot.data['name'],
+      day: day,
+      // exerciseBase: _exerciseBaseDataFromSnapshot()
+      // set: 
+    );
+  }
+
+  // program's exercise data from snapshot
+  List<Exercise> _exerciseListFromSnapshot(QuerySnapshot snapshot, Day day) {
+    return snapshot.documents.map((doc) {
+      return _exerciseDataFromSnapshot(doc, day);
+    }).toList();
+  }
+
+  // get stream for week's exercises
+  Stream<List<Exercise>> getExercises(Day day) {
+    return userRef
+        .collection('exercises')
+        .snapshots()
+        .map((snapshot) => _exerciseListFromSnapshot(snapshot, day));
   }
 }

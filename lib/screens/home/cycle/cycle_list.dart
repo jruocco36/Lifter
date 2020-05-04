@@ -25,7 +25,7 @@ class _CycleListState extends State<CycleList> {
         ? StartText()
         : ListView.builder(
             itemCount: cycles.length,
-            padding: EdgeInsets.only(top: 10.0),
+            padding: EdgeInsets.only(top: 10.0, bottom: 100),
             itemBuilder: (context, index) {
               return CycleTile(cycle: cycles[index]);
             },

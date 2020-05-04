@@ -9,6 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+// TODO: bug checking for date check with no weeks, editing existing weeks
+
 class WeekSettingsForm extends StatefulWidget {
   final Cycle cycle;
   final String weekId;
@@ -16,8 +18,8 @@ class WeekSettingsForm extends StatefulWidget {
 
   WeekSettingsForm({
     @required this.cycle,
-    this.weeks,
     this.weekId,
+    this.weeks,
   });
 
   @override
@@ -36,7 +38,6 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
-    print(widget.weeks);
 
     return StreamBuilder<Week>(
       stream: DatabaseService(uid: user.uid)
@@ -97,22 +98,12 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
 
                     DateTime selectedDate = await showDatePicker(
                         context: context,
-                        initialDate: getWeekDate(),
+                        initialDate: _startDate ??
+                            (week != null ? week.startDate : getWeekDate()),
                         firstDate: widget.cycle.startDate,
                         lastDate: DateTime.now().add(Duration(days: 365)),
                         selectableDayPredicate: (date) {
-                          bool selectable = true;
-                          widget.weeks.forEach((week) {
-                            if ((date.isAfter(week.startDate) ||
-                                    date.isAtSameMomentAs(week.startDate)) &&
-                                (date.isBefore(week.startDate
-                                        .add(Duration(days: 6))) ||
-                                    date.isAtSameMomentAs(week.startDate
-                                        .add(Duration(days: 6))))) {
-                              selectable = false;
-                            }
-                          });
-                          return selectable;
+                          return validDate(date, week);
                         });
 
                     if (selectedDate != null) {
@@ -159,14 +150,32 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
 
   DateTime getWeekDate() {
     DateTime date = widget.cycle.startDate;
+
     widget.weeks.forEach((week) {
-      if ((date.isAfter(week.startDate) ||
-              date.isAtSameMomentAs(week.startDate)) &&
-          (date.isBefore(week.startDate.add(Duration(days: 6))) ||
-              date.isAtSameMomentAs(week.startDate.add(Duration(days: 6))))) {
+      if (!validDate(date)) {
         date = week.startDate.add(Duration(days: 7));
       }
     });
     return date;
+  }
+
+  bool validDate(DateTime date, [Week week]) {
+    bool selectable = true;
+    widget.weeks.forEach((w) {
+      if ((date.isAfter(w.startDate) ||
+              date.isAtSameMomentAs(w.startDate)) &&
+          (date.isBefore(w.startDate.add(Duration(days: 6))) ||
+              date.isAtSameMomentAs(w.startDate.add(Duration(days: 6))))) {
+        if (week != null) {
+          if (week.weekId != w.weekId) {
+            selectable = false;
+          }
+        }
+        else {
+          selectable = false;
+        }
+      }
+    });
+    return selectable;
   }
 }

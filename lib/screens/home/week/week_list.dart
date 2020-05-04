@@ -43,11 +43,11 @@ class _WeekListState extends State<WeekList> {
             : StartText())
         : ListView.builder(
             itemCount: weeks.length,
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
+            // scrollDirection: Axis.vertical,
+            // shrinkWrap: true,
             padding: widget.weekDrawer
                 ? EdgeInsets.only(top: 5.0)
-                : EdgeInsets.only(top: 10.0),
+                : EdgeInsets.only(top: 10.0, bottom: 100),
             itemBuilder: (context, index) {
               return WeekTile(
                   week: weeks[index], weekDrawer: widget.weekDrawer);

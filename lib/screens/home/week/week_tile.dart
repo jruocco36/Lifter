@@ -8,6 +8,7 @@ import 'package:Lifter/screens/home/week/week_settings_form.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class WeekTile extends StatelessWidget {
   final Week week;
@@ -17,6 +18,8 @@ class WeekTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final weeks = Provider.of<List<Week>>(context) ?? [];
+
     return Padding(
       padding: weekDrawer
           ? EdgeInsets.only(top: 0.0, bottom: 6.0)
@@ -44,7 +47,7 @@ class WeekTile extends StatelessWidget {
                         margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                         width: 25,
                         height: 25,
-                        decoration: week.days['Monday']
+                        decoration: week.days['Monday'] != null
                             ? BoxDecoration(
                                 border:
                                     Border.all(width: 1, color: flamingoColor),
@@ -63,7 +66,7 @@ class WeekTile extends StatelessWidget {
                         margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                         width: 25,
                         height: 25,
-                        decoration: week.days['Tuesday']
+                        decoration: week.days['Tuesday'] != null
                             ? BoxDecoration(
                                 border:
                                     Border.all(width: 1, color: flamingoColor),
@@ -82,7 +85,7 @@ class WeekTile extends StatelessWidget {
                         margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                         width: 25,
                         height: 25,
-                        decoration: week.days['Wednesday']
+                        decoration: week.days['Wednesday'] != null
                             ? BoxDecoration(
                                 border:
                                     Border.all(width: 1, color: flamingoColor),
@@ -101,7 +104,7 @@ class WeekTile extends StatelessWidget {
                         margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                         width: 25,
                         height: 25,
-                        decoration: week.days['Thursday']
+                        decoration: week.days['Thursday'] != null
                             ? BoxDecoration(
                                 border:
                                     Border.all(width: 1, color: flamingoColor),
@@ -120,7 +123,7 @@ class WeekTile extends StatelessWidget {
                         margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                         width: 25,
                         height: 25,
-                        decoration: week.days['Friday']
+                        decoration: week.days['Friday'] != null
                             ? BoxDecoration(
                                 border:
                                     Border.all(width: 1, color: flamingoColor),
@@ -139,7 +142,7 @@ class WeekTile extends StatelessWidget {
                         margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                         width: 25,
                         height: 25,
-                        decoration: week.days['Saturday']
+                        decoration: week.days['Saturday'] != null
                             ? BoxDecoration(
                                 border:
                                     Border.all(width: 1, color: flamingoColor),
@@ -158,7 +161,7 @@ class WeekTile extends StatelessWidget {
                         margin: EdgeInsets.only(left: 3, right: 3, top: 6),
                         width: 25,
                         height: 25,
-                        decoration: week.days['Sunday']
+                        decoration: week.days['Sunday'] != null
                             ? BoxDecoration(
                                 border:
                                     Border.all(width: 1, color: flamingoColor),
@@ -206,6 +209,7 @@ class WeekTile extends StatelessWidget {
                             child: WeekSettingsForm(
                               cycle: week.cycle,
                               weekId: week.weekId,
+                              weeks: weeks ?? [],
                             ),
                           ),
                         ),

@@ -9,7 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-// TODO: date can't be same as existing day
+// TODO: bug checking for date check with no days, editing existing day
+// TODO: can't select date if no days already in week
 
 class DaySettingsForm extends StatefulWidget {
   final Week week;
@@ -83,14 +84,16 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                     FocusScope.of(context).requestFocus(new FocusNode());
 
                     DateTime selectedDate = await showDatePicker(
-                      context: context,
-                      initialDate: _date ??
-                          (day != null ? day.date : widget.week.startDate),
-                      // firstDate: DateTime.now().subtract(Duration(days: 365)),
-                      // lastDate: DateTime.now().add(Duration(days: 365)),
-                      firstDate: widget.week.startDate,
-                      lastDate: widget.week.startDate.add(Duration(days: 6)),
-                    );
+                        context: context,
+                        initialDate:
+                            _date ?? (day != null ? day.date : getDate()),
+                        // firstDate: DateTime.now().subtract(Duration(days: 365)),
+                        // lastDate: DateTime.now().add(Duration(days: 365)),
+                        firstDate: widget.week.startDate,
+                        lastDate: widget.week.startDate.add(Duration(days: 6)),
+                        selectableDayPredicate: (date) {
+                          return validDate(date, day);
+                        });
 
                     if (selectedDate != null) {
                       setState(() {
@@ -172,5 +175,46 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
         }
       },
     );
+  }
+
+  DateTime getDate() {
+    DateTime date = widget.week.startDate;
+
+    if (widget.week.days == null) return date;
+    
+    widget.week.days.forEach((day, scheduled) {
+      if (!validDate(date)) {
+        date = date.add(Duration(days: 1));
+      }
+    });
+    return date;
+  }
+
+  bool validDate(DateTime date, [Day day]) {
+    bool selectable = true;
+
+    if (widget.week.days == null) return selectable;
+
+    widget.week.days.forEach((d, scheduled) {
+      if (scheduled != null && d == DateFormat('EEEE').format(date)) {
+        if (day != null) {
+          if (DateFormat('EEEE').format(day.date) != d) {
+            selectable = false;
+          }
+        } else {
+          selectable = false;
+        }
+      }
+    });
+
+    // widget.weeks.forEach((week) {
+    //   if ((date.isAfter(week.startDate) ||
+    //           date.isAtSameMomentAs(week.startDate)) &&
+    //       (date.isBefore(week.startDate.add(Duration(days: 6))) ||
+    //           date.isAtSameMomentAs(week.startDate.add(Duration(days: 6))))) {
+    //     selectable = false;
+    //   }
+    // });
+    return selectable;
   }
 }

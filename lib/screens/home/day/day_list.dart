@@ -1,6 +1,5 @@
 import 'package:Lifter/models/day.dart';
 import 'package:Lifter/screens/home/day/day_tile.dart';
-import 'package:Lifter/shared/constants.dart';
 import 'package:Lifter/shared/loading.dart';
 import 'package:Lifter/shared/startText.dart';
 import 'package:flutter/material.dart';
@@ -26,9 +25,9 @@ class _DayListState extends State<DayList> {
         ? StartText()
         : ListView.builder(
             itemCount: days.length,
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            padding: EdgeInsets.only(top: 10.0),
+            // scrollDirection: Axis.vertical,
+            // shrinkWrap: true,
+            padding: EdgeInsets.only(top: 10.0, bottom: 100),
             itemBuilder: (context, index) {
               return DayTile(day: days[index]);
             },

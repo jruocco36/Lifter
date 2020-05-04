@@ -26,7 +26,7 @@ class _ProgramListState extends State<ProgramList> {
         ? StartText()
         : ListView.builder(
             itemCount: programs.length,
-            padding: EdgeInsets.only(top: 10.0),
+            padding: EdgeInsets.only(top: 10.0, bottom: 100),
             itemBuilder: (context, index) {
               return ProgramTile(program: programs[index]);
             },

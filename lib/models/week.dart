@@ -8,13 +8,13 @@ class Week {
   final DateTime startDate;
 
   Map<String, dynamic> days = {
-    'Monday': false,
-    'Tuesday': false,
-    'Wednesday': false,
-    'Thursday': false,
-    'Friday': false,
-    'Saturday': false,
-    'Sunday': false,
+    'Monday': null,
+    'Tuesday': null,
+    'Wednesday': null,
+    'Thursday': null,
+    'Friday': null,
+    'Saturday': null,
+    'Sunday': null,
   };
 
   Week({

@@ -210,13 +210,13 @@ class DatabaseService {
       String weekName, DateTime startDate, Map<String, dynamic> days) async {
     if (days == null) {
       days = days = {
-        'Monday': false,
-        'Tuesday': false,
-        'Wednesday': false,
-        'Thursday': false,
-        'Friday': false,
-        'Saturday': false,
-        'Sunday': false,
+        'Monday': null,
+        'Tuesday': null,
+        'Wednesday': null,
+        'Thursday': null,
+        'Friday': null,
+        'Saturday': null,
+        'Sunday': null,
       };
     }
     return await userRef
@@ -282,7 +282,7 @@ class DatabaseService {
         .document(day.dayId)
         .delete()
         .whenComplete(() {
-      day.week.days[DateFormat('EEEE').format(day.date)] = false;
+      day.week.days[DateFormat('EEEE').format(day.date)] = null;
       updateWeek(
           day.week.cycle.program.programId,
           day.week.cycle.cycleId,
@@ -312,28 +312,59 @@ class DatabaseService {
   Future updateDay(
       Week week, String dayId, DateTime date, double bodyweight, String dayName,
       [bool merge]) async {
-    return await userRef
-        .collection('programs')
-        .document(week.cycle.program.programId)
-        .collection('cycles')
-        .document(week.cycle.cycleId)
-        .collection('weeks')
-        .document(week.weekId)
-        .collection('days')
-        .document(dayId)
-        .setData({
-      'uid': uid,
-      'programId': week.cycle.program.programId,
-      'cycleId': week.cycle.cycleId,
-      'weekId': week.weekId,
-      'dayName': dayName,
-      'date': date,
-      'bodyweight': bodyweight,
-    }, merge: true).whenComplete(() {
-      week.days[DateFormat('EEEE').format(date)] = true;
-      updateWeek(week.cycle.program.programId, week.cycle.cycleId, week.weekId,
-          week.weekName, week.startDate, week.days);
-    });
+    if (dayId != null) {
+      return await userRef
+          .collection('programs')
+          .document(week.cycle.program.programId)
+          .collection('cycles')
+          .document(week.cycle.cycleId)
+          .collection('weeks')
+          .document(week.weekId)
+          .collection('days')
+          .document(dayId)
+          .setData({
+        'uid': uid,
+        'programId': week.cycle.program.programId,
+        'cycleId': week.cycle.cycleId,
+        'weekId': week.weekId,
+        'dayName': dayName,
+        'date': date,
+        'bodyweight': bodyweight,
+      }, merge: true).whenComplete(() {
+        String val =
+            week.days.keys.firstWhere((k) => week.days[k] == dayId, orElse: null);
+        week.days[val] = null;
+        week.days[DateFormat('EEEE').format(date)] = dayId;
+        updateWeek(week.cycle.program.programId, week.cycle.cycleId,
+            week.weekId, week.weekName, week.startDate, week.days);
+      });
+    } else {
+      return await userRef
+          .collection('programs')
+          .document(week.cycle.program.programId)
+          .collection('cycles')
+          .document(week.cycle.cycleId)
+          .collection('weeks')
+          .document(week.weekId)
+          .collection('days')
+          .add({
+        'uid': uid,
+        'programId': week.cycle.program.programId,
+        'cycleId': week.cycle.cycleId,
+        'weekId': week.weekId,
+        'dayName': dayName,
+        'date': date,
+        'bodyweight': bodyweight,
+      }).then((doc) {
+        // String val = week.days.values.firstWhere((val) {
+        //   val = doc;
+        // });
+        // week.days[val] = null;
+        week.days[DateFormat('EEEE').format(date)] = doc.documentID;
+        updateWeek(week.cycle.program.programId, week.cycle.cycleId,
+            week.weekId, week.weekName, week.startDate, week.days);
+      });
+    }
   }
 
   Future getDaysForDate(DateTime date) async {

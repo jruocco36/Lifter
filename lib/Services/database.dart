@@ -504,10 +504,8 @@ class DatabaseService {
       exerciseId: snapshot.documentID,
       name: snapshot.data['name'],
       day: day,
-      exerciseBase: bases.length > 0
-          ? bases
-              .firstWhere((b) => b.exerciseBaseId == snapshot['exerciseBaseId'])
-          : null,
+      exerciseBase: bases
+          .firstWhere((b) => b.exerciseBaseId == snapshot['exerciseBaseId']),
       // set:
     );
   }
@@ -522,6 +520,9 @@ class DatabaseService {
 
   // get stream for week's exercises
   Stream<List<Exercise>> getExercises(Day day, List<ExerciseBase> bases) {
+    if (bases.isEmpty) {
+      return null;
+    }
     return userRef
         .collection('programs')
         .document(day.week.cycle.program.programId)

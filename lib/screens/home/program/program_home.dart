@@ -16,6 +16,12 @@ class ProgramHome extends StatelessWidget {
   Widget build(BuildContext context) {
     void _editProgramPanel() {
       showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+        ),
         context: context,
         isScrollControlled: true,
         builder: (context) {
@@ -38,6 +44,12 @@ class ProgramHome extends StatelessWidget {
 
     void _newCyclePanel() {
       showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+        ),
         context: context,
         isScrollControlled: true,
         builder: (context) {

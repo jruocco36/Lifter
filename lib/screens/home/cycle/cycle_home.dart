@@ -17,6 +17,12 @@ class CycleHome extends StatelessWidget {
   Widget build(BuildContext context) {
     void _editCyclePanel() {
       showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+        ),
         context: context,
         isScrollControlled: true,
         builder: (context) {
@@ -41,6 +47,12 @@ class CycleHome extends StatelessWidget {
     void _newWeekPanel(List<Week> weeks) {
       // final weeks = Provider.of<List<Week>>(context) ?? [];
       showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+        ),
         context: context,
         isScrollControlled: true,
         builder: (context) {

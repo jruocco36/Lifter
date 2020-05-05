@@ -20,6 +20,12 @@ class Home extends StatelessWidget {
 
     void _newProgramPanel() {
       showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+        ),
         context: context,
         isScrollControlled: true,
         builder: (context) {
@@ -57,6 +63,12 @@ class Home extends StatelessWidget {
         onSelected: (val) async {
           if (val == 'bodyweight') {
             showModalBottomSheet(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                ),
+              ),
               context: context,
               isScrollControlled: true,
               builder: (context) {

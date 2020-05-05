@@ -31,7 +31,7 @@ class _ExerciseListState extends State<ExerciseList> {
             itemCount: exercises.length,
             // scrollDirection: Axis.vertical,
             // shrinkWrap: true,
-            padding: EdgeInsets.only(top: 10.0, bottom: 100),
+            padding: EdgeInsets.only(top: 20.0, bottom: 100),
             itemBuilder: (context, index) {
               return ExerciseTile(exercise: exercises[index]);
             },

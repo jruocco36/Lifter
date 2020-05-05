@@ -43,6 +43,12 @@ class ProgramTile extends StatelessWidget {
               onSelected: (val) async {
                 if (val == 'Edit') {
                   showModalBottomSheet(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
+                      ),
+                    ),
                     context: context,
                     isScrollControlled: true,
                     builder: (context) {

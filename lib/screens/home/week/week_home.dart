@@ -16,6 +16,12 @@ class WeekHome extends StatelessWidget {
   Widget build(BuildContext context) {
     void _editWeekPanel() {
       showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+        ),
         context: context,
         isScrollControlled: true,
         builder: (context) {
@@ -39,6 +45,12 @@ class WeekHome extends StatelessWidget {
 
     void _newDayPanel() {
       showModalBottomSheet(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+        ),
         context: context,
         isScrollControlled: true,
         builder: (context) {

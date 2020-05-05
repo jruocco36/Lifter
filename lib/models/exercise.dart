@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:Lifter/models/day.dart';
 
+// TODO: populate 1RM and TM
+
 enum ExerciseType { Main, Accessory, Optional }
 
 ExerciseType getExerciseTypeFromString(String type) {
-  if (!type.contains('ExerciseType.')){
+  if (!type.contains('ExerciseType.')) {
     type = 'ExerciseType.$type';
-  }
-  else {
+  } else {
     type = '$type';
   }
   return ExerciseType.values
@@ -27,6 +28,7 @@ String exerciseTypeToString(ExerciseType type) {
 class ExerciseBase {
   final String exerciseName;
   final String exerciseBaseId;
+  final int oneRepMax;
 
   /// main, accessory, or optional
   final ExerciseType exerciseType;
@@ -35,6 +37,7 @@ class ExerciseBase {
     @required this.exerciseName,
     @required this.exerciseBaseId,
     @required this.exerciseType,
+    this.oneRepMax,
   });
 
   String get type {
@@ -48,15 +51,22 @@ class Exercise {
   final Day day;
   final List<Set> sets;
   final String name;
+  final int trainingMax;
 
   Exercise({
     @required this.exerciseId,
-    this.exerciseBase,
+    @required this.exerciseBase,
     @required this.day,
     @required this.name,
     this.sets,
-  });
-  //  : super(exerciseName: exerciseBaseName, exerciseBaseId: exerciseBaseId);
+  }) : trainingMax =
+            (exerciseBase != null 
+            ? exerciseBase.oneRepMax != null
+            ? exerciseBase.oneRepMax * day.week.cycle.trainingMaxPercent
+            : null
+            : null);
+
+  void setTrainingMax() {}
 
   void startNew() {
     sets.forEach((set) => set.startNew());

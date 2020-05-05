@@ -6,7 +6,7 @@ class Cycle {
   final String cycleId;
   final String name;
   final DateTime startDate;
-  final int trainingMaxPercent;
+  final double trainingMaxPercent;
 
   Cycle({
     @required this.program,

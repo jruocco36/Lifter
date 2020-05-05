@@ -28,7 +28,7 @@ String exerciseTypeToString(ExerciseType type) {
 class ExerciseBase {
   final String exerciseName;
   final String exerciseBaseId;
-  final int oneRepMax;
+  final double oneRepMax;
 
   /// main, accessory, or optional
   final ExerciseType exerciseType;
@@ -51,20 +51,24 @@ class Exercise {
   final Day day;
   final List<Set> sets;
   final String name;
-  final int trainingMax;
+  final double trainingMax;
 
   Exercise({
     @required this.exerciseId,
     @required this.exerciseBase,
     @required this.day,
     @required this.name,
-    this.sets,
+    // this.sets,
   }) : trainingMax =
             (exerciseBase != null 
             ? exerciseBase.oneRepMax != null
             ? exerciseBase.oneRepMax * day.week.cycle.trainingMaxPercent
             : null
-            : null);
+            : null), sets = [];
+
+  // List<Set> get exerciseSets {
+  //   return sets ?? [];
+  // }
 
   void setTrainingMax() {}
 
@@ -76,11 +80,11 @@ class Exercise {
 enum SetType { weight, percentOfMax, percentOfTMax }
 
 class Set {
-  int weight;
+  double weight;
   String repRange;
   int reps;
   SetType setType;
-  int percent;
+  double percent;
 
   Set({
     this.weight,
@@ -96,5 +100,10 @@ class Set {
   void startNew() {
     this.weight = null;
     this.reps = null;
+  }
+
+  @override
+  String toString() {
+    return 'Weight: ' + weight.toString() + ' reps: ' + reps.toString();
   }
 }

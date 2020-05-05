@@ -152,7 +152,7 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                         _cycleName ?? cycle.name,
                         _startDate != null ? _startDate : cycle.startDate,
                         _trainingMaxPercent != null
-                            ? int.parse(_trainingMaxPercent)
+                            ? double.parse(_trainingMaxPercent)
                             : cycle.trainingMaxPercent,
                       );
                     }

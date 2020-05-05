@@ -7,9 +7,11 @@ import 'package:Lifter/screens/home/week/week_settings_form.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+// TODO: date ranges on cycles and weeks
+//       start date - last day of last week
+
 class CycleHome extends StatelessWidget {
   final Cycle cycle;
-  // List<Week> weeks;
 
   CycleHome({this.cycle});
 
@@ -45,7 +47,6 @@ class CycleHome extends StatelessWidget {
     }
 
     void _newWeekPanel(List<Week> weeks) {
-      // final weeks = Provider.of<List<Week>>(context) ?? [];
       showModalBottomSheet(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(

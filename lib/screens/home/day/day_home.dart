@@ -89,11 +89,11 @@ class DayHome extends StatelessWidget {
             return StreamProvider<List<Exercise>>.value(
               initialData: [
                 Exercise(
-                    exerciseId: 'loading',
-                    day: null,
-                    exerciseBase: null,
-                    name: null,
-                    sets: null)
+                  exerciseId: 'loading',
+                  day: null,
+                  exerciseBase: null,
+                  name: null,
+                )
               ],
               value: DatabaseService(uid: day.week.cycle.program.uid)
                   .getExercises(day, bases),

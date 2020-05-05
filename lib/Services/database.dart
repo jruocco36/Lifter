@@ -124,7 +124,7 @@ class DatabaseService {
 
   // update a cycle
   Future updateCycle(String programId, String cycleId, String cycleName,
-      DateTime startDate, int trainingMaxPercent) async {
+      DateTime startDate, double trainingMaxPercent) async {
     return await userRef
         .collection('programs')
         .document(programId)

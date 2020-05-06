@@ -4,10 +4,11 @@ import 'package:Lifter/models/week.dart';
 import 'package:Lifter/screens/home/cycle/cycle_settings_form.dart';
 import 'package:Lifter/screens/home/week/week_list.dart';
 import 'package:Lifter/screens/home/week/week_settings_form.dart';
+import 'package:Lifter/shared/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// TODO: date ranges on cycles and weeks
+// TODO: date ranges on cycles (need to add end date property)
 //       start date - last day of last week
 
 class CycleHome extends StatelessWidget {
@@ -77,6 +78,10 @@ class CycleHome extends StatelessWidget {
         stream: DatabaseService(uid: cycle.program.uid)
             .getCycleData(cycle.program, cycle.cycleId),
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Loading();
+          }
+
           Cycle cycleUpdates;
           snapshot.hasData
               ? cycleUpdates = snapshot.data

@@ -109,7 +109,7 @@ class DatabaseService {
       cycleId: snapshot.documentID,
       name: snapshot['cycleName'],
       startDate: snapshot['startDate'].toDate(),
-      trainingMaxPercent: snapshot['trainingMaxPercent'],
+      trainingMaxPercent: snapshot['trainingMaxPercent'].toDouble(),
     );
   }
 

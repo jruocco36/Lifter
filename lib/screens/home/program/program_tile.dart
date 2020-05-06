@@ -82,11 +82,17 @@ class ProgramTile extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => ProgramHome(
+                // TODO: center animation to child
+                ScaleRoute(
+                  page: ProgramHome(
                     program: program,
                   ),
                 ),
+                // MaterialPageRoute(
+                //   builder: (context) => ProgramHome(
+                //     program: program,
+                //   ),
+                // ),
               );
             },
           ),

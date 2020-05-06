@@ -94,15 +94,15 @@ class Home extends StatelessWidget {
 
     // listen for any changes to 'program' collection stored DatabaseService
     return StreamProvider<List<Program>>.value(
-      initialData: [
-        Program(
-            programId: 'loading',
-            createdDate: null,
-            name: null,
-            programType: null,
-            progressType: null,
-            uid: null)
-      ],
+      // initialData: [
+      //   Program(
+      //       programId: 'loading',
+      //       createdDate: null,
+      //       name: null,
+      //       programType: null,
+      //       progressType: null,
+      //       uid: null)
+      // ],
       value: DatabaseService(uid: user.uid).programs,
       child: Scaffold(
         appBar: AppBar(

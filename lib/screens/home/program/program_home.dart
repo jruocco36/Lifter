@@ -4,6 +4,7 @@ import 'package:Lifter/models/program.dart';
 import 'package:Lifter/screens/home/cycle/cycle_list.dart';
 import 'package:Lifter/screens/home/cycle/cycle_settings_form.dart';
 import 'package:Lifter/screens/home/program/program_settings_form.dart';
+import 'package:Lifter/shared/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -73,19 +74,22 @@ class ProgramHome extends StatelessWidget {
         stream:
             DatabaseService(uid: program.uid).getProgramData(program.programId),
         builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Loading();
+          }
           Program programUpdates;
           snapshot.hasData
               ? programUpdates = snapshot.data
               : programUpdates = program;
           return StreamProvider<List<Cycle>>.value(
-            initialData: [
-              Cycle(
-                  cycleId: 'loading',
-                  program: null,
-                  name: null,
-                  startDate: null,
-                  trainingMaxPercent: null)
-            ],
+            // initialData: [
+            //   Cycle(
+            //       cycleId: 'loading',
+            //       program: null,
+            //       name: null,
+            //       startDate: null,
+            //       trainingMaxPercent: null)
+            // ],
             value: DatabaseService(uid: program.uid).getCycles(program),
             child: Scaffold(
               appBar: AppBar(

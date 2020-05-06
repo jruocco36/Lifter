@@ -83,6 +83,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                               widget.exercise.sets = [];
                             }
                             widget.exercise.sets.add(Set());
+                            updateExercise();
                           });
                         },
                       ),
@@ -193,9 +194,10 @@ class _ExerciseTileState extends State<ExerciseTile> {
                               IconButton(
                                 icon: Icon(Icons.note),
                                 onPressed: () {
-                                  print('notes for ' +
-                                      widget.exercise.sets[index].weight
-                                          .toString());
+                                  // print('notes for ' +
+                                  //     widget.exercise.sets[index].weight
+                                  //         .toString());
+                                  setNotes(index);
                                 },
                               ),
                               // BUG: deleting set removes correct set from firebase, but widget displays
@@ -246,6 +248,89 @@ class _ExerciseTileState extends State<ExerciseTile> {
         Text('Training Max: ' + widget.exercise.trainingMax.toString(),
             style: TextStyle(fontSize: 14)),
       ],
+    );
+  }
+
+  void setNotes(int index) {
+    showModalBottomSheet(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+      ),
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
+              child: Column(
+                children: <Widget>[
+                  TextFormField(
+                    autofocus: true,
+                    maxLines: null,
+                    initialValue: widget.exercise.sets[index].notes != null
+                        ? widget.exercise.sets[index].notes
+                        : null,
+                    decoration: InputDecoration(labelText: 'Notes'),
+                    onChanged: (val) {
+                      widget.exercise.sets[index].notes = val;
+                    },
+                  ),
+                  SizedBox(height: 20.0),
+                  RaisedButton(
+                    color: flamingoColor,
+                    child: Text(
+                      'Save',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    onPressed: () async {
+                      Navigator.pop(context);
+                      if (widget.exercise.sets[index].notes != null) {
+                        updateExercise();
+                      }
+                      // if (_formKey.currentState.validate()) {
+                      //   Navigator.pop(context);
+                      //   _formKey.currentState.save();
+                      //   // if (newExerciseBase) {
+                      //   DatabaseService database = DatabaseService(
+                      //       uid: widget.day.week.cycle.program.uid);
+                      //   // await database.updateExerciseBase(
+                      //   //     exerciseBaseId,
+                      //   //     _exerciseName,
+                      //   //     _exerciseType != null
+                      //   //         ? exerciseTypeToString(_exerciseType)
+                      //   //         : 'Main');
+                      //   // }
+                      //   ExerciseBase exerciseBase = ExerciseBase(
+                      //     exerciseBaseId: exerciseBaseId,
+                      //     exerciseName: _exerciseName,
+                      //     exerciseType: _exerciseType != null
+                      //         ? _exerciseType
+                      //         : ExerciseType.Main,
+                      //     oneRepMax: null,
+                      //   );
+                      //   Exercise exercise = Exercise(
+                      //     day: widget.day,
+                      //     exerciseBase: exerciseBase,
+                      //     exerciseId: widget.exerciseId,
+                      //     name: _exerciseName,
+                      //   );
+                      //   await database.updateExercise(exerciseBase, exercise);
+                      // }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

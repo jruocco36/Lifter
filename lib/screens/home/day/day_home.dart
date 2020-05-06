@@ -4,6 +4,7 @@ import 'package:Lifter/models/exercise.dart';
 import 'package:Lifter/screens/home/day/day_settings_form.dart';
 import 'package:Lifter/screens/home/exercise/exercise_list.dart';
 import 'package:Lifter/screens/home/exercise/exercise_settings_form.dart';
+import 'package:Lifter/shared/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -74,6 +75,10 @@ class DayHome extends StatelessWidget {
       stream: DatabaseService(uid: day.week.cycle.program.uid)
           .getDayData(day.week, day.dayId),
       builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Loading();
+        }
+
         Day dayUpdates;
         snapshot.hasData ? dayUpdates = snapshot.data : dayUpdates = day;
 
@@ -81,20 +86,24 @@ class DayHome extends StatelessWidget {
           stream: DatabaseService(uid: day.week.cycle.program.uid)
               .getExerciseBases(),
           builder: (context, snap) {
+            if (snap.connectionState == ConnectionState.waiting) {
+              return Loading();
+            }
+
             List<ExerciseBase> bases = [];
             if (snap.hasData) {
               bases = snap.data;
             }
 
             return StreamProvider<List<Exercise>>.value(
-              initialData: [
-                Exercise(
-                  exerciseId: 'loading',
-                  day: null,
-                  exerciseBase: null,
-                  name: null,
-                )
-              ],
+              // initialData: [
+              //   Exercise(
+              //     exerciseId: 'loading',
+              //     day: null,
+              //     exerciseBase: null,
+              //     name: null,
+              //   )
+              // ],
               value: DatabaseService(uid: day.week.cycle.program.uid)
                   .getExercises(day, bases),
               child: Scaffold(

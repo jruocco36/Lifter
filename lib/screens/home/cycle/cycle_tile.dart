@@ -131,11 +131,16 @@ class _CycleTileState extends State<CycleTile>
               onLongPress: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => CycleHome(
+                  ScaleRoute(
+                    page: CycleHome(
                       cycle: widget.cycle,
                     ),
                   ),
+                  // MaterialPageRoute(
+                  //   builder: (context) => CycleHome(
+                  //     cycle: widget.cycle,
+                  //   ),
+                  // ),
                 );
               },
             ),

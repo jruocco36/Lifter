@@ -43,10 +43,11 @@ class ExerciseBase {
     return exerciseTypeToString(exerciseType);
   }
 
-  Map toJson() => <String, dynamic>{
+  Map toJson({bool update}) => <String, dynamic>{
         'name': this.exerciseName,
         'type': this.type,
         'oneRepMax': this.oneRepMax,
+        if (!update) 'createdDate': Timestamp.now(),
       };
 }
 
@@ -94,15 +95,16 @@ class Exercise {
               )
             : null;
 
-  Map toJson([String baseId]) => <String, dynamic>{
+  Map toJson({bool update, String baseId}) => <String, dynamic>{
         'exerciseBaseId':
             baseId != null ? baseId : this.exerciseBase.exerciseBaseId,
         'dayId': this.day.dayId,
         'name': this.name,
         'trainingMax': this.trainingMax,
         'sets': this.sets != null
-            ? this.sets.map((set) => set.toJson()).toList()
+            ? this.sets.map((set) => set.toJson(update: update)).toList()
             : null,
+        if (!update) 'createdDate': Timestamp.now(),
       };
 }
 
@@ -167,8 +169,7 @@ class Set {
         notes: json['notes'],
       );
 
-  // TODO: being stored in db as string instead of map
-  Map toJson() => <String, dynamic>{
+  Map toJson({bool update}) => <String, dynamic>{
         'weight': this.weight,
         'reps': this.reps,
         'repRange': this.repRange,
@@ -176,5 +177,6 @@ class Set {
             setType != null ? this.setType.toString().split('.').last : null,
         'percent': this.percent,
         'notes': this.notes,
+        if (!update) 'createdDate': Timestamp.now(),
       };
 }

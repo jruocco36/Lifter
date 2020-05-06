@@ -78,7 +78,6 @@ class _ExerciseTileState extends State<ExerciseTile> {
                           size: 18,
                         ),
                         onTap: () {
-                          print('add set');
                           setState(() {
                             if (widget.exercise.sets == null) {
                               widget.exercise.sets = [];
@@ -199,7 +198,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                           .toString());
                                 },
                               ),
-                              // TODO: deleting set removes correct set from firebase, but widget displays
+                              // BUG: deleting set removes correct set from firebase, but widget displays
                               //       wrong (removed) set
                               IconButton(
                                 icon: Icon(Icons.delete),

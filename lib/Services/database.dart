@@ -6,6 +6,8 @@ import 'package:Lifter/models/exercise.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
+// TODO: look into transactions/batched write
+
 class DatabaseService {
   // current user's id
   final String uid;
@@ -14,9 +16,9 @@ class DatabaseService {
       : userRef = Firestore.instance.collection('users').document(uid);
 
   // update this user data for this user
-  Future updateUser(Timestamp createDate) async {
+  Future updateUser(Timestamp createdDate) async {
     return await userRef.setData({
-      'createdDate': createDate,
+      'createdDate': createdDate,
     });
   }
 
@@ -389,10 +391,11 @@ class DatabaseService {
 
   // update a base exercise
   Future updateExercise(ExerciseBase exerciseBase, Exercise exercise) async {
+    bool update = exercise.exerciseId != null;
     if (exerciseBase.exerciseBaseId == null) {
       return await userRef
           .collection('exerciseBases')
-          .add(exerciseBase.toJson())
+          .add(exerciseBase.toJson(update: false))
           .then((doc) {
         userRef
             .collection('programs')
@@ -404,7 +407,8 @@ class DatabaseService {
             .collection('days')
             .document(exercise.day.dayId)
             .collection('exercises')
-            .add(exercise.toJson(doc.documentID));
+            .add(exercise.toJson(
+                update: false, baseId: doc.documentID));
       });
     } else {
       return await userRef
@@ -425,7 +429,7 @@ class DatabaseService {
             .document(exercise.day.dayId)
             .collection('exercises')
             .document(exercise.exerciseId)
-            .setData(exercise.toJson(), merge: true);
+            .setData(exercise.toJson(update: update), merge: true);
       });
     }
   }
@@ -459,6 +463,7 @@ class DatabaseService {
         .collection('days')
         .document(day.dayId)
         .collection('exercises')
+        .orderBy('createdDate')
         .snapshots()
         .map((snapshot) => _exerciseListFromSnapshot(snapshot, day, bases));
   }

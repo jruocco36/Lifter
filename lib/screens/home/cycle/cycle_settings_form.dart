@@ -118,9 +118,12 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
 
                 // Training max percent
                 TextFormField(
-                  keyboardType: TextInputType.number,
+                  keyboardType: TextInputType.numberWithOptions(
+                      decimal: true, signed: false),
                   inputFormatters: <TextInputFormatter>[
-                    WhitelistingTextInputFormatter.digitsOnly,
+                    WhitelistingTextInputFormatter(
+                      RegExp(r'^\d*\.{0,1}\d*$'),
+                    ),
                   ],
                   initialValue: _trainingMaxPercent ??
                       (cycle != null

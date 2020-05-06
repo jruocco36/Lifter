@@ -7,6 +7,7 @@ import 'package:Lifter/screens/home/exercise/exercise_settings_form.dart';
 import 'package:Lifter/shared/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class DayHome extends StatelessWidget {
   final Day day;
@@ -108,7 +109,23 @@ class DayHome extends StatelessWidget {
                   .getExercises(day, bases),
               child: Scaffold(
                 appBar: AppBar(
-                  title: Text('${dayUpdates.dayName}'),
+                  // title: Text('${dayUpdates.dayName}'),
+                  // bottom: PreferredSize(
+                  //   preferredSize: null,
+                  //   child: Text(
+                  //       '${DateFormat('EEE - MM/dd/yyyy').format(dayUpdates.date)}'),
+                  // ),
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Text('${dayUpdates.dayName}'),
+                      Text(
+                        '${DateFormat('EEE - MM/dd/yyyy').format(dayUpdates.date)}',
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.normal),
+                      ),
+                    ],
+                  ),
                   elevation: 0.0,
                   actions: <Widget>[
                     IconButton(

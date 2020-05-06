@@ -4,6 +4,7 @@ import 'package:Lifter/screens/home/delete_dialog.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 
 // TODO: edit/delete exercise base
 //       (maybe one menu to do this that can be accessed anywhere)
@@ -124,6 +125,14 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                           : null,
                                   // validator: (val) =>
                                   //     val.isEmpty ? 'Enter weight' : null,
+                                  // TODO: may need to extend textinputformatter to avoid
+                                  //       removing typed in value if bad character is
+                                  //       input (regexp throws formatexception)
+                                  inputFormatters: <TextInputFormatter>[
+                                    WhitelistingTextInputFormatter(
+                                      RegExp(r'^\d*\.{0,1}\d*$'),
+                                    ),
+                                  ],
                                   onChanged: (val) => setState(() => widget
                                       .exercise
                                       .sets[index]
@@ -146,6 +155,9 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                     hintText: 'Reps',
                                     hintStyle: TextStyle(fontSize: 14),
                                   ),
+                                  inputFormatters: <TextInputFormatter>[
+                                    WhitelistingTextInputFormatter.digitsOnly
+                                  ],
                                   initialValue:
                                       widget.exercise.sets[index].reps != null
                                           ? widget.exercise.sets[index].reps
@@ -169,7 +181,8 @@ class _ExerciseTileState extends State<ExerciseTile> {
                               ),
                               Flexible(
                                 child: TextFormField(
-                                  keyboardType: TextInputType.number,
+                                  keyboardType: TextInputType.text,
+                                  // keyboardType: TextInputType.,
                                   decoration: InputDecoration(
                                     isDense: true,
                                     hintText: 'Rep range',
@@ -192,7 +205,16 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                 ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.note),
+                                icon: Icon(
+                                  Icons.note,
+                                  color: widget.exercise.sets[index].notes !=
+                                              null &&
+                                          widget.exercise.sets[index].notes
+                                                  .length >
+                                              1
+                                      ? Colors.white
+                                      : greyTextColor,
+                                ),
                                 onPressed: () {
                                   // print('notes for ' +
                                   //     widget.exercise.sets[index].weight
@@ -294,35 +316,6 @@ class _ExerciseTileState extends State<ExerciseTile> {
                       if (widget.exercise.sets[index].notes != null) {
                         updateExercise();
                       }
-                      // if (_formKey.currentState.validate()) {
-                      //   Navigator.pop(context);
-                      //   _formKey.currentState.save();
-                      //   // if (newExerciseBase) {
-                      //   DatabaseService database = DatabaseService(
-                      //       uid: widget.day.week.cycle.program.uid);
-                      //   // await database.updateExerciseBase(
-                      //   //     exerciseBaseId,
-                      //   //     _exerciseName,
-                      //   //     _exerciseType != null
-                      //   //         ? exerciseTypeToString(_exerciseType)
-                      //   //         : 'Main');
-                      //   // }
-                      //   ExerciseBase exerciseBase = ExerciseBase(
-                      //     exerciseBaseId: exerciseBaseId,
-                      //     exerciseName: _exerciseName,
-                      //     exerciseType: _exerciseType != null
-                      //         ? _exerciseType
-                      //         : ExerciseType.Main,
-                      //     oneRepMax: null,
-                      //   );
-                      //   Exercise exercise = Exercise(
-                      //     day: widget.day,
-                      //     exerciseBase: exerciseBase,
-                      //     exerciseId: widget.exerciseId,
-                      //     name: _exerciseName,
-                      //   );
-                      //   await database.updateExercise(exerciseBase, exercise);
-                      // }
                     },
                   ),
                 ],

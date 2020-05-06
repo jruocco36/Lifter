@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:Lifter/models/day.dart';
 
@@ -8,8 +9,6 @@ enum ExerciseType { Main, Accessory, Optional }
 ExerciseType getExerciseTypeFromString(String type) {
   if (!type.contains('ExerciseType.')) {
     type = 'ExerciseType.$type';
-  } else {
-    type = '$type';
   }
   return ExerciseType.values
       .firstWhere((f) => f.toString() == type, orElse: () => null);
@@ -43,13 +42,19 @@ class ExerciseBase {
   String get type {
     return exerciseTypeToString(exerciseType);
   }
+
+  Map toJson() => <String, dynamic>{
+        'name': this.exerciseName,
+        'type': this.type,
+        'oneRepMax': this.oneRepMax,
+      };
 }
 
 class Exercise {
   final String exerciseId;
   final ExerciseBase exerciseBase;
   final Day day;
-  final List<Set> sets;
+  List<Set> sets;
   final String name;
   final double trainingMax;
 
@@ -58,39 +63,81 @@ class Exercise {
     @required this.exerciseBase,
     @required this.day,
     @required this.name,
-    // this.sets,
-  }) : trainingMax =
-            (exerciseBase != null 
+    this.sets,
+  }) : trainingMax = (exerciseBase != null
             ? exerciseBase.oneRepMax != null
-            ? exerciseBase.oneRepMax * day.week.cycle.trainingMaxPercent
-            : null
-            : null), sets = [];
-
-  // List<Set> get exerciseSets {
-  //   return sets ?? [];
-  // }
+                ? exerciseBase.oneRepMax * day.week.cycle.trainingMaxPercent
+                : null
+            : null);
 
   void setTrainingMax() {}
 
   void startNew() {
     sets.forEach((set) => set.startNew());
   }
+
+  Exercise.fromJson(
+      DocumentSnapshot snapshot, Day day, List<ExerciseBase> bases)
+      : exerciseId = snapshot.documentID,
+        exerciseBase = bases
+            .firstWhere((b) => b.exerciseBaseId == snapshot['exerciseBaseId']),
+        day = day,
+        name = snapshot['name'],
+        trainingMax = snapshot['trainingMax'],
+        sets = snapshot['sets'] != null
+            ? List<Set>.from(
+                snapshot['sets'].map(
+                  (set) {
+                    return Set.fromJson(set);
+                  },
+                ),
+              )
+            : null;
+
+  Map toJson([String baseId]) => <String, dynamic>{
+        'exerciseBaseId':
+            baseId != null ? baseId : this.exerciseBase.exerciseBaseId,
+        'dayId': this.day.dayId,
+        'name': this.name,
+        'trainingMax': this.trainingMax,
+        'sets': this.sets != null
+            ? this.sets.map((set) => set.toJson()).toList()
+            : null,
+      };
 }
 
 enum SetType { weight, percentOfMax, percentOfTMax }
 
+SetType getSetTypeFromString(String type) {
+  if (type == null) return null;
+  if (!type.contains('SetType.')) {
+    type = 'SetType.$type';
+  }
+  return SetType.values
+      .firstWhere((f) => f.toString() == type, orElse: () => null);
+}
+
+String setTypeToString(SetType type) {
+  return type.toString().split('.').last;
+}
+
 class Set {
+  String setId;
   double weight;
   String repRange;
   int reps;
+
+  /// weight, percent of max, percent of training max
   SetType setType;
   double percent;
 
   Set({
+    this.setId,
     this.weight,
     this.reps,
     this.setType,
     this.percent,
+    String repRange,
   });
 
   /// Reset weight and reps for this set.
@@ -106,4 +153,27 @@ class Set {
   String toString() {
     return 'Weight: ' + weight.toString() + ' reps: ' + reps.toString();
   }
+
+  String get type {
+    return setTypeToString(setType);
+  }
+
+  factory Set.fromJson(Map<String, dynamic> json) => Set(
+        weight: json['weight'],
+        reps: json['reps'],
+        repRange: json['repRange'],
+        setType: getSetTypeFromString(json['setType']),
+        percent: json['percent'],
+        // setId:
+      );
+
+  // TODO: being stored in db as string instead of map
+  Map toJson() => <String, dynamic>{
+        'weight': this.weight,
+        'reps': this.reps,
+        'repRange': this.repRange,
+        'setType':
+            setType != null ? this.setType.toString().split('.').last : null,
+        'percent': this.percent,
+      };
 }

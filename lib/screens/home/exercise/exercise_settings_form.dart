@@ -8,9 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 
-// TODO: suggestions should only show for exercises that are close
-//       to [_exerciseName]
-
 class ExerciseSettingsForm extends StatefulWidget {
   final Day day;
   final String exerciseId;
@@ -115,7 +112,10 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                           exerciseType();
                         },
                         suggestionsCallback: (pattern) {
-                          return exerciseBaseStrings;
+                          return exerciseBaseStrings.where((base) {
+                            RegExp test = RegExp(r'.*' + pattern.toUpperCase() + '.*');
+                            return test.hasMatch(base.toUpperCase());
+                          });
                         },
                         itemBuilder: (context, suggestion) {
                           return ListTile(
@@ -170,16 +170,22 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                             //         ? exerciseTypeToString(_exerciseType)
                             //         : 'Main');
                             // }
-                            await database.updateExercise(
-                              exerciseBaseId,
-                              _exerciseName,
-                              _exerciseType != null
-                                  ? exerciseTypeToString(_exerciseType)
-                                  : 'Main',
-                              widget.day,
-                              widget.exerciseId,
-                              exerciseBaseId,
+                            ExerciseBase exerciseBase = ExerciseBase(
+                              exerciseBaseId: exerciseBaseId,
+                              exerciseName: _exerciseName,
+                              exerciseType: _exerciseType != null
+                                  ? _exerciseType
+                                  : ExerciseType.Main,
+                              oneRepMax: null,
                             );
+                            Exercise exercise = Exercise(
+                              day: widget.day,
+                              exerciseBase: exerciseBase,
+                              exerciseId: widget.exerciseId,
+                              name: _exerciseName,
+                            );
+                            await database.updateExercise(
+                                exerciseBase, exercise);
                           }
                         },
                       ),

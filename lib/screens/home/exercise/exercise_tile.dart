@@ -1,14 +1,12 @@
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/exercise.dart';
-import 'package:Lifter/screens/home/exercise/exercise_settings_form.dart';
 import 'package:Lifter/screens/home/delete_dialog.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-// TODO: add sets
-// TODO: delete sets + exercises
-// TODO: edit exercise base (maybe one menu to do this that can be accessed anywhere)
+// TODO: edit/delete exercise base
+//       (maybe one menu to do this that can be accessed anywhere)
 
 class ExerciseTile extends StatefulWidget {
   final Exercise exercise;
@@ -20,11 +18,11 @@ class ExerciseTile extends StatefulWidget {
 }
 
 class _ExerciseTileState extends State<ExerciseTile> {
-  int _sets = 0;
-  // List<Set> sets = [];
-
   @override
   Widget build(BuildContext context) {
+    DatabaseService database =
+        DatabaseService(uid: widget.exercise.day.week.cycle.program.uid);
+
     return SingleChildScrollView(
       child: Container(
         margin: EdgeInsets.only(bottom: 20),
@@ -41,37 +39,64 @@ class _ExerciseTileState extends State<ExerciseTile> {
                 children: <Widget>[
                   Row(
                     children: <Widget>[
-                      Text(widget.exercise.name,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: flamingoColor,
-                          )),
+                      Text(
+                        widget.exercise.name,
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: flamingoColor,
+                        ),
+                      ),
                       if (widget.exercise.exerciseBase.oneRepMax != null)
                         oneRepMax(),
                       if (widget.exercise.trainingMax != null) trainingMax(),
                     ],
                   ),
-                  GestureDetector(
-                    child: Icon(
-                      Icons.add,
-                      size: 18,
-                    ),
-                    onTap: () {
-                      print('add set');
-                      setState(() {
-                        _sets += 1;
-                        widget.exercise.sets.add(Set());
-                      });
-                    },
+                  Row(
+                    children: <Widget>[
+                      GestureDetector(
+                        child: Icon(
+                          Icons.delete,
+                          size: 18,
+                        ),
+                        onTap: () async {
+                          final delete = await showDialog(
+                              context: context,
+                              builder: (_) {
+                                return DeleteDialog(widget.exercise.name);
+                              });
+                          if (delete) {
+                            database.deleteExercise(widget.exercise);
+                          }
+                        },
+                      ),
+                      SizedBox(
+                        width: 25,
+                      ),
+                      GestureDetector(
+                        child: Icon(
+                          Icons.add,
+                          size: 18,
+                        ),
+                        onTap: () {
+                          print('add set');
+                          setState(() {
+                            if (widget.exercise.sets == null) {
+                              widget.exercise.sets = [];
+                            }
+                            widget.exercise.sets.add(Set());
+                          });
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            if (widget.exercise.sets.length > 0)
+            if (widget.exercise.sets != null && widget.exercise.sets.length > 0)
               Container(
                 // height: 50,
                 child: ListView.builder(
-                  padding: EdgeInsets.fromLTRB(5, 7, 0, 0),
+                  padding: EdgeInsets.fromLTRB(10, 7, 0, 0),
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: widget.exercise.sets.length,
@@ -80,40 +105,32 @@ class _ExerciseTileState extends State<ExerciseTile> {
                       child: Column(
                         children: <Widget>[
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
-                              // Text('new set'),
                               Flexible(
                                 child: TextFormField(
-                                  // autofocus: true,
-                                  // initialValue:,
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     isDense: true,
                                     hintText: 'Weight',
                                     hintStyle: TextStyle(fontSize: 14),
-                                    // enabledBorder: OutlineInputBorder(
-                                    //   borderSide: BorderSide(
-                                    //     color: greyTextColor,
-                                    //     width: 1.0,
-                                    //   ),
-                                    // ),
-                                    // focusedBorder: OutlineInputBorder(
-                                    //   borderSide: BorderSide(
-                                    //     color: flamingoColor,
-                                    //     width: 1.0,
-                                    //   ),
-                                    // ),
                                   ),
-                                  validator: (val) =>
-                                      val.isEmpty ? 'Enter weight' : null,
+                                  initialValue:
+                                      widget.exercise.sets[index].weight != null
+                                          ? widget.exercise.sets[index].weight
+                                              .toInt()
+                                              .toString()
+                                          : null,
+                                  // validator: (val) =>
+                                  //     val.isEmpty ? 'Enter weight' : null,
                                   onChanged: (val) => setState(() => widget
                                       .exercise
                                       .sets[index]
                                       .weight = double.parse(val)),
                                   onEditingComplete: () {
-                                    print(widget.exercise.sets.toString());
+                                    FocusScope.of(context).unfocus();
+                                    updateExercise();
                                   },
                                 ),
                               ),
@@ -123,34 +140,26 @@ class _ExerciseTileState extends State<ExerciseTile> {
                               ),
                               Flexible(
                                 child: TextFormField(
-                                  // autofocus: true,
-                                  // initialValue:,
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     isDense: true,
                                     hintText: 'Reps',
                                     hintStyle: TextStyle(fontSize: 14),
-                                    // enabledBorder: OutlineInputBorder(
-                                    //   borderSide: BorderSide(
-                                    //     color: greyTextColor,
-                                    //     width: 1.0,
-                                    //   ),
-                                    // ),
-                                    // focusedBorder: OutlineInputBorder(
-                                    //   borderSide: BorderSide(
-                                    //     color: flamingoColor,
-                                    //     width: 1.0,
-                                    //   ),
-                                    // ),
                                   ),
-                                  validator: (val) =>
-                                      val.isEmpty ? 'Enter weight' : null,
+                                  initialValue:
+                                      widget.exercise.sets[index].reps != null
+                                          ? widget.exercise.sets[index].reps
+                                              .toString()
+                                          : null,
+                                  // validator: (val) =>
+                                  //     val.isEmpty ? 'Enter reps' : null,
                                   onChanged: (val) => setState(() => widget
                                       .exercise
                                       .sets[index]
                                       .reps = int.parse(val)),
                                   onEditingComplete: () {
-                                    print(widget.exercise.sets.toString());
+                                    FocusScope.of(context).unfocus();
+                                    updateExercise();
                                   },
                                 ),
                               ),
@@ -158,69 +167,46 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                 endIndent: 5,
                                 indent: 10,
                               ),
+                              // TODO: rep range not displaying from firebase
                               Flexible(
                                 child: TextFormField(
-                                  // autofocus: true,
-                                  // initialValue:,
+                                  keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     isDense: true,
                                     hintText: 'Rep range',
                                     hintStyle: TextStyle(fontSize: 14),
-                                    // enabledBorder: OutlineInputBorder(
-                                    //   borderSide: BorderSide(
-                                    //     color: greyTextColor,
-                                    //     width: 1.0,
-                                    //   ),
-                                    // ),
-                                    // focusedBorder: OutlineInputBorder(
-                                    //   borderSide: BorderSide(
-                                    //     color: flamingoColor,
-                                    //     width: 1.0,
-                                    //   ),
-                                    // ),
                                   ),
-                                  validator: (val) =>
-                                      val.isEmpty ? 'Enter weight' : null,
-                                  // onChanged: (val) => setState(() => _dayName = val),
+                                  initialValue:
+                                      widget.exercise.sets[index].repRange !=
+                                              null
+                                          ? widget.exercise.sets[index].repRange
+                                          : null,
+                                  // validator: (val) =>
+                                  //     val.isEmpty ? 'Enter weight' : null,
+                                  onChanged: (val) => setState(() {
+                                    widget.exercise.sets[index].repRange = val;
+                                  }),
+                                  onEditingComplete: () {
+                                    FocusScope.of(context).unfocus();
+                                    updateExercise();
+                                  },
                                 ),
                               ),
-                              //  VerticalDivider(
-                              //   endIndent: 5,
-                              //   indent: 10,
-                              // ),
-                              // Flexible(
-                              //   child: TextFormField(
-                              //     // autofocus: true,
-                              //     // initialValue:,
-                              //     decoration: InputDecoration(
-                              //       isDense: true,
-                              //       hintText: 'Notes',
-                              //       hintStyle: TextStyle(fontSize: 14),
-                              //       enabledBorder: OutlineInputBorder(
-                              //         borderSide: BorderSide(
-                              //           color: greyTextColor,
-                              //           width: 1.0,
-                              //         ),
-                              //       ),
-                              //       focusedBorder: OutlineInputBorder(
-                              //         borderSide: BorderSide(
-                              //           color: flamingoColor,
-                              //           width: 1.0,
-                              //         ),
-                              //       ),
-                              //     ),
-                              //     validator: (val) =>
-                              //         val.isEmpty ? 'Enter weight' : null,
-                              //     // onChanged: (val) => setState(() => _dayName = val),
-                              //   ),
-                              // ),
+                              IconButton(
+                                icon: Icon(Icons.note),
+                                onPressed: () {
+                                  print('notes for ' +
+                                      widget.exercise.sets[index].weight
+                                          .toString());
+                                },
+                              ),
+                              // TODO: deleting set removes correct set from firebase, but widget displays
+                              //       wrong (removed) set
                               IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
-                                  print('delete set ' + index.toString());
-                                  setState(() {
-                                    widget.exercise.sets.removeAt(index);
-                                  });
+                                  widget.exercise.sets.removeAt(index);
+                                  updateExercise();
                                 },
                               )
                             ],
@@ -234,20 +220,15 @@ class _ExerciseTileState extends State<ExerciseTile> {
                   },
                 ),
               ),
-            // if (widget.exercise.sets != null)
-            //   ...widget.exercise.sets.map((map) {
-            //     return Row(
-            //       mainAxisSize: MainAxisSize.max,
-            //       children: <Widget>[
-            //         Text(
-            //             'Set: ${map.weight} - ${map.reps} - ${map.repRange} - ${map.percent}')
-            //       ],
-            //     );
-            //   }).toList(),
           ],
         ),
       ),
     );
+  }
+
+  void updateExercise() async {
+    await DatabaseService(uid: widget.exercise.day.week.cycle.program.uid)
+        .updateExercise(widget.exercise.exerciseBase, widget.exercise);
   }
 
   Widget oneRepMax() {

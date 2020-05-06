@@ -312,7 +312,29 @@ class DatabaseService {
   Future updateDay(
       Week week, String dayId, DateTime date, double bodyweight, String dayName,
       [bool merge]) async {
-    if (dayId != null) {
+    if (dayId == null) {
+      return await userRef
+          .collection('programs')
+          .document(week.cycle.program.programId)
+          .collection('cycles')
+          .document(week.cycle.cycleId)
+          .collection('weeks')
+          .document(week.weekId)
+          .collection('days')
+          .add({
+        'uid': uid,
+        'programId': week.cycle.program.programId,
+        'cycleId': week.cycle.cycleId,
+        'weekId': week.weekId,
+        'dayName': dayName,
+        'date': date,
+        'bodyweight': bodyweight,
+      }).then((doc) {
+        week.days[DateFormat('EEEE').format(date)] = doc.documentID;
+        updateWeek(week.cycle.program.programId, week.cycle.cycleId,
+            week.weekId, week.weekName, week.startDate, week.days);
+      });
+    } else {
       return await userRef
           .collection('programs')
           .document(week.cycle.program.programId)
@@ -338,87 +360,16 @@ class DatabaseService {
         updateWeek(week.cycle.program.programId, week.cycle.cycleId,
             week.weekId, week.weekName, week.startDate, week.days);
       });
-    } else {
-      return await userRef
-          .collection('programs')
-          .document(week.cycle.program.programId)
-          .collection('cycles')
-          .document(week.cycle.cycleId)
-          .collection('weeks')
-          .document(week.weekId)
-          .collection('days')
-          .add({
-        'uid': uid,
-        'programId': week.cycle.program.programId,
-        'cycleId': week.cycle.cycleId,
-        'weekId': week.weekId,
-        'dayName': dayName,
-        'date': date,
-        'bodyweight': bodyweight,
-      }).then((doc) {
-        // String val = week.days.values.firstWhere((val) {
-        //   val = doc;
-        // });
-        // week.days[val] = null;
-        week.days[DateFormat('EEEE').format(date)] = doc.documentID;
-        updateWeek(week.cycle.program.programId, week.cycle.cycleId,
-            week.weekId, week.weekName, week.startDate, week.days);
-      });
     }
   }
 
-  // Future getDaysForDate(DateTime date) async {
-  //   List<String> days = [];
-
-  //   await userRef.collection('programs').getDocuments().then((snapshot) => {
-  //         snapshot.documents.forEach((doc) => {
-  //               doc.reference
-  //                   .collection('cycles')
-  //                   .getDocuments()
-  //                   .then((snapshot) => {
-  //                         snapshot.documents.forEach((doc) => {
-  //                               doc.reference
-  //                                   .collection('weeks')
-  //                                   .getDocuments()
-  //                                   .then((snapshot) => {
-  //                                         snapshot.documents.forEach((doc) => {
-  //                                               doc.reference
-  //                                                   .collection('days')
-  //                                                   // .where('date', isEqualTo: Timestamp.fromDate(date))
-  //                                                   .where('date',
-  //                                                       isGreaterThanOrEqualTo:
-  //                                                           date)
-  //                                                   .where('date',
-  //                                                       isLessThan: date.add(
-  //                                                           Duration(days: 1)))
-  //                                                   .getDocuments()
-  //                                                   .then((snapshot) => {
-  //                                                         snapshot.documents
-  //                                                             .forEach(
-  //                                                                 (doc) => {
-  //                                                                       // print(doc.documentID),
-  //                                                                       // print(doc.data['date'].toDate().toString()),
-  //                                                                       days.add(
-  //                                                                           doc.documentID)
-  //                                                                     })
-  //                                                       })
-  //                                             })
-  //                                       })
-  //                             })
-  //                       })
-  //             })
-  //       });
-
-  //   return days;
-  // }
-
   // update a base exercise
-  Future updateExerciseBase(String id, String name, String type) async {
-    return await userRef.collection('exerciseBases').document(id).setData({
-      'name': name,
-      'type': type,
-    });
-  }
+  // Future updateExerciseBase(String id, String name, String type) async {
+  //   return await userRef.collection('exerciseBases').document(id).setData({
+  //     'name': name,
+  //     'type': type,
+  //   });
+  // }
 
   // exerciseBase data from snapshot
   ExerciseBase _exerciseBaseDataFromSnapshot(DocumentSnapshot snapshot) {
@@ -445,54 +396,44 @@ class DatabaseService {
   }
 
   // update a base exercise
-  Future updateExercise(String id, String name, String type, Day day,
-      String exerciseId, String baseId) async {
-    if (baseId == null) {
-      return await userRef.collection('exerciseBases').add({
-        'name': name,
-        'type': type,
-      }).then((doc) {
+  Future updateExercise(ExerciseBase exerciseBase, Exercise exercise) async {
+    if (exerciseBase.exerciseBaseId == null) {
+      return await userRef
+          .collection('exerciseBases')
+          .add(exerciseBase.toJson())
+          .then((doc) {
         userRef
             .collection('programs')
-            .document(day.week.cycle.program.programId)
+            .document(exercise.day.week.cycle.program.programId)
             .collection('cycles')
-            .document(day.week.cycle.cycleId)
+            .document(exercise.day.week.cycle.cycleId)
             .collection('weeks')
-            .document(day.week.weekId)
+            .document(exercise.day.week.weekId)
             .collection('days')
-            .document(day.dayId)
+            .document(exercise.day.dayId)
             .collection('exercises')
-            .document(exerciseId)
-            .setData({
-          'dayId': day.dayId,
-          'exerciseBaseId': doc.documentID,
-          'name': name,
-        });
+            .add(exercise.toJson(doc.documentID));
       });
     } else {
       return await userRef
           .collection('exerciseBases')
-          .document(baseId)
+          .document(exerciseBase.exerciseBaseId)
           .setData({
-        'name': name,
-        'type': type,
-      }).whenComplete(() {
+        'name': exerciseBase.exerciseName,
+        'type': exerciseBase.type,
+      }, merge: true).whenComplete(() {
         userRef
             .collection('programs')
-            .document(day.week.cycle.program.programId)
+            .document(exercise.day.week.cycle.program.programId)
             .collection('cycles')
-            .document(day.week.cycle.cycleId)
+            .document(exercise.day.week.cycle.cycleId)
             .collection('weeks')
-            .document(day.week.weekId)
+            .document(exercise.day.week.weekId)
             .collection('days')
-            .document(day.dayId)
+            .document(exercise.day.dayId)
             .collection('exercises')
-            .document(exerciseId)
-            .setData({
-          'dayId': day.dayId,
-          'exerciseBaseId': baseId,
-          'name': name,
-        });
+            .document(exercise.exerciseId)
+            .setData(exercise.toJson(), merge: true);
       });
     }
   }
@@ -500,14 +441,15 @@ class DatabaseService {
   // exercise data from snapshot
   Exercise _exerciseDataFromSnapshot(
       DocumentSnapshot snapshot, Day day, List<ExerciseBase> bases) {
-    return Exercise(
-      exerciseId: snapshot.documentID,
-      name: snapshot.data['name'],
-      day: day,
-      exerciseBase: bases
-          .firstWhere((b) => b.exerciseBaseId == snapshot['exerciseBaseId']),
-      // set:
-    );
+    return Exercise.fromJson(snapshot, day, bases);
+    // return Exercise(
+    //   exerciseId: snapshot.documentID,
+    //   name: snapshot.data['name'],
+    //   day: day,
+    //   exerciseBase: bases
+    //       .firstWhere((b) => b.exerciseBaseId == snapshot['exerciseBaseId']),
+    //   sets: snapshot['sets'],
+    // );
   }
 
   // program's exercise data from snapshot

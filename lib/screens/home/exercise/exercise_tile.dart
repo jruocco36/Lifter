@@ -167,7 +167,6 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                 endIndent: 5,
                                 indent: 10,
                               ),
-                              // TODO: rep range not displaying from firebase
                               Flexible(
                                 child: TextFormField(
                                   keyboardType: TextInputType.number,

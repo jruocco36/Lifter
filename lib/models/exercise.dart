@@ -122,22 +122,22 @@ String setTypeToString(SetType type) {
 }
 
 class Set {
-  String setId;
   double weight;
   String repRange;
   int reps;
+  double percent;
+  String notes;
 
   /// weight, percent of max, percent of training max
   SetType setType;
-  double percent;
 
   Set({
-    this.setId,
     this.weight,
     this.reps,
     this.setType,
     this.percent,
-    String repRange,
+    this.repRange,
+    this.notes,
   });
 
   /// Reset weight and reps for this set.
@@ -164,7 +164,7 @@ class Set {
         repRange: json['repRange'],
         setType: getSetTypeFromString(json['setType']),
         percent: json['percent'],
-        // setId:
+        notes: json['notes'],
       );
 
   // TODO: being stored in db as string instead of map
@@ -175,5 +175,6 @@ class Set {
         'setType':
             setType != null ? this.setType.toString().split('.').last : null,
         'percent': this.percent,
+        'notes': this.notes,
       };
 }

@@ -363,14 +363,6 @@ class DatabaseService {
     }
   }
 
-  // update a base exercise
-  // Future updateExerciseBase(String id, String name, String type) async {
-  //   return await userRef.collection('exerciseBases').document(id).setData({
-  //     'name': name,
-  //     'type': type,
-  //   });
-  // }
-
   // exerciseBase data from snapshot
   ExerciseBase _exerciseBaseDataFromSnapshot(DocumentSnapshot snapshot) {
     return ExerciseBase(
@@ -442,14 +434,6 @@ class DatabaseService {
   Exercise _exerciseDataFromSnapshot(
       DocumentSnapshot snapshot, Day day, List<ExerciseBase> bases) {
     return Exercise.fromJson(snapshot, day, bases);
-    // return Exercise(
-    //   exerciseId: snapshot.documentID,
-    //   name: snapshot.data['name'],
-    //   day: day,
-    //   exerciseBase: bases
-    //       .firstWhere((b) => b.exerciseBaseId == snapshot['exerciseBaseId']),
-    //   sets: snapshot['sets'],
-    // );
   }
 
   // program's exercise data from snapshot

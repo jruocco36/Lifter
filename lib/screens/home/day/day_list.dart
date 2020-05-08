@@ -20,7 +20,7 @@ class _DayListState extends State<DayList> {
 
     // iterates through our list and creates an array of widgets with
     // one widget for each item
-    // if (days.length > 0 && days[0].dayId == 'loading') return Loading();
+    if (days.length > 0 && days[0].dayId == 'loading') return Loading();
     return days.length < 1
         ? StartText()
         : ListView.builder(

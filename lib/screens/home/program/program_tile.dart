@@ -20,7 +20,8 @@ class ProgramTile extends StatelessWidget {
       child: Tooltip(
         message: '${program.name}',
         child: Card(
-          color: lightGreyColor,
+          // color: lightGreyColor,
+          color: Colors.transparent,
           margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0.0),
           child: OpenContainer(
               transitionType: ContainerTransitionType.fade,
@@ -30,7 +31,7 @@ class ProgramTile extends StatelessWidget {
               },
               tappable: false,
               closedShape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
+                borderRadius: BorderRadius.all(Radius.circular(5)),
               ),
               closedElevation: 0.0,
               closedColor: lightGreyColor,

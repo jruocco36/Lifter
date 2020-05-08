@@ -20,7 +20,7 @@ class _ExerciseListState extends State<ExerciseList> {
 
     // iterates through our list and creates an array of widgets with
     // one widget for each item
-    // if (exercises.length > 0 && exercises[0].exerciseId == 'loading') return Loading();
+    if (exercises.length > 0 && exercises[0].exerciseId == 'loading') return Loading();
     return exercises.length < 1
         ? StartText()
         : ListView.builder(

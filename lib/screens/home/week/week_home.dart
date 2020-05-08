@@ -75,22 +75,22 @@ class WeekHome extends StatelessWidget {
         stream: DatabaseService(uid: week.cycle.program.uid)
             .getWeekData(week.cycle, week.weekId),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Loading();
-          }
+          // if (snapshot.connectionState == ConnectionState.waiting) {
+          //   return Loading();
+          // }
 
           Week weekUpdates;
           snapshot.hasData ? weekUpdates = snapshot.data : weekUpdates = week;
           return StreamProvider<List<Day>>.value(
-            // initialData: [
-            //   Day(
-            //     dayId: 'loading',
-            //     date: null,
-            //     dayName: null,
-            //     week: null,
-            //     bodyweight: null,
-            //   )
-            // ],
+            initialData: [
+              Day(
+                dayId: 'loading',
+                date: null,
+                dayName: null,
+                week: null,
+                bodyweight: null,
+              )
+            ],
             value: DatabaseService(uid: week.cycle.program.uid).getDays(week),
             child: Scaffold(
               appBar: AppBar(

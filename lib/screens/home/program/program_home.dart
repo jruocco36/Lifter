@@ -74,22 +74,23 @@ class ProgramHome extends StatelessWidget {
         stream:
             DatabaseService(uid: program.uid).getProgramData(program.programId),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Loading();
-          }
+          // this causes loading screen until program tile animation is finished
+          // if (snapshot.connectionState == ConnectionState.waiting) {
+          //   return Loading();
+          // }
           Program programUpdates;
           snapshot.hasData
               ? programUpdates = snapshot.data
               : programUpdates = program;
           return StreamProvider<List<Cycle>>.value(
-            // initialData: [
-            //   Cycle(
-            //       cycleId: 'loading',
-            //       program: null,
-            //       name: null,
-            //       startDate: null,
-            //       trainingMaxPercent: null)
-            // ],
+            initialData: [
+              Cycle(
+                  cycleId: 'loading',
+                  program: null,
+                  name: null,
+                  startDate: null,
+                  trainingMaxPercent: null)
+            ],
             value: DatabaseService(uid: program.uid).getCycles(program),
             child: Scaffold(
               appBar: AppBar(

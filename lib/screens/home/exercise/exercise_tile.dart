@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
+// TODO: ability to switch exercise without losing sets
+//       ie. accidently added deficit deadlift instead of deadlift, want
+//       to switch to deadlift without having to re-enter sets (maybe on long press?)
+//       would just have to update day.exercise name and baseId
 // TODO: edit/delete exercise base
 //       (maybe one menu to do this that can be accessed anywhere)
 
@@ -294,7 +298,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
               child: Column(
                 children: <Widget>[
                   TextFormField(
-                    autofocus: true,
+                    // autofocus: true,
                     maxLines: null,
                     initialValue: widget.exercise.sets[index].notes != null
                         ? widget.exercise.sets[index].notes

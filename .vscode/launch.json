@@ -12,3 +12,26 @@
         }
     ]
 }
+
+/* 
+# Wireless debugging to device
+Device > Developer options:
+    - USB debugging: On
+    - Wireless ADB debugging: On
+
+Connect device to USB for the first time, accept computer
+In terminal:
+adb kill-server
+adb tcpip 5555
+Unplug USB
+
+Connect to device in terminal:
+adb tcpip 5555
+adb connect 192.168.0.121:5555
+adb devices
+
+Disconnect:
+adb disconnect 192.168.0.121:5555
+adb kill-server
+
+*/

@@ -20,7 +20,7 @@ class _CycleListState extends State<CycleList> {
 
     // iterates through our list and creates an array of widgets with
     // one widget for each item
-    // if (cycles.length > 0 && cycles[0].cycleId == 'loading') return Loading();
+    if (cycles.length > 0 && cycles[0].cycleId == 'loading') return Loading();
     return cycles.length < 1
         ? StartText()
         : ListView.builder(

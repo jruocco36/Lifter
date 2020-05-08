@@ -93,6 +93,7 @@ class DayTile extends StatelessWidget {
                       showDialog(
                         context: context,
                         builder: (_) {
+                          // TODO: only accept positive/negative integers
                           return AlertDialog(
                             backgroundColor: darkGreyColor,
                             content: TextFormField(

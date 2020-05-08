@@ -127,7 +127,7 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                   ],
                   initialValue: _trainingMaxPercent ??
                       (cycle != null
-                          ? cycle.trainingMaxPercent.toString()
+                          ? (cycle.trainingMaxPercent * 100).toString()
                           : ''),
                   decoration: textInputDecoration.copyWith(
                       labelText: 'Training Max Percent', suffix: Text('%')),
@@ -155,7 +155,7 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                         _cycleName ?? cycle.name,
                         _startDate != null ? _startDate : cycle.startDate,
                         _trainingMaxPercent != null
-                            ? double.parse(_trainingMaxPercent)
+                            ? double.parse(_trainingMaxPercent)/100
                             : cycle.trainingMaxPercent,
                       );
                     }

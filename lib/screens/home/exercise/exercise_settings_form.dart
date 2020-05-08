@@ -33,33 +33,46 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
   bool newExerciseBase = true;
   Exercise exercise;
   String exerciseBaseId;
+  String _oneRepMax;
 
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
 
-    return StreamBuilder<Exercise>(
-      stream: DatabaseService(uid: user.uid)
-          .getExerciseData(widget.day, widget.exerciseId, exerciseBases),
+    // Exercise name (exercise base)
+    return StreamBuilder<List<ExerciseBase>>(
+      stream: DatabaseService(uid: widget.day.week.cycle.program.uid)
+          .getExerciseBases(),
       builder: (context, snapshot) {
-        if (snapshot.hasData || widget.exerciseId == null) {
-          exercise = snapshot.data;
-          if (exercise != null) {
-            textEditingController.text = exercise.name;
-          }
+        if (snapshot.hasData) {
+          List<String> exerciseStrings = [];
+          exerciseBases = snapshot.data;
+          exerciseBases.forEach((f) => exerciseStrings.add(f.exerciseName));
+          exerciseBaseStrings = exerciseStrings;
+        }
 
-          // Exercise name (exercise base)
-          return StreamBuilder<List<ExerciseBase>>(
-              stream: DatabaseService(uid: widget.day.week.cycle.program.uid)
-                  .getExerciseBases(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  List<String> exerciseStrings = [];
-                  exerciseBases = snapshot.data;
-                  exerciseBases
-                      .forEach((f) => exerciseStrings.add(f.exerciseName));
-                  exerciseBaseStrings = exerciseStrings;
+        return StreamBuilder<Exercise>(
+            stream: DatabaseService(uid: user.uid)
+                .getExerciseData(widget.day, widget.exerciseId, exerciseBases),
+            builder: (context, snapshot) {
+              if (snapshot.hasData || widget.exerciseId == null) {
+                exercise = snapshot.data;
+                if (exercise != null) {
+                  textEditingController.text = exercise.name;
                 }
+
+                // // Exercise name (exercise base)
+                // return StreamBuilder<List<ExerciseBase>>(
+                //     stream: DatabaseService(uid: widget.day.week.cycle.program.uid)
+                //         .getExerciseBases(),
+                //     builder: (context, snapshot) {
+                //       if (snapshot.hasData) {
+                //         List<String> exerciseStrings = [];
+                //         exerciseBases = snapshot.data;
+                //         exerciseBases
+                //             .forEach((f) => exerciseStrings.add(f.exerciseName));
+                //         exerciseBaseStrings = exerciseStrings;
+                //       }
                 return Form(
                   key: _formKey,
                   child: Column(
@@ -72,6 +85,7 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                       ),
                       SizedBox(height: 20.0),
 
+                      // Exercise name
                       TypeAheadFormField(
                         textFieldConfiguration: TextFieldConfiguration(
                           controller: textEditingController,
@@ -113,7 +127,8 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                         },
                         suggestionsCallback: (pattern) {
                           return exerciseBaseStrings.where((base) {
-                            RegExp test = RegExp(r'.*' + pattern.toUpperCase() + '.*');
+                            RegExp test =
+                                RegExp(r'.*' + pattern.toUpperCase() + '.*');
                             return test.hasMatch(base.toUpperCase());
                           });
                         },
@@ -133,7 +148,10 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                       DropdownButtonFormField(
                         value: _exerciseType != null
                             ? exerciseTypeToString(_exerciseType)
-                            : 'Main',
+                            : exercise != null
+                                ? exerciseTypeToString(
+                                    exercise.exerciseBase.exerciseType)
+                                : 'Main',
                         items: exercistTypesToStrings().map((type) {
                           return DropdownMenuItem(
                             value: type,
@@ -147,6 +165,34 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                           _exerciseType = getExerciseTypeFromString(val);
                           newExerciseBase = true;
                         }),
+                      ),
+                      SizedBox(height: 20.0),
+
+                      // 1RM
+                      TextFormField(
+                        initialValue: _oneRepMax ??
+                            (exercise != null
+                                ? (exercise.exerciseBase.oneRepMax != null
+                                    ? exercise.exerciseBase.oneRepMax.toString()
+                                    : null)
+                                : ''),
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        decoration: textInputDecoration.copyWith(
+                            labelText: 'One Rep Max'),
+                        validator: (val) {
+                          if (val.isEmpty) return null;
+                          try {
+                            double weight = double.parse(val);
+                            if (weight < 0)
+                              return 'Not a valid one rep max';
+                            else
+                              return null;
+                          } on FormatException {
+                            return 'Not a valid one rep max';
+                          }
+                        },
+                        onChanged: (val) => setState(() => _oneRepMax = val),
                       ),
                       SizedBox(height: 20.0),
 
@@ -170,32 +216,36 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                             //         ? exerciseTypeToString(_exerciseType)
                             //         : 'Main');
                             // }
-                            ExerciseBase exerciseBase = ExerciseBase(
+                            ExerciseBase exBase = ExerciseBase(
                               exerciseBaseId: exerciseBaseId,
                               exerciseName: _exerciseName,
                               exerciseType: _exerciseType != null
                                   ? _exerciseType
                                   : ExerciseType.Main,
-                              oneRepMax: null,
+                              oneRepMax: _oneRepMax != null
+                                  ? double.parse(_oneRepMax)
+                                  : (exercise != null
+                                      ? exercise.exerciseBase.oneRepMax
+                                      : null),
                             );
-                            Exercise exercise = Exercise(
+                            Exercise ex = Exercise(
                               day: widget.day,
-                              exerciseBase: exerciseBase,
+                              exerciseBase: exBase,
                               exerciseId: widget.exerciseId,
                               name: _exerciseName,
                             );
                             await database.updateExercise(
-                                exerciseBase, exercise);
+                                exBase, ex);
                           }
                         },
                       ),
                     ],
                   ),
                 );
-              });
-        } else {
-          return Loading();
-        }
+              } else {
+                return Loading();
+              }
+            });
       },
     );
   }

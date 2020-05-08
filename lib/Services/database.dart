@@ -367,11 +367,12 @@ class DatabaseService {
 
   // exerciseBase data from snapshot
   ExerciseBase _exerciseBaseDataFromSnapshot(DocumentSnapshot snapshot) {
-    return ExerciseBase(
-      exerciseBaseId: snapshot.documentID,
-      exerciseName: snapshot.data['name'],
-      exerciseType: getExerciseTypeFromString(snapshot.data['type']),
-    );
+    return ExerciseBase.fromJson(snapshot);
+    // return ExerciseBase(
+    //   exerciseBaseId: snapshot.documentID,
+    //   exerciseName: snapshot.data['name'],
+    //   exerciseType: getExerciseTypeFromString(snapshot.data['type']),
+    // );
   }
 
   // program's exerciseBase data from snapshot
@@ -392,7 +393,7 @@ class DatabaseService {
   // update a base exercise
   Future updateExercise(ExerciseBase exerciseBase, Exercise exercise) async {
     bool update = exercise.exerciseId != null;
-    if (exerciseBase.exerciseBaseId == null) {
+    if (!update) {
       return await userRef
           .collection('exerciseBases')
           .add(exerciseBase.toJson(update: false))
@@ -413,10 +414,8 @@ class DatabaseService {
       return await userRef
           .collection('exerciseBases')
           .document(exerciseBase.exerciseBaseId)
-          .setData({
-        'name': exerciseBase.exerciseName,
-        'type': exerciseBase.type,
-      }, merge: true).whenComplete(() {
+          .updateData(exerciseBase.toJson(update: update))
+          .whenComplete(() {
         userRef
             .collection('programs')
             .document(exercise.day.week.cycle.program.programId)
@@ -428,7 +427,7 @@ class DatabaseService {
             .document(exercise.day.dayId)
             .collection('exercises')
             .document(exercise.exerciseId)
-            .setData(exercise.toJson(update: update), merge: true);
+            .updateData(exercise.toJson(update: update));
       });
     }
   }

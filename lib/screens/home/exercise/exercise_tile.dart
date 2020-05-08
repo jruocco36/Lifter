@@ -1,6 +1,7 @@
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/exercise.dart';
 import 'package:Lifter/screens/home/delete_dialog.dart';
+import 'package:Lifter/screens/home/exercise/exercise_settings_form.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -60,8 +61,33 @@ class _ExerciseTileState extends State<ExerciseTile> {
                     children: <Widget>[
                       GestureDetector(
                         child: Icon(
+                          Icons.add,
+                          size: 20,
+                        ),
+                        onTap: () {
+                          // setState(() {
+                          if (widget.exercise.sets == null) {
+                            widget.exercise.sets = [];
+                          }
+                          _editSet();
+                          // });
+                        },
+                      ),
+                      SizedBox(width: 25),
+                      GestureDetector(
+                        child: Icon(
+                          Icons.settings,
+                          size: 20,
+                        ),
+                        onTap: () {
+                          _editExercisePanel();
+                        },
+                      ),
+                      SizedBox(width: 25),
+                      GestureDetector(
+                        child: Icon(
                           Icons.delete,
-                          size: 18,
+                          size: 20,
                         ),
                         onTap: () async {
                           final delete = await showDialog(
@@ -72,24 +98,6 @@ class _ExerciseTileState extends State<ExerciseTile> {
                           if (delete) {
                             database.deleteExercise(widget.exercise);
                           }
-                        },
-                      ),
-                      SizedBox(
-                        width: 25,
-                      ),
-                      GestureDetector(
-                        child: Icon(
-                          Icons.add,
-                          size: 18,
-                        ),
-                        onTap: () {
-                          setState(() {
-                            if (widget.exercise.sets == null) {
-                              widget.exercise.sets = [];
-                            }
-                            widget.exercise.sets.add(Set());
-                            updateExercise();
-                          });
                         },
                       ),
                     ],
@@ -220,10 +228,15 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                       : greyTextColor,
                                 ),
                                 onPressed: () {
-                                  // print('notes for ' +
-                                  //     widget.exercise.sets[index].weight
-                                  //         .toString());
                                   setNotes(index);
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.settings),
+                                onPressed: () {
+                                  _editSet(index);
+                                  // widget.exercise.sets.removeAt(index);
+                                  // updateExercise();
                                 },
                               ),
                               // BUG: deleting set removes correct set from firebase, but widget displays
@@ -261,7 +274,8 @@ class _ExerciseTileState extends State<ExerciseTile> {
     return Row(
       children: <Widget>[
         Text(' | ', style: TextStyle(fontSize: 18, color: greyTextColor)),
-        Text('1RM: ' + widget.exercise.exerciseBase.oneRepMax.toString(),
+        Text(
+            '1RM: ' + widget.exercise.exerciseBase.oneRepMax.toInt().toString(),
             style: TextStyle(fontSize: 14)),
       ],
     );
@@ -271,7 +285,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
     return Row(
       children: <Widget>[
         Text(' | ', style: TextStyle(fontSize: 18, color: greyTextColor)),
-        Text('Training Max: ' + widget.exercise.trainingMax.toString(),
+        Text('TM: ' + widget.exercise.trainingMax.toInt().toString(),
             style: TextStyle(fontSize: 14)),
       ],
     );
@@ -323,6 +337,147 @@ class _ExerciseTileState extends State<ExerciseTile> {
                     },
                   ),
                 ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _editExercisePanel() {
+    showModalBottomSheet(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+      ),
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
+              child: ExerciseSettingsForm(
+                day: widget.exercise.day,
+                exerciseId: widget.exercise.exerciseId,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _editSet([int index]) {
+    final _formKey = GlobalKey<FormState>();
+
+    Set set = index != null ? widget.exercise.sets[index] : Set();
+    String type;
+    double percent;
+
+    showModalBottomSheet(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+      ),
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: <Widget>[
+                    // Progress type dropdown
+                    DropdownButtonFormField(
+                      decoration:
+                          textInputDecoration.copyWith(hintText: 'Set type'),
+                      isDense: true,
+                      value: setTypeToString(set.setType) ??
+                          setTypesToStrings()[0],
+                      items: setTypesToStrings().map((type) {
+                        return DropdownMenuItem(
+                          value: type,
+                          child: Text(setTypeFormatString(type)),
+                        );
+                      }).toList(),
+                      onChanged: (val) => setState(() => type = val),
+                    ),
+                    SizedBox(height: 20.0),
+
+                    // Percent
+                    TextFormField(
+                      keyboardType: TextInputType.number,
+                      initialValue: set.percent != null
+                          ? (set.percent * 100).toString()
+                          : null,
+                      decoration: textInputDecoration.copyWith(
+                          hintText: 'Percent', suffix: Text('%')),
+                      inputFormatters: <TextInputFormatter>[
+                        WhitelistingTextInputFormatter(
+                          RegExp(r'^\d*\.{0,1}\d*$'),
+                        ),
+                      ],
+                      onChanged: (val) =>
+                          setState(() => percent = double.parse(val) / 100),
+                      validator: (val) {
+                        if (getSetTypeFromString(type) != SetType.weight) {
+                          try {
+                            double.parse(val);
+                            if (val.isEmpty) {
+                              return 'Enter percent';
+                            } else
+                              return null;
+                          } catch (e) {
+                            return 'Enter percent';
+                          }
+                        } else
+                          return null;
+                      },
+                    ),
+                    SizedBox(height: 20.0),
+
+                    RaisedButton(
+                      color: flamingoColor,
+                      child: Text(
+                        'Save',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      onPressed: () async {
+                        if (_formKey.currentState.validate()) {
+                          set.setType = getSetTypeFromString(type) ??
+                              set.setType ??
+                              SetType.weight;
+                          set.percent = percent ?? set.percent ?? null;
+                          Navigator.pop(context);
+                          if (index != null) {
+                            widget.exercise.sets[index] = set;
+                          } else {
+                            widget.exercise.sets.add(set);
+                          }
+                          if (set.setType != SetType.weight) {
+                            widget.exercise.calculateSets();
+                          }
+                          updateExercise();
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

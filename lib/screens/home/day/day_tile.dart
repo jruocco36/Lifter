@@ -7,6 +7,7 @@ import 'package:Lifter/screens/home/day/day_home.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class DayTile extends StatelessWidget {
@@ -50,6 +51,10 @@ class DayTile extends StatelessWidget {
                       child: new Text('Edit'),
                     ),
                     PopupMenuItem(
+                      value: 'Delay',
+                      child: new Text('Delay'),
+                    ),
+                    PopupMenuItem(
                       value: 'Delete',
                       child: new Text('Delete'),
                     ),
@@ -80,6 +85,36 @@ class DayTile extends StatelessWidget {
                                 ),
                               ),
                             ),
+                          );
+                        },
+                      );
+                    } else if (val == 'Delay') {
+                      int duration = 0;
+                      showDialog(
+                        context: context,
+                        builder: (_) {
+                          return AlertDialog(
+                            backgroundColor: darkGreyColor,
+                            content: TextFormField(
+                              autofocus: true,
+                              decoration:
+                                  InputDecoration(hintText: 'Number of days'),
+                              onChanged: (val) {
+                                duration = int.parse(val);
+                              },
+                            ),
+                            actions: <Widget>[
+                              RaisedButton(
+                                child: Text('Submit'),
+                                color: flamingoColor,
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  DatabaseService(
+                                          uid: day.week.cycle.program.uid)
+                                      .delayProgram(day, duration);
+                                },
+                              ),
+                            ],
                           );
                         },
                       );

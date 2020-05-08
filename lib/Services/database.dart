@@ -407,8 +407,7 @@ class DatabaseService {
             .collection('days')
             .document(exercise.day.dayId)
             .collection('exercises')
-            .add(exercise.toJson(
-                update: false, baseId: doc.documentID));
+            .add(exercise.toJson(update: false, baseId: doc.documentID));
       });
     } else {
       return await userRef
@@ -500,5 +499,39 @@ class DatabaseService {
         .collection('exercises')
         .document(exercise.exerciseId)
         .delete();
+  }
+
+  // BUG: doesn't update week [days] map
+  // delay program from a certain day
+  Future delayProgram(Day day, int duration) async {
+    return await userRef
+        .collection('programs')
+        .document(day.week.cycle.program.programId)
+        .collection('cycles')
+        .document(day.week.cycle.cycleId)
+        .collection('weeks')
+        .where('startDate',
+            isGreaterThanOrEqualTo: (day.date.subtract(Duration(days: 6))))
+        .getDocuments()
+        .then((value) {
+      value.documents.forEach((element) {
+        element.reference.updateData({
+          if (element['startDate'].toDate().isAfter(day.date))
+            'startDate':
+                element['startDate'].toDate().add(Duration(days: duration))
+        }).whenComplete(() {
+          element.reference.collection('days').getDocuments().then((value) => {
+                value.documents.forEach((element) {
+                  if (element['date'].toDate().isAfter(day.date) ||
+                      element['date'].toDate().isAtSameMomentAs(day.date))
+                    element.reference.updateData({
+                      'date':
+                          element['date'].toDate().add(Duration(days: duration))
+                    });
+                })
+              });
+        });
+      });
+    });
   }
 }

@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 // TODO: bug checking for date check with no days, editing existing day
+// TODO: ability to push cycle back by x number of days from a certain point
 
 class DaySettingsForm extends StatefulWidget {
   final Week week;
@@ -154,7 +155,7 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                       
                       String bw;
                       if (_bodyweight == null) {
-                        if (day != null) {
+                        if (day != null && day.bodyweight != null) {
                           bw = day.bodyweight.toString();
                         } else {
                           bw = null;

@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-// TODO: animate when clicking item from week drawer
 // TODO: animation when deleting item
 //       https://www.youtube.com/watch?v=ZtfItHwFlZ8
 

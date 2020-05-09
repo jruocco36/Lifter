@@ -9,8 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-// TODO: bug checking for date check with no days, editing existing day
-
 class DaySettingsForm extends StatefulWidget {
   final Week week;
   final String dayId;

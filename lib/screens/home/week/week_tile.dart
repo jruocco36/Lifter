@@ -1,7 +1,5 @@
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/week.dart';
-// import 'package:Lifter/screens/home/week_home.dart';
-// import 'package:Lifter/screens/home/week_settings_form.dart';
 import 'package:Lifter/screens/home/delete_dialog.dart';
 import 'package:Lifter/screens/home/week/week_home.dart';
 import 'package:Lifter/screens/home/week/week_settings_form.dart';

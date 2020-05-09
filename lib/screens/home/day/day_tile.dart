@@ -3,11 +3,9 @@ import 'package:Lifter/models/day.dart';
 import 'package:Lifter/screens/home/day/day_settings_form.dart';
 import 'package:Lifter/screens/home/delete_dialog.dart';
 import 'package:Lifter/screens/home/day/day_home.dart';
-// import 'package:Lifter/screens/home/day/day_settings_form.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class DayTile extends StatelessWidget {

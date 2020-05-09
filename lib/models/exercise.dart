@@ -2,8 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:Lifter/models/day.dart';
 
-// TODO: populate 1RM and TM
-
 enum ExerciseType { Main, Accessory, Optional }
 
 ExerciseType getExerciseTypeFromString(String type) {

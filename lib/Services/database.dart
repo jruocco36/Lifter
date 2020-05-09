@@ -500,32 +500,54 @@ class DatabaseService {
         .delete();
   }
 
-  // BUG: doesn't update week [days] map
-  // delay program from a certain day
-  Future delayProgram(Day day, int duration) async {
+  /// Delay program from a certain day.
+  /// Also works for advancing after a certain day.
+  Future delayProgram(Day delayDay, int duration) async {
     return await userRef
         .collection('programs')
-        .document(day.week.cycle.program.programId)
+        .document(delayDay.week.cycle.program.programId)
         .collection('cycles')
-        .document(day.week.cycle.cycleId)
+        .document(delayDay.week.cycle.cycleId)
         .collection('weeks')
         .where('startDate',
-            isGreaterThanOrEqualTo: (day.date.subtract(Duration(days: 6))))
+            isGreaterThanOrEqualTo: (delayDay.date.subtract(Duration(days: 6))))
         .getDocuments()
         .then((value) {
-      value.documents.forEach((element) {
-        element.reference.updateData({
-          if (element['startDate'].toDate().isAfter(day.date))
+      value.documents.asMap().forEach((index, week) {
+        Map<String, dynamic> days = week['days'];
+        int index = 0;
+
+        // move each dayId in [week].[days] up/down by duration
+        days.forEach((key, value) {
+          String oldDay = DateFormat('EEEE')
+              .format(week['startDate'].toDate().add(Duration(days: index)));
+          String newDay = DateFormat('EEEE').format(
+              week['startDate'].toDate().add(Duration(days: duration + index)));
+
+          // don't move days before delayDay (day we want to start delaying)
+          if (week['startDate']
+              .toDate()
+              .add(Duration(days: index))
+              .isBefore(delayDay.date.subtract(Duration(days: 1)))) {
+            index++;
+            return;
+          }
+          days[newDay] = week['days'][oldDay];
+          index++;
+        });
+
+        week.reference.updateData({
+          'days': days,
+          if (week['startDate'].toDate().isAfter(delayDay.date))
             'startDate':
-                element['startDate'].toDate().add(Duration(days: duration))
+                week['startDate'].toDate().add(Duration(days: duration)),
         }).whenComplete(() {
-          element.reference.collection('days').getDocuments().then((value) => {
-                value.documents.forEach((element) {
-                  if (element['date'].toDate().isAfter(day.date) ||
-                      element['date'].toDate().isAtSameMomentAs(day.date))
-                    element.reference.updateData({
-                      'date':
-                          element['date'].toDate().add(Duration(days: duration))
+          week.reference.collection('days').getDocuments().then((value) => {
+                value.documents.forEach((day) {
+                  if (day['date'].toDate().isAfter(delayDay.date) ||
+                      day['date'].toDate().isAtSameMomentAs(delayDay.date))
+                    day.reference.updateData({
+                      'date': day['date'].toDate().add(Duration(days: duration))
                     });
                 })
               });

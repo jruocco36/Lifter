@@ -110,9 +110,11 @@ class DayTile extends StatelessWidget {
                                 color: flamingoColor,
                                 onPressed: () {
                                   Navigator.pop(context);
-                                  DatabaseService(
-                                          uid: day.week.cycle.program.uid)
-                                      .delayProgram(day, duration);
+                                  if (duration != 0) {
+                                    DatabaseService(
+                                            uid: day.week.cycle.program.uid)
+                                        .delayProgram(day, duration);
+                                  }
                                 },
                               ),
                             ],

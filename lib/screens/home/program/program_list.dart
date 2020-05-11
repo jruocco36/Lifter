@@ -20,8 +20,8 @@ class _ProgramListState extends State<ProgramList> {
 
     // iterates through our list and creates an array of widgets with
     // one widget for each item
-    // if (programs.length > 0 && programs[0].programId == 'loading')
-    //   return Loading();
+    if (programs.length > 0 && programs[0].programId == 'loading')
+      return Loading();
     return programs.length < 1
         ? StartText()
         : ListView.builder(

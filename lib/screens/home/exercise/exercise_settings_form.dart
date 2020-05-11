@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 
+// TODO: redo this page using exercise_tile form as example
+
 class ExerciseSettingsForm extends StatefulWidget {
   final Day day;
   final String exerciseId;
@@ -144,7 +146,6 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                       ),
                       SizedBox(height: 20.0),
 
-                      // BUG: exercise type not pulling up for exisiting bases
                       // exercise type
                       DropdownButtonFormField(
                         value: _exerciseType != null
@@ -169,7 +170,6 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                       ),
                       SizedBox(height: 20.0),
 
-                      // TODO: pull up 1RM for exisiting bases
                       // 1RM
                       TextFormField(
                         initialValue: _oneRepMax ??
@@ -211,6 +211,13 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                             // if (newExerciseBase) {
                             DatabaseService database = DatabaseService(
                                 uid: widget.day.week.cycle.program.uid);
+                            // await database.updateExerciseBase(
+                            //     exerciseBaseId,
+                            //     _exerciseName,
+                            //     _exerciseType != null
+                            //         ? exerciseTypeToString(_exerciseType)
+                            //         : 'Main');
+                            // }
                             ExerciseBase exBase = ExerciseBase(
                               exerciseBaseId: exerciseBaseId,
                               exerciseName: _exerciseName,

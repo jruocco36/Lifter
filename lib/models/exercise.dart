@@ -96,9 +96,15 @@ class Exercise {
       }
       if (set.setType == SetType.percentOfMax) {
         set.weight =
-            (set.percent * this.exerciseBase.oneRepMax / 5).roundToDouble() * 5;
+            ((set.percent * this.exerciseBase.oneRepMax / 5).roundToDouble() *
+                        5) +
+                    (set.additionalWeight ??
+                0);
       } else if (set.setType == SetType.percentOfTMax) {
-        set.weight = (set.percent * this.trainingMax / 5).roundToDouble() * 5;
+        set.weight =
+            ((set.percent * this.trainingMax / 5).roundToDouble() * 5) +
+                    (set.additionalWeight ??
+                0);
       }
     });
   }
@@ -177,6 +183,7 @@ class Set {
   String repRange;
   int reps;
   double percent;
+  double additionalWeight;
   String notes;
 
   /// weight, percent of max, or percent of training max
@@ -187,6 +194,7 @@ class Set {
     this.reps,
     this.setType,
     this.percent,
+    this.additionalWeight,
     this.repRange,
     this.notes,
   });
@@ -210,12 +218,13 @@ class Set {
   }
 
   factory Set.fromJson(Map<String, dynamic> json) => Set(
-        weight: json['weight'],
+        weight: double.tryParse(json['weight'].toString()),
         reps: json['reps'],
         repRange: json['repRange'],
         setType: getSetTypeFromString(json['setType']),
         percent: json['percent'],
         notes: json['notes'],
+        additionalWeight: double.tryParse(json['additionalWeight'].toString()),
       );
 
   Map toJson({bool update}) => <String, dynamic>{
@@ -226,6 +235,7 @@ class Set {
             setType != null ? this.setType.toString().split('.').last : null,
         'percent': this.percent,
         'notes': this.notes,
+        'additionalWeight': this.additionalWeight,
         if (!update) 'createdDate': Timestamp.now(),
       };
 }

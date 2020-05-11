@@ -177,10 +177,10 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                           : null,
                                   // validator: (val) =>
                                   //     val.isEmpty ? 'Enter reps' : null,
-                                  onChanged: (val) => setState(() => widget
-                                      .exercise
-                                      .sets[index]
-                                      .reps = int.parse(val)),
+                                  onChanged: (val) => setState(() {
+                                    widget.exercise.sets[index].reps =
+                                        val != '' ? int.parse(val) : null;
+                                  }),
                                   onEditingComplete: () {
                                     FocusScope.of(context).unfocus();
                                     updateExercise();
@@ -378,8 +378,9 @@ class _ExerciseTileState extends State<ExerciseTile> {
     final _formKey = GlobalKey<FormState>();
 
     Set set = index != null ? widget.exercise.sets[index] : Set();
-    String type;
+    String setType;
     double percent;
+    double additionalWeight;
 
     showModalBottomSheet(
       shape: RoundedRectangleBorder(
@@ -407,15 +408,16 @@ class _ExerciseTileState extends State<ExerciseTile> {
                       decoration:
                           textInputDecoration.copyWith(hintText: 'Set type'),
                       isDense: true,
-                      value: setTypeToString(set.setType) ??
-                          setTypesToStrings()[0],
+                      value: set.setType != null
+                          ? setTypeToString(set.setType)
+                          : setTypesToStrings()[0],
                       items: setTypesToStrings().map((type) {
                         return DropdownMenuItem(
                           value: type,
                           child: Text(setTypeFormatString(type)),
                         );
                       }).toList(),
-                      onChanged: (val) => setState(() => type = val),
+                      onChanged: (val) => setState(() => setType = val),
                     ),
                     SizedBox(height: 20.0),
 
@@ -435,7 +437,8 @@ class _ExerciseTileState extends State<ExerciseTile> {
                       onChanged: (val) =>
                           setState(() => percent = double.parse(val) / 100),
                       validator: (val) {
-                        if (getSetTypeFromString(type) != SetType.weight) {
+                        if (getSetTypeFromString(setType) != SetType.weight &&
+                            getSetTypeFromString(setType) != null) {
                           try {
                             double.parse(val);
                             if (val.isEmpty) {
@@ -445,8 +448,43 @@ class _ExerciseTileState extends State<ExerciseTile> {
                           } catch (e) {
                             return 'Enter percent';
                           }
+                        } else if (getSetTypeFromString(setType) !=
+                                SetType.weight &&
+                            getSetTypeFromString(setType) != null &&
+                            val.isNotEmpty) {
+                          return 'Cannot have percent with a set type of Weight';
                         } else
                           return null;
+                      },
+                    ),
+                    SizedBox(height: 20.0),
+
+                    // Additional weight
+                    TextFormField(
+                      keyboardType: TextInputType.number,
+                      initialValue: set.additionalWeight != null
+                          ? set.additionalWeight.toString()
+                          : null,
+                      decoration: textInputDecoration.copyWith(
+                          hintText: 'Additional weight', suffix: Text('lbs')),
+                      inputFormatters: <TextInputFormatter>[
+                        WhitelistingTextInputFormatter(
+                          RegExp(r'^-?\d*\.{0,1}\d*$'),
+                        ),
+                      ],
+                      onChanged: (val) =>
+                          setState(() => additionalWeight = double.parse(val)),
+                      validator: (val) {
+                        if (val.isEmpty) return null;
+                        try {
+                          double.parse(val);
+                          if (val.isEmpty) {
+                            return 'Enter additional weight';
+                          } else
+                            return null;
+                        } catch (e) {
+                          return 'Enter additional weight';
+                        }
                       },
                     ),
                     SizedBox(height: 20.0),
@@ -459,10 +497,12 @@ class _ExerciseTileState extends State<ExerciseTile> {
                       ),
                       onPressed: () async {
                         if (_formKey.currentState.validate()) {
-                          set.setType = getSetTypeFromString(type) ??
+                          set.setType = getSetTypeFromString(setType) ??
                               set.setType ??
                               SetType.weight;
                           set.percent = percent ?? set.percent ?? null;
+                          set.additionalWeight =
+                              additionalWeight ?? set.additionalWeight ?? null;
                           Navigator.pop(context);
                           if (index != null) {
                             widget.exercise.sets[index] = set;

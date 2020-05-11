@@ -392,7 +392,7 @@ class DatabaseService {
 
   // update a base exercise
   Future updateExercise(ExerciseBase exerciseBase, Exercise exercise) async {
-    bool update = exercise.exerciseId != null;
+    bool update = exerciseBase != null;
     if (!update) {
       return await userRef
           .collection('exerciseBases')
@@ -416,18 +416,32 @@ class DatabaseService {
           .document(exerciseBase.exerciseBaseId)
           .updateData(exerciseBase.toJson(update: update))
           .whenComplete(() {
-        userRef
-            .collection('programs')
-            .document(exercise.day.week.cycle.program.programId)
-            .collection('cycles')
-            .document(exercise.day.week.cycle.cycleId)
-            .collection('weeks')
-            .document(exercise.day.week.weekId)
-            .collection('days')
-            .document(exercise.day.dayId)
-            .collection('exercises')
-            .document(exercise.exerciseId)
-            .updateData(exercise.toJson(update: update));
+        if (exercise.exerciseId != null) {
+          userRef
+              .collection('programs')
+              .document(exercise.day.week.cycle.program.programId)
+              .collection('cycles')
+              .document(exercise.day.week.cycle.cycleId)
+              .collection('weeks')
+              .document(exercise.day.week.weekId)
+              .collection('days')
+              .document(exercise.day.dayId)
+              .collection('exercises')
+              .document(exercise.exerciseId)
+              .updateData(exercise.toJson(update: update));
+        } else {
+          userRef
+              .collection('programs')
+              .document(exercise.day.week.cycle.program.programId)
+              .collection('cycles')
+              .document(exercise.day.week.cycle.cycleId)
+              .collection('weeks')
+              .document(exercise.day.week.weekId)
+              .collection('days')
+              .document(exercise.day.dayId)
+              .collection('exercises')
+              .add(exercise.toJson(update: false));
+        }
       });
     }
   }

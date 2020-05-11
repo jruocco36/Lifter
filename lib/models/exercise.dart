@@ -97,14 +97,12 @@ class Exercise {
       if (set.setType == SetType.percentOfMax) {
         set.weight =
             ((set.percent * this.exerciseBase.oneRepMax / 5).roundToDouble() *
-                        5) +
-                    (set.additionalWeight ??
-                0);
+                    5) +
+                (set.additionalWeight ?? 0);
       } else if (set.setType == SetType.percentOfTMax) {
         set.weight =
             ((set.percent * this.trainingMax / 5).roundToDouble() * 5) +
-                    (set.additionalWeight ??
-                0);
+                (set.additionalWeight ?? 0);
       }
     });
   }

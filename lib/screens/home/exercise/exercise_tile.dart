@@ -24,7 +24,15 @@ class ExerciseTile extends StatefulWidget {
 }
 
 class _ExerciseTileState extends State<ExerciseTile> {
-  TextEditingController weightController = TextEditingController();
+  List<TextEditingController> weightControllers = [];
+
+  void dispose() {
+    weightControllers.forEach((c) {
+      c.dispose();
+    });
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,17 +115,22 @@ class _ExerciseTileState extends State<ExerciseTile> {
                 ],
               ),
             ),
+
+            // Set List
             if (widget.exercise.sets != null && widget.exercise.sets.length > 0)
               Container(
-                // height: 50,
                 child: ListView.builder(
                   padding: EdgeInsets.fromLTRB(10, 7, 0, 0),
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: widget.exercise.sets.length,
                   itemBuilder: (context, index) {
+                    print(weightControllers.length);
+                    if (weightControllers.length < index + 1) {
+                      weightControllers.add(TextEditingController());
+                    }
                     if (widget.exercise.sets[index].weight != null) {
-                      weightController.text =
+                      weightControllers[index].text =
                           widget.exercise.sets[index].weight.toInt().toString();
                     }
 
@@ -136,18 +149,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                     hintText: 'Weight',
                                     hintStyle: TextStyle(fontSize: 14),
                                   ),
-                                  // initialValue:
-                                  //     widget.exercise.sets[index].weight != null
-                                  //         ? widget.exercise.sets[index].weight
-                                  //             .toInt()
-                                  //             .toString()
-                                  //         : null,
-                                  controller: weightController,
-                                  // validator: (val) =>
-                                  //     val.isEmpty ? 'Enter weight' : null,
-                                  // TODO: may need to extend textinputformatter to avoid
-                                  //       removing typed in value if bad character is
-                                  //       input (regexp throws formatexception)
+                                  controller: weightControllers[index],
                                   inputFormatters: <TextInputFormatter>[
                                     WhitelistingTextInputFormatter(
                                       RegExp(r'^\d*\.{0,1}\d*$'),
@@ -199,6 +201,8 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                 endIndent: 5,
                                 indent: 10,
                               ),
+
+                              // Rep range
                               Flexible(
                                 child: TextFormField(
                                   keyboardType: TextInputType.text,
@@ -213,8 +217,6 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                               null
                                           ? widget.exercise.sets[index].repRange
                                           : null,
-                                  // validator: (val) =>
-                                  //     val.isEmpty ? 'Enter weight' : null,
                                   onChanged: (val) => setState(() {
                                     widget.exercise.sets[index].repRange = val;
                                   }),
@@ -224,6 +226,8 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                   },
                                 ),
                               ),
+
+                              // Set notes
                               IconButton(
                                 icon: Icon(
                                   Icons.note,
@@ -239,6 +243,8 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                   setNotes(index);
                                 },
                               ),
+
+                              // Set settings
                               IconButton(
                                 icon: Icon(Icons.settings),
                                 onPressed: () {
@@ -247,12 +253,13 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                   // updateExercise();
                                 },
                               ),
-                              // BUG: deleting set removes correct set from firebase, but widget displays
-                              //       wrong (removed) set
+                              
+                              // Delete set
                               IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
                                   widget.exercise.sets.removeAt(index);
+                                  weightControllers.removeAt(index);
                                   updateExercise();
                                 },
                               )
@@ -271,7 +278,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
         ),
       ),
     );
-  }
+  } // BUILD
 
   void updateExercise() async {
     await DatabaseService(uid: widget.exercise.day.week.cycle.program.uid)
@@ -300,6 +307,10 @@ class _ExerciseTileState extends State<ExerciseTile> {
   }
 
   void setNotes(int index) {
+    // compare new to old, don't send update if no changes
+    // this is to prevent un-needed writes to firebase (each set()/update() cost $)
+    String oldNotes;
+
     showModalBottomSheet(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -310,6 +321,8 @@ class _ExerciseTileState extends State<ExerciseTile> {
       context: context,
       isScrollControlled: true,
       builder: (context) {
+        oldNotes = widget.exercise.sets[index].notes;
+
         return SingleChildScrollView(
           child: Container(
             padding: EdgeInsets.only(
@@ -322,12 +335,14 @@ class _ExerciseTileState extends State<ExerciseTile> {
                   TextFormField(
                     // autofocus: true,
                     maxLines: null,
-                    initialValue: widget.exercise.sets[index].notes != null
-                        ? widget.exercise.sets[index].notes
-                        : null,
+                    initialValue: widget.exercise.sets[index].notes ?? null,
                     decoration: InputDecoration(labelText: 'Notes'),
                     onChanged: (val) {
-                      widget.exercise.sets[index].notes = val;
+                      if (val == '') {
+                        widget.exercise.sets[index].notes = null;
+                      } else {
+                        widget.exercise.sets[index].notes = val;
+                      }
                     },
                   ),
                   SizedBox(height: 20.0),
@@ -339,7 +354,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                     ),
                     onPressed: () async {
                       Navigator.pop(context);
-                      if (widget.exercise.sets[index].notes != null) {
+                      if (widget.exercise.sets[index].notes != oldNotes) {
                         updateExercise();
                       }
                     },
@@ -384,11 +399,24 @@ class _ExerciseTileState extends State<ExerciseTile> {
 
   void _editSet([int index]) {
     final _formKey = GlobalKey<FormState>();
+    TextEditingController percentController = TextEditingController();
+    TextEditingController additionalWeightController = TextEditingController();
 
     Set set = index != null ? widget.exercise.sets[index] : Set();
     String setType;
     double percent;
     double additionalWeight;
+
+    if (index != null) {
+      if (widget.exercise.sets[index].percent != null) {
+        percentController.text =
+            (widget.exercise.sets[index].percent * 100).toString();
+      }
+      if (widget.exercise.sets[index].additionalWeight != null) {
+        additionalWeightController.text =
+            widget.exercise.sets[index].additionalWeight.toString();
+      }
+    }
 
     showModalBottomSheet(
       shape: RoundedRectangleBorder(
@@ -400,136 +428,162 @@ class _ExerciseTileState extends State<ExerciseTile> {
       context: context,
       isScrollControlled: true,
       builder: (context) {
-        return SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom),
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: <Widget>[
-                    // Progress type dropdown
-                    DropdownButtonFormField(
-                      decoration:
-                          textInputDecoration.copyWith(hintText: 'Set type'),
-                      isDense: true,
-                      value: set.setType != null
-                          ? setTypeToString(set.setType)
-                          : setTypesToStrings()[0],
-                      items: setTypesToStrings().map((type) {
-                        return DropdownMenuItem(
-                          value: type,
-                          child: Text(setTypeFormatString(type)),
-                        );
-                      }).toList(),
-                      onChanged: (val) => setState(() => setType = val),
-                    ),
-                    SizedBox(height: 20.0),
+        // Because this is not in the stateful Build() method, it needs to be
+        // wrapped in StatefulBuilder to be able to call it's own setState() function
+        return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setStateSheet) {
+          return SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 20.0, horizontal: 60.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: <Widget>[
+                      // Set type dropdown
+                      DropdownButtonFormField(
+                        decoration:
+                            textInputDecoration.copyWith(hintText: 'Set type'),
+                        isDense: true,
+                        value: set.setType != null
+                            ? setTypeToString(set.setType)
+                            : setTypesToStrings()[0],
+                        items: setTypesToStrings().map((type) {
+                          return DropdownMenuItem(
+                            value: type,
+                            child: Text(setTypeFormatString(type)),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          setStateSheet(() {
+                            // setType = val;
+                            set.setType = getSetTypeFromString(val);
+                            if (set.setType == SetType.weight) {
+                              percentController.text = '';
+                              additionalWeightController.text = '';
+                              set.percent = null;
+                              set.additionalWeight = null;
+                            }
+                          });
+                        },
+                      ),
+                      SizedBox(height: 20.0),
 
-                    // Percent
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      initialValue: set.percent != null
-                          ? (set.percent * 100).toString()
-                          : null,
-                      decoration: textInputDecoration.copyWith(
-                          hintText: 'Percent', suffix: Text('%')),
-                      inputFormatters: <TextInputFormatter>[
-                        WhitelistingTextInputFormatter(
-                          RegExp(r'^\d*\.{0,1}\d*$'),
-                        ),
-                      ],
-                      onChanged: (val) =>
-                          setState(() => percent = double.parse(val) / 100),
-                      validator: (val) {
-                        if (getSetTypeFromString(setType) != SetType.weight &&
-                            getSetTypeFromString(setType) != null) {
+                      // Percent
+                      TextFormField(
+                        keyboardType: TextInputType.number,
+                        enabled: set.setType == SetType.percentOfMax
+                            ? true
+                            : set.setType == SetType.percentOfTMax
+                                ? true
+                                : false,
+                        controller: percentController,
+                        // initialValue: set.percent != null
+                        //     ? (set.percent * 100).toString()
+                        //     : null,
+                        decoration: textInputDecoration.copyWith(
+                            hintText: 'Percent', suffix: Text('%')),
+                        inputFormatters: <TextInputFormatter>[
+                          WhitelistingTextInputFormatter(
+                            RegExp(r'^\d*\.{0,1}\d*$'),
+                          ),
+                        ],
+                        onChanged: (val) => setStateSheet(
+                            () => set.percent = double.parse(val) / 100),
+                        validator: (val) {
+                          if (set.setType != SetType.weight &&
+                              set.setType != null) {
+                            try {
+                              double.parse(val);
+                              if (val.isEmpty) {
+                                return 'Enter percent';
+                              } else
+                                return null;
+                            } catch (e) {
+                              return 'Enter percent';
+                            }
+                          } else if (set.setType != SetType.weight &&
+                              set.setType != null &&
+                              val.isNotEmpty) {
+                            return 'Cannot have percent with a set type of Weight';
+                          } else
+                            return null;
+                        },
+                      ),
+                      SizedBox(height: 20.0),
+
+                      // Additional weight
+                      TextFormField(
+                        keyboardType: TextInputType.number,
+                        controller: additionalWeightController,
+                        enabled: (set.setType == SetType.percentOfMax ||
+                            set.setType == SetType.percentOfTMax),
+                        // initialValue: set.additionalWeight != null
+                        //     ? set.additionalWeight.toString()
+                        //     : null,
+                        decoration: textInputDecoration.copyWith(
+                            hintText: 'Additional weight', suffix: Text('lbs')),
+                        inputFormatters: <TextInputFormatter>[
+                          WhitelistingTextInputFormatter(
+                            RegExp(r'^-?\d*\.{0,1}\d*$'),
+                          ),
+                        ],
+                        onChanged: (val) => setStateSheet(
+                            () => set.additionalWeight = double.parse(val)),
+                        validator: (val) {
+                          if (val.isEmpty) return null;
                           try {
                             double.parse(val);
                             if (val.isEmpty) {
-                              return 'Enter percent';
+                              return 'Enter additional weight';
                             } else
                               return null;
                           } catch (e) {
-                            return 'Enter percent';
-                          }
-                        } else if (getSetTypeFromString(setType) !=
-                                SetType.weight &&
-                            getSetTypeFromString(setType) != null &&
-                            val.isNotEmpty) {
-                          return 'Cannot have percent with a set type of Weight';
-                        } else
-                          return null;
-                      },
-                    ),
-                    SizedBox(height: 20.0),
-
-                    // Additional weight
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      initialValue: set.additionalWeight != null
-                          ? set.additionalWeight.toString()
-                          : null,
-                      decoration: textInputDecoration.copyWith(
-                          hintText: 'Additional weight', suffix: Text('lbs')),
-                      inputFormatters: <TextInputFormatter>[
-                        WhitelistingTextInputFormatter(
-                          RegExp(r'^-?\d*\.{0,1}\d*$'),
-                        ),
-                      ],
-                      onChanged: (val) =>
-                          setState(() => additionalWeight = double.parse(val)),
-                      validator: (val) {
-                        if (val.isEmpty) return null;
-                        try {
-                          double.parse(val);
-                          if (val.isEmpty) {
                             return 'Enter additional weight';
-                          } else
-                            return null;
-                        } catch (e) {
-                          return 'Enter additional weight';
-                        }
-                      },
-                    ),
-                    SizedBox(height: 20.0),
-
-                    RaisedButton(
-                      color: flamingoColor,
-                      child: Text(
-                        'Save',
-                        style: TextStyle(color: Colors.white),
+                          }
+                        },
                       ),
-                      onPressed: () async {
-                        if (_formKey.currentState.validate()) {
-                          set.setType = getSetTypeFromString(setType) ??
-                              set.setType ??
-                              SetType.weight;
-                          set.percent = percent ?? set.percent ?? null;
-                          set.additionalWeight =
-                              additionalWeight ?? set.additionalWeight ?? null;
-                          Navigator.pop(context);
-                          if (index != null) {
-                            widget.exercise.sets[index] = set;
-                          } else {
-                            widget.exercise.sets.add(set);
+                      SizedBox(height: 20.0),
+
+                      RaisedButton(
+                        color: flamingoColor,
+                        child: Text(
+                          'Save',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        onPressed: () async {
+                          if (_formKey.currentState.validate()) {
+                            // set.setType = getSetTypeFromString(setType) ??
+                            //     set.setType ??
+                            //     SetType.weight;
+                            // set.percent = percent ?? set.percent ?? null;
+                            // set.additionalWeight =
+                            //     additionalWeight ?? set.additionalWeight ?? null;
+                            Navigator.pop(context);
+                            if (index != null) {
+                              widget.exercise.sets[index] = set;
+                            } else {
+                              widget.exercise.sets.add(set);
+                            }
+                            if (set.setType != SetType.weight) {
+                              widget.exercise.calculateSets();
+                            }
+                            updateExercise();
+                            // percentController.dispose();
+                            // additionalWeightController.dispose();
                           }
-                          if (set.setType != SetType.weight) {
-                            widget.exercise.calculateSets();
-                          }
-                          updateExercise();
-                        }
-                      },
-                    ),
-                  ],
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
+          );
+        });
       },
     );
   }

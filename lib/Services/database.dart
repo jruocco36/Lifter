@@ -6,7 +6,8 @@ import 'package:Lifter/models/exercise.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-// TODO: look into transactions/batched write
+// TODO: rewrite all updates/adds to Class.toJson/Class.fromJson similar to exercise
+// TODO: rewrite all forms to update an instance of object and send object to [DatabaseService]
 
 class DatabaseService {
   // current user's id

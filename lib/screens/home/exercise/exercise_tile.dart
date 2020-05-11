@@ -24,6 +24,8 @@ class ExerciseTile extends StatefulWidget {
 }
 
 class _ExerciseTileState extends State<ExerciseTile> {
+  TextEditingController weightController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     DatabaseService database =
@@ -114,6 +116,11 @@ class _ExerciseTileState extends State<ExerciseTile> {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: widget.exercise.sets.length,
                   itemBuilder: (context, index) {
+                    if (widget.exercise.sets[index].weight != null) {
+                      weightController.text =
+                          widget.exercise.sets[index].weight.toInt().toString();
+                    }
+
                     return IntrinsicHeight(
                       child: Column(
                         children: <Widget>[
@@ -129,12 +136,13 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                     hintText: 'Weight',
                                     hintStyle: TextStyle(fontSize: 14),
                                   ),
-                                  initialValue:
-                                      widget.exercise.sets[index].weight != null
-                                          ? widget.exercise.sets[index].weight
-                                              .toInt()
-                                              .toString()
-                                          : null,
+                                  // initialValue:
+                                  //     widget.exercise.sets[index].weight != null
+                                  //         ? widget.exercise.sets[index].weight
+                                  //             .toInt()
+                                  //             .toString()
+                                  //         : null,
+                                  controller: weightController,
                                   // validator: (val) =>
                                   //     val.isEmpty ? 'Enter weight' : null,
                                   // TODO: may need to extend textinputformatter to avoid
@@ -145,10 +153,10 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                       RegExp(r'^\d*\.{0,1}\d*$'),
                                     ),
                                   ],
-                                  onChanged: (val) => setState(() => widget
-                                      .exercise
-                                      .sets[index]
-                                      .weight = double.parse(val)),
+                                  onChanged: (val) {
+                                    widget.exercise.sets[index].weight =
+                                        double.parse(val);
+                                  },
                                   onEditingComplete: () {
                                     FocusScope.of(context).unfocus();
                                     updateExercise();

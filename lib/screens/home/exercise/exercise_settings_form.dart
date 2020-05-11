@@ -9,6 +9,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 
 // TODO: redo this page using exercise_tile form as example
+//       (update [Exercise] object instead of form values)
 
 class ExerciseSettingsForm extends StatefulWidget {
   final Day day;
@@ -27,13 +28,15 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
   final _formKey = GlobalKey<FormState>();
 
   // form values
-  TextEditingController textEditingController = TextEditingController();
+  TextEditingController exerciseNameController = TextEditingController();
+  TextEditingController oneRepMaxController = TextEditingController();
   List<ExerciseBase> exerciseBases = [];
   List<String> exerciseBaseStrings = [];
   String _exerciseName;
   ExerciseType _exerciseType;
   bool newExerciseBase = true;
   Exercise exercise;
+  ExerciseBase exerciseBase;
   String exerciseBaseId;
   String _oneRepMax;
 
@@ -60,7 +63,9 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
               if (snapshot.hasData || widget.exerciseId == null) {
                 exercise = snapshot.data;
                 if (exercise != null) {
-                  textEditingController.text = exercise.name;
+                  exerciseNameController.text = exercise.name;
+                  oneRepMaxController.text =
+                      exercise.exerciseBase.oneRepMax.toString();
                 }
 
                 // // Exercise name (exercise base)
@@ -90,18 +95,25 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                       // Exercise name
                       TypeAheadFormField(
                         textFieldConfiguration: TextFieldConfiguration(
-                          controller: textEditingController,
+                          controller: exerciseNameController,
                           decoration: textInputDecoration.copyWith(
                               labelText: 'Exercise name'),
                           onChanged: (val) => setState(() {
                             _exerciseName = val;
                             if (exerciseBaseStrings.contains(_exerciseName)) {
                               exerciseType();
+                              getExerciseBase(val);
+                              _oneRepMax = exerciseBase.oneRepMax.toString();
+                              oneRepMaxController.text =
+                                  exerciseBase.oneRepMax.toString();
                               exerciseBaseId = getExerciseBaseId(_exerciseName);
                               newExerciseBase = false;
                             } else {
                               newExerciseBase = true;
                               exerciseBaseId = null;
+                              exerciseBase = null;
+                              _oneRepMax = null;
+                              oneRepMaxController.text = '';
                             }
                           }),
                         ),
@@ -111,6 +123,10 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                           _exerciseName = val;
                           if (exerciseBaseStrings.contains(_exerciseName)) {
                             exerciseType();
+                            getExerciseBase(val);
+                            _oneRepMax = exerciseBase.oneRepMax.toString();
+                            oneRepMaxController.text =
+                                exerciseBase.oneRepMax.toString();
                             exerciseBaseId = getExerciseBaseId(_exerciseName);
                             newExerciseBase = false;
                           } else {
@@ -121,11 +137,15 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                         onSuggestionSelected: (suggestion) {
                           setState(() {
                             _exerciseName = suggestion;
-                            textEditingController.text = suggestion;
+                            exerciseNameController.text = suggestion;
                             exerciseBaseId = getExerciseBaseId(_exerciseName);
                             newExerciseBase = false;
+                            getExerciseBase(suggestion);
+                            _oneRepMax = exerciseBase.oneRepMax.toString();
+                            oneRepMaxController.text =
+                                exerciseBase.oneRepMax.toString();
+                            exerciseType();
                           });
-                          exerciseType();
                         },
                         suggestionsCallback: (pattern) {
                           return exerciseBaseStrings.where((base) {
@@ -172,12 +192,13 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
 
                       // 1RM
                       TextFormField(
-                        initialValue: _oneRepMax ??
-                            (exercise != null
-                                ? (exercise.exerciseBase.oneRepMax != null
-                                    ? exercise.exerciseBase.oneRepMax.toString()
-                                    : null)
-                                : ''),
+                        // initialValue: _oneRepMax ??
+                        //     (exercise != null
+                        //         ? (exercise.exerciseBase.oneRepMax != null
+                        //             ? exercise.exerciseBase.oneRepMax.toString()
+                        //             : null)
+                        //         : ''),
+                        controller: oneRepMaxController,
                         keyboardType:
                             TextInputType.numberWithOptions(decimal: true),
                         decoration: textInputDecoration.copyWith(
@@ -211,13 +232,7 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                             // if (newExerciseBase) {
                             DatabaseService database = DatabaseService(
                                 uid: widget.day.week.cycle.program.uid);
-                            // await database.updateExerciseBase(
-                            //     exerciseBaseId,
-                            //     _exerciseName,
-                            //     _exerciseType != null
-                            //         ? exerciseTypeToString(_exerciseType)
-                            //         : 'Main');
-                            // }
+
                             ExerciseBase exBase = ExerciseBase(
                               exerciseBaseId: exerciseBaseId,
                               exerciseName: _exerciseName,
@@ -230,14 +245,14 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                                       ? exercise.exerciseBase.oneRepMax
                                       : null),
                             );
+
                             Exercise ex = Exercise(
                               day: widget.day,
                               exerciseBase: exBase,
                               exerciseId: widget.exerciseId,
                               name: _exerciseName,
                             );
-                            await database.updateExercise(
-                                exBase, ex);
+                            await database.updateExercise(exBase, ex);
                           }
                         },
                       ),
@@ -250,6 +265,14 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
             });
       },
     );
+  }
+
+  void getExerciseBase(String name) {
+    for (ExerciseBase base in exerciseBases) {
+      if (base.exerciseName == name) {
+        exerciseBase = base;
+      }
+    }
   }
 
   String getExerciseBaseId(String exerciseName) {

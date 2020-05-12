@@ -283,16 +283,32 @@ class DatabaseService {
         .document(day.week.weekId)
         .collection('days')
         .document(day.dayId)
-        .delete()
+        .collection('exercises')
+        .getDocuments()
+        .then((snap) => snap.documents.forEach((doc) {
+              doc.reference.delete();
+            }))
         .whenComplete(() {
-      day.week.days[DateFormat('EEEE').format(day.date)] = null;
-      updateWeek(
-          day.week.cycle.program.programId,
-          day.week.cycle.cycleId,
-          day.week.weekId,
-          day.week.weekName,
-          day.week.startDate,
-          day.week.days);
+      userRef
+          .collection('programs')
+          .document(day.week.cycle.program.programId)
+          .collection('cycles')
+          .document(day.week.cycle.cycleId)
+          .collection('weeks')
+          .document(day.week.weekId)
+          .collection('days')
+          .document(day.dayId)
+          .delete()
+          .whenComplete(() {
+        day.week.days[DateFormat('EEEE').format(day.date)] = null;
+        updateWeek(
+            day.week.cycle.program.programId,
+            day.week.cycle.cycleId,
+            day.week.weekId,
+            day.week.weekName,
+            day.week.startDate,
+            day.week.days);
+      });
     });
   }
 
@@ -394,7 +410,7 @@ class DatabaseService {
   // update a base exercise and exercise
   // TODO: only update base if needed (to save writes to db)
   Future updateExercise(ExerciseBase exerciseBase, Exercise exercise) async {
-    bool update = exerciseBase != null;
+    bool update = exerciseBase.exerciseBaseId != null;
     if (!update) {
       return await userRef
           .collection('exerciseBases')

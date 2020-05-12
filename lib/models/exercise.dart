@@ -69,8 +69,12 @@ class Exercise {
   ExerciseBase exerciseBase;
   final Day day;
   List<Set> sets;
-  String name;
+  // String _name;
   final double trainingMax;
+
+  String get name {
+    return this.exerciseBase.exerciseName;
+  }
 
   Exercise(
       {@required this.exerciseId,
@@ -78,14 +82,16 @@ class Exercise {
       @required this.day,
       this.sets,
       calculateSets()})
-      : name = (exerciseBase != null ? exerciseBase.exerciseName : null),
+      :
+        //  name = (exerciseBase != null ? exerciseBase.exerciseName : null),
         trainingMax = (exerciseBase != null
             ? exerciseBase.oneRepMax != null
                 ? (((exerciseBase.oneRepMax *
-                                day.week.cycle.trainingMaxPercent) /
-                            5)
-                        .roundToDouble() *
-                    5).clamp(0, exerciseBase.oneRepMax)
+                                    day.week.cycle.trainingMaxPercent) /
+                                5)
+                            .roundToDouble() *
+                        5)
+                    .clamp(0, exerciseBase.oneRepMax)
                 : null
             : null);
 
@@ -118,7 +124,7 @@ class Exercise {
             (b) => b.exerciseBaseId == snapshot['exerciseBaseId'],
             orElse: null),
         day = day,
-        name = snapshot['name'],
+        // name = snapshot['name'],
         trainingMax = snapshot['trainingMax'],
         sets = snapshot['sets'] != null
             ? List<Set>.from(

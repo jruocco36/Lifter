@@ -83,8 +83,8 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                     if (exerciseBaseStrings.contains(_exerciseName)) {
                       widget.exercise.exerciseBase =
                           getExerciseBase(_exerciseName);
-                      widget.exercise.name =
-                          widget.exercise.exerciseBase.exerciseName;
+                      // widget.exercise.name =
+                      //     widget.exercise.exerciseBase.exerciseName;
                       _exerciseType = null;
                       if (widget.exercise.exerciseBase.oneRepMax != null) {
                         oneRepMaxController.text =
@@ -103,8 +103,8 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                     if (exerciseBaseStrings.contains(_exerciseName)) {
                       widget.exercise.exerciseBase =
                           getExerciseBase(_exerciseName);
-                      widget.exercise.name =
-                          widget.exercise.exerciseBase.exerciseName;
+                      // widget.exercise.name =
+                      //     widget.exercise.exerciseBase.exerciseName;
                       _exerciseType = null;
                       if (widget.exercise.exerciseBase.oneRepMax != null) {
                         oneRepMaxController.text =

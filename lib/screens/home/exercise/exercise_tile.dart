@@ -148,7 +148,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                   ],
                                   onChanged: (val) {
                                     widget.exercise.sets[index].weight =
-                                        double.parse(val);
+                                        val != '' ? double.parse(val) : null;
                                   },
                                   onEditingComplete: () {
                                     FocusScope.of(context).unfocus();
@@ -223,7 +223,8 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                           ? widget.exercise.sets[index].repRange
                                           : null,
                                   onChanged: (val) => setState(() {
-                                    widget.exercise.sets[index].repRange = val;
+                                    widget.exercise.sets[index].repRange =
+                                        val != '' ? val : null;
                                   }),
                                   onEditingComplete: () {
                                     FocusScope.of(context).unfocus();

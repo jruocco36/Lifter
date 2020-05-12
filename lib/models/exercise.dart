@@ -76,7 +76,7 @@ class ExerciseBase {
         return;
       }
     }
-    prHistory.add(HistoricSet(set));
+    // prHistory.add(HistoricSet(set));
   }
 
   ExerciseBase({

@@ -2,6 +2,7 @@ import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/exercise.dart';
 import 'package:Lifter/screens/home/delete_dialog.dart';
 import 'package:Lifter/screens/home/exercise/exercise_settings_form.dart';
+import 'package:Lifter/screens/home/exercise/set_settings_form.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -125,7 +126,6 @@ class _ExerciseTileState extends State<ExerciseTile> {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: widget.exercise.sets.length,
                   itemBuilder: (context, index) {
-                    print(weightControllers.length);
                     if (weightControllers.length < index + 1) {
                       weightControllers.add(TextEditingController());
                     }
@@ -161,7 +161,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                   },
                                   onEditingComplete: () {
                                     FocusScope.of(context).unfocus();
-                                    updateExercise();
+                                    updateExercise(widget.exercise);
                                   },
                                 ),
                               ),
@@ -193,7 +193,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                   }),
                                   onEditingComplete: () {
                                     FocusScope.of(context).unfocus();
-                                    updateExercise();
+                                    updateExercise(widget.exercise);
                                   },
                                 ),
                               ),
@@ -222,7 +222,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                   }),
                                   onEditingComplete: () {
                                     FocusScope.of(context).unfocus();
-                                    updateExercise();
+                                    updateExercise(widget.exercise);
                                   },
                                 ),
                               ),
@@ -249,18 +249,16 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                 icon: Icon(Icons.settings),
                                 onPressed: () {
                                   _editSet(index);
-                                  // widget.exercise.sets.removeAt(index);
-                                  // updateExercise();
                                 },
                               ),
-                              
+
                               // Delete set
                               IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
                                   widget.exercise.sets.removeAt(index);
                                   weightControllers.removeAt(index);
-                                  updateExercise();
+                                  updateExercise(widget.exercise);
                                 },
                               )
                             ],
@@ -280,9 +278,9 @@ class _ExerciseTileState extends State<ExerciseTile> {
     );
   } // BUILD
 
-  void updateExercise() async {
-    await DatabaseService(uid: widget.exercise.day.week.cycle.program.uid)
-        .updateExercise(widget.exercise.exerciseBase, widget.exercise);
+  void updateExercise(Exercise exercise) async {
+    await DatabaseService(uid: exercise.day.week.cycle.program.uid)
+        .updateExercise(exercise.exerciseBase, exercise);
   }
 
   Widget oneRepMax() {
@@ -355,7 +353,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                     onPressed: () async {
                       Navigator.pop(context);
                       if (widget.exercise.sets[index].notes != oldNotes) {
-                        updateExercise();
+                        updateExercise(widget.exercise);
                       }
                     },
                   ),
@@ -386,10 +384,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
             child: Padding(
               padding:
                   const EdgeInsets.symmetric(vertical: 20.0, horizontal: 60.0),
-              child: ExerciseSettingsForm(
-                day: widget.exercise.day,
-                exerciseId: widget.exercise.exerciseId,
-              ),
+              child: ExerciseSettingsForm(exercise: widget.exercise),
             ),
           ),
         );
@@ -398,26 +393,6 @@ class _ExerciseTileState extends State<ExerciseTile> {
   }
 
   void _editSet([int index]) {
-    final _formKey = GlobalKey<FormState>();
-    TextEditingController percentController = TextEditingController();
-    TextEditingController additionalWeightController = TextEditingController();
-
-    Set set = index != null ? widget.exercise.sets[index] : Set();
-    String setType;
-    double percent;
-    double additionalWeight;
-
-    if (index != null) {
-      if (widget.exercise.sets[index].percent != null) {
-        percentController.text =
-            (widget.exercise.sets[index].percent * 100).toString();
-      }
-      if (widget.exercise.sets[index].additionalWeight != null) {
-        additionalWeightController.text =
-            widget.exercise.sets[index].additionalWeight.toString();
-      }
-    }
-
     showModalBottomSheet(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -430,160 +405,11 @@ class _ExerciseTileState extends State<ExerciseTile> {
       builder: (context) {
         // Because this is not in the stateful Build() method, it needs to be
         // wrapped in StatefulBuilder to be able to call it's own setState() function
-        return StatefulBuilder(
-            builder: (BuildContext context, StateSetter setStateSheet) {
-          return SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 20.0, horizontal: 60.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: <Widget>[
-                      // Set type dropdown
-                      DropdownButtonFormField(
-                        decoration:
-                            textInputDecoration.copyWith(hintText: 'Set type'),
-                        isDense: true,
-                        value: set.setType != null
-                            ? setTypeToString(set.setType)
-                            : setTypesToStrings()[0],
-                        items: setTypesToStrings().map((type) {
-                          return DropdownMenuItem(
-                            value: type,
-                            child: Text(setTypeFormatString(type)),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          setStateSheet(() {
-                            // setType = val;
-                            set.setType = getSetTypeFromString(val);
-                            if (set.setType == SetType.weight) {
-                              percentController.text = '';
-                              additionalWeightController.text = '';
-                              set.percent = null;
-                              set.additionalWeight = null;
-                            }
-                          });
-                        },
-                      ),
-                      SizedBox(height: 20.0),
-
-                      // Percent
-                      TextFormField(
-                        keyboardType: TextInputType.number,
-                        enabled: set.setType == SetType.percentOfMax
-                            ? true
-                            : set.setType == SetType.percentOfTMax
-                                ? true
-                                : false,
-                        controller: percentController,
-                        // initialValue: set.percent != null
-                        //     ? (set.percent * 100).toString()
-                        //     : null,
-                        decoration: textInputDecoration.copyWith(
-                            hintText: 'Percent', suffix: Text('%')),
-                        inputFormatters: <TextInputFormatter>[
-                          WhitelistingTextInputFormatter(
-                            RegExp(r'^\d*\.{0,1}\d*$'),
-                          ),
-                        ],
-                        onChanged: (val) => setStateSheet(
-                            () => set.percent = double.parse(val) / 100),
-                        validator: (val) {
-                          if (set.setType != SetType.weight &&
-                              set.setType != null) {
-                            try {
-                              double.parse(val);
-                              if (val.isEmpty) {
-                                return 'Enter percent';
-                              } else
-                                return null;
-                            } catch (e) {
-                              return 'Enter percent';
-                            }
-                          } else if (set.setType != SetType.weight &&
-                              set.setType != null &&
-                              val.isNotEmpty) {
-                            return 'Cannot have percent with a set type of Weight';
-                          } else
-                            return null;
-                        },
-                      ),
-                      SizedBox(height: 20.0),
-
-                      // Additional weight
-                      TextFormField(
-                        keyboardType: TextInputType.number,
-                        controller: additionalWeightController,
-                        enabled: (set.setType == SetType.percentOfMax ||
-                            set.setType == SetType.percentOfTMax),
-                        // initialValue: set.additionalWeight != null
-                        //     ? set.additionalWeight.toString()
-                        //     : null,
-                        decoration: textInputDecoration.copyWith(
-                            hintText: 'Additional weight', suffix: Text('lbs')),
-                        inputFormatters: <TextInputFormatter>[
-                          WhitelistingTextInputFormatter(
-                            RegExp(r'^-?\d*\.{0,1}\d*$'),
-                          ),
-                        ],
-                        onChanged: (val) => setStateSheet(
-                            () => set.additionalWeight = double.parse(val)),
-                        validator: (val) {
-                          if (val.isEmpty) return null;
-                          try {
-                            double.parse(val);
-                            if (val.isEmpty) {
-                              return 'Enter additional weight';
-                            } else
-                              return null;
-                          } catch (e) {
-                            return 'Enter additional weight';
-                          }
-                        },
-                      ),
-                      SizedBox(height: 20.0),
-
-                      RaisedButton(
-                        color: flamingoColor,
-                        child: Text(
-                          'Save',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onPressed: () async {
-                          if (_formKey.currentState.validate()) {
-                            // set.setType = getSetTypeFromString(setType) ??
-                            //     set.setType ??
-                            //     SetType.weight;
-                            // set.percent = percent ?? set.percent ?? null;
-                            // set.additionalWeight =
-                            //     additionalWeight ?? set.additionalWeight ?? null;
-                            Navigator.pop(context);
-                            if (index != null) {
-                              widget.exercise.sets[index] = set;
-                            } else {
-                              widget.exercise.sets.add(set);
-                            }
-                            if (set.setType != SetType.weight) {
-                              widget.exercise.calculateSets();
-                            }
-                            updateExercise();
-                            // percentController.dispose();
-                            // additionalWeightController.dispose();
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        });
+        return SetSettingsForm(
+          exercise: widget.exercise,
+          setIndex: index,
+          updateExercise: updateExercise,
+        );
       },
     );
   }

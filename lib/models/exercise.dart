@@ -13,7 +13,7 @@ ExerciseType getExerciseTypeFromString(String type) {
 }
 
 /// String values for each set type
-List<String> exercistTypesToStrings() {
+List<String> exerciseTypesToStrings() {
   List<String> strings = [];
   ExerciseType.values.forEach((f) => strings.add(exerciseTypeToString(f)));
   return strings;
@@ -66,26 +66,26 @@ class ExerciseBase {
 /// sets: List<[Set]> sets, name: Bench, trainingMax: 250}
 class Exercise {
   final String exerciseId;
-  final ExerciseBase exerciseBase;
+  ExerciseBase exerciseBase;
   final Day day;
   List<Set> sets;
-  final String name;
+  String name;
   final double trainingMax;
 
   Exercise(
       {@required this.exerciseId,
       @required this.exerciseBase,
       @required this.day,
-      @required this.name,
       this.sets,
       calculateSets()})
-      : trainingMax = (exerciseBase != null
+      : name = (exerciseBase != null ? exerciseBase.exerciseName : null),
+        trainingMax = (exerciseBase != null
             ? exerciseBase.oneRepMax != null
-                ? ((exerciseBase.oneRepMax *
+                ? (((exerciseBase.oneRepMax *
                                 day.week.cycle.trainingMaxPercent) /
                             5)
                         .roundToDouble() *
-                    5
+                    5).clamp(0, exerciseBase.oneRepMax)
                 : null
             : null);
 

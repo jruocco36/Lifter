@@ -168,7 +168,8 @@ class _SetSettingsFormState extends State<SetSettingsForm> {
                         widget.exercise.sets.add(set);
                       }
                       if (set.setType != SetType.weight) {
-                        widget.exercise.calculateSet(widget.setIndex ?? 0);
+                        widget.exercise.calculateSet(
+                            widget.setIndex ?? widget.exercise.sets.length - 1);
                       }
                       widget.updateExercise(widget.exercise);
                     }

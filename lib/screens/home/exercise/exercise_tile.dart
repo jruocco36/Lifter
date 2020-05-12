@@ -69,12 +69,10 @@ class _ExerciseTileState extends State<ExerciseTile> {
                           size: 20,
                         ),
                         onTap: () {
-                          // setState(() {
                           if (widget.exercise.sets == null) {
                             widget.exercise.sets = [];
                           }
                           _editSet();
-                          // });
                         },
                       ),
                       SizedBox(width: 25),

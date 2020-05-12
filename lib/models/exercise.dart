@@ -128,7 +128,6 @@ class Exercise {
             ? exerciseBase.cycleTMs[day.week.cycle.cycleId]
             : null) {
     calculateTM();
-    // calculateAllSets();
   }
 
   void calculateSet(int index) {

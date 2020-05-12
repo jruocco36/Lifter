@@ -32,7 +32,7 @@ class ExerciseBase {
   final String exerciseName;
   final String exerciseBaseId;
   double oneRepMax;
-  List<Set> prHistory;
+  List<HistoricSet> prHistory;
 
   /// main, accessory, or optional
   final ExerciseType exerciseType;
@@ -65,14 +65,18 @@ class ExerciseBase {
     return exerciseTypeToString(exerciseType);
   }
 
-  // BUG: not adding to [prHistory], not updating set in db
+  // TODO: remove [HistoricSet] from [prHistory] if [Set] is changed/deleted
+  //       need way to track each set counting towards pr (maybe need setId)
   set pr(Set set) {
-    // if (prHistory.firstWhere(
-    //         (prSet) => prSet.weight == set.weight && prSet.reps == set.reps,
-    //         orElse: null) ==
-    //     null) {
-    // prHistory.add(set);
-    // }
+    if (prHistory == null) prHistory = [];
+    for (HistoricSet pr in prHistory) {
+      if (pr.weight == set.weight &&
+          pr.reps == set.reps &&
+          set.exerciseId == pr.exerciseId) {
+        return;
+      }
+    }
+    prHistory.add(HistoricSet(set));
   }
 
   ExerciseBase({
@@ -88,9 +92,17 @@ class ExerciseBase {
       : exerciseBaseId = snapshot.documentID,
         exerciseName = snapshot['name'],
         exerciseType = getExerciseTypeFromString(snapshot['type']),
-        cycleTMs = snapshot['cycleTMs'],
+        cycleTMs = snapshot['cycleTMs'] ?? {},
         oneRepMax = snapshot['oneRepMax'],
-        prHistory = snapshot['prHistory'];
+        prHistory = snapshot['prHistory'] != null
+            ? List<HistoricSet>.from(
+                snapshot['prHistory'].map(
+                  (historicSet) {
+                    return HistoricSet.fromJson(historicSet);
+                  },
+                ),
+              )
+            : [];
 
   Map toJson({bool update}) => <String, dynamic>{
         'name': this.exerciseName,
@@ -98,8 +110,10 @@ class ExerciseBase {
         'oneRepMax': this.oneRepMax,
         'cycleTMs': this.cycleTMs,
         if (this.prHistory != null)
-          'sets':
-              this.prHistory.map((set) => set.toJson(update: update)).toList(),
+          'prHistory': this
+              .prHistory
+              .map((historicSet) => historicSet.toJson(update: update))
+              .toList(),
         if (!update) 'createdDate': Timestamp.now(),
       };
 }
@@ -195,7 +209,7 @@ class Exercise {
             orElse: null),
         day = day,
         // name = snapshot['name'],
-        trainingMax = snapshot['trainingMax'],
+        trainingMax = double.tryParse(snapshot['trainingMax'].toString()),
         sets = snapshot['sets'] != null
             ? List<Set>.from(
                 snapshot['sets'].map(
@@ -259,6 +273,7 @@ class Set {
   double percent;
   double additionalWeight;
   String notes;
+  String exerciseId;
 
   /// weight, percent of max, or percent of training max
   SetType setType;
@@ -271,6 +286,7 @@ class Set {
     this.additionalWeight,
     this.repRange,
     this.notes,
+    @required this.exerciseId,
   });
 
   /// Reset weight and reps for this set.
@@ -296,9 +312,10 @@ class Set {
         reps: json['reps'],
         repRange: json['repRange'],
         setType: getSetTypeFromString(json['setType']),
-        percent: json['percent'],
+        percent: double.tryParse(json['percent'].toString()),
         notes: json['notes'],
         additionalWeight: double.tryParse(json['additionalWeight'].toString()),
+        exerciseId: json['exerciseId'],
       );
 
   Map toJson({bool update}) => <String, dynamic>{
@@ -310,6 +327,30 @@ class Set {
         'percent': this.percent,
         'notes': this.notes,
         'additionalWeight': this.additionalWeight,
+        'exerciseId': this.exerciseId,
+        if (!update) 'createdDate': Timestamp.now(),
+      };
+}
+
+class HistoricSet {
+  final double weight;
+  final int reps;
+  final String exerciseId;
+
+  HistoricSet(Set set)
+      : weight = set.weight,
+        reps = set.reps,
+        exerciseId = set.exerciseId;
+
+  HistoricSet.fromJson(Map<String, dynamic> json)
+      : weight = double.tryParse(json['weight'].toString()),
+        reps = json['reps'],
+        exerciseId = json['exerciseId'];
+
+  Map toJson({bool update}) => <String, dynamic>{
+        'weight': this.weight,
+        'reps': this.reps,
+        'exerciseId': this.exerciseId,
         if (!update) 'createdDate': Timestamp.now(),
       };
 }

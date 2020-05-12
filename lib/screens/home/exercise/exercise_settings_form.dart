@@ -241,8 +241,8 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                           : widget.exercise.exerciseBase != null
                               ? widget.exercise.exerciseBase.oneRepMax
                               : null,
-                      cycleTMs: widget.exercise.exerciseBase.cycleTMs ?? null,
-                      prHistory: widget.exercise.exerciseBase.prHistory ?? null,
+                      cycleTMs: widget.exercise.exerciseBase.cycleTMs ?? {},
+                      prHistory: widget.exercise.exerciseBase.prHistory ?? [],
                     );
 
                     Exercise ex = Exercise(

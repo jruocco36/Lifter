@@ -22,8 +22,9 @@ class _SetSettingsFormState extends State<SetSettingsForm> {
 
   @override
   void initState() {
-    set =
-        widget.setIndex != null ? widget.exercise.sets[widget.setIndex] : Set();
+    set = widget.setIndex != null
+        ? widget.exercise.sets[widget.setIndex]
+        : Set(exerciseId: widget.exercise.exerciseId);
     if (set.percent != null) {
       percentController.text = (set.percent * 100).toString();
     }

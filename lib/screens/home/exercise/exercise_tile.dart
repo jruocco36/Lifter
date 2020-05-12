@@ -152,9 +152,10 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                   },
                                   onEditingComplete: () {
                                     FocusScope.of(context).unfocus();
-                                    if (widget.exercise.sets[index].reps > 0 &&
-                                        widget.exercise.sets[index].weight >
-                                            0) {
+                                    if (widget.exercise.sets[index].reps !=
+                                            null &&
+                                        widget.exercise.sets[index].weight !=
+                                            null) {
                                       widget.exercise.exerciseBase.pr =
                                           widget.exercise.sets[index];
                                     }
@@ -190,9 +191,10 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                   }),
                                   onEditingComplete: () {
                                     FocusScope.of(context).unfocus();
-                                    if (widget.exercise.sets[index].reps > 0 &&
-                                        widget.exercise.sets[index].weight >
-                                            0) {
+                                    if (widget.exercise.sets[index].reps !=
+                                            null &&
+                                        widget.exercise.sets[index].weight !=
+                                            null) {
                                       widget.exercise.exerciseBase.pr =
                                           widget.exercise.sets[index];
                                     }

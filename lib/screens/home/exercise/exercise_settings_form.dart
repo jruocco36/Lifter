@@ -5,9 +5,6 @@ import 'package:Lifter/shared/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
-// TODO: redo this page using exercise_tile form as example
-//       (update [Exercise] object instead of form values)
-
 class ExerciseSettingsForm extends StatefulWidget {
   final Exercise exercise;
 

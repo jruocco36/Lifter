@@ -37,8 +37,15 @@ class DayTile extends StatelessWidget {
             closedBuilder: (BuildContext _, VoidCallback openContainer) {
               return ListTile(
                 title: Text(day.dayName),
-                subtitle:
-                    Text('${DateFormat('EEE - MM/dd/yyyy').format(day.date)}'),
+                subtitle: Text(
+                  '${DateFormat('EEE - MM/dd/yyyy').format(day.date)}',
+                  style:
+                      DateTime(day.date.year, day.date.month, day.date.day) ==
+                              DateTime(DateTime.now().year,
+                                  DateTime.now().month, DateTime.now().day)
+                          ? TextStyle(color: Colors.green[300])
+                          : null,
+                ),
                 // leading: ,
                 trailing: PopupMenuButton(
                   icon: Icon(Icons.more_vert),

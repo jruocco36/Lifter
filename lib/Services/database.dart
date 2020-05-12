@@ -391,7 +391,8 @@ class DatabaseService {
         .map((snapshot) => _exerciseBaseListFromSnapshot(snapshot));
   }
 
-  // update a base exercise
+  // update a base exercise and exercise
+  // TODO: only update base if needed (to save writes to db)
   Future updateExercise(ExerciseBase exerciseBase, Exercise exercise) async {
     bool update = exerciseBase != null;
     if (!update) {

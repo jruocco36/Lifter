@@ -22,15 +22,14 @@ class _SetSettingsFormState extends State<SetSettingsForm> {
 
   @override
   void initState() {
-    set =
-        widget.setIndex != null ? widget.exercise.sets[widget.setIndex] : Set();
-    if (widget.setIndex != null) {
-      if (set.percent != null) {
-        percentController.text = (set.percent * 100).toString();
-      }
-      if (set.additionalWeight != null) {
-        additionalWeightController.text = set.additionalWeight.toString();
-      }
+    set = widget.setIndex != null
+        ? widget.exercise.sets[widget.setIndex]
+        : Set();
+    if (set.percent != null) {
+      percentController.text = (set.percent * 100).toString();
+    }
+    if (set.additionalWeight != null) {
+      additionalWeightController.text = set.additionalWeight.toString();
     }
     super.initState();
   }
@@ -59,10 +58,8 @@ class _SetSettingsFormState extends State<SetSettingsForm> {
                   decoration:
                       textInputDecoration.copyWith(labelText: 'Set type'),
                   isDense: true,
-                  value: widget.setIndex != null
-                      ? set.setType != null
-                          ? setTypeToString(set.setType)
-                          : setTypesToStrings()[0]
+                  value: set.setType != null
+                      ? setTypeToString(set.setType)
                       : setTypesToStrings()[0],
                   items: setTypesToStrings().map((type) {
                     return DropdownMenuItem(

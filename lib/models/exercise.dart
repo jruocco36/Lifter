@@ -190,7 +190,7 @@ class Set {
   Set({
     this.weight,
     this.reps,
-    this.setType,
+    this.setType = SetType.weight,
     this.percent,
     this.additionalWeight,
     this.repRange,

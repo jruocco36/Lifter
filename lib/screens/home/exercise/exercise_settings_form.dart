@@ -20,11 +20,13 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
   // form values
   TextEditingController exerciseNameController = TextEditingController();
   TextEditingController oneRepMaxController = TextEditingController();
+  TextEditingController trainingMaxController = TextEditingController();
   List<ExerciseBase> exerciseBases = [];
   List<String> exerciseBaseStrings = [];
   String _exerciseName;
   ExerciseType _exerciseType;
   String _oneRepMax;
+  String _trainingMax;
 
   @override
   void initState() {
@@ -32,6 +34,9 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
       exerciseNameController.text = widget.exercise.name;
       oneRepMaxController.text = widget.exercise.exerciseBase.oneRepMax != null
           ? widget.exercise.exerciseBase.oneRepMax.toString()
+          : null;
+      trainingMaxController.text = widget.exercise.trainingMax != null
+          ? widget.exercise.trainingMax.toString()
           : null;
     }
     super.initState();
@@ -41,6 +46,7 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
   void dispose() {
     exerciseNameController.dispose();
     oneRepMaxController.dispose();
+    trainingMaxController.dispose();
     super.dispose();
   }
 
@@ -71,6 +77,14 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
               ),
               SizedBox(height: 20.0),
 
+              // TODO: edit base name/delete base
+              //       (maybe one menu to do this that can be accessed anywhere)
+
+              // TODO: ability to switch exercise without losing sets
+              // ie. accidently added deficit deadlift instead of deadlift, want
+              // to switch to deadlift without having to re-enter sets
+              // (maybe on long press?) would just have to update day.exercise name
+              // and baseId
               // Exercise name
               TypeAheadFormField(
                 textFieldConfiguration: TextFieldConfiguration(
@@ -83,8 +97,6 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                     if (exerciseBaseStrings.contains(_exerciseName)) {
                       widget.exercise.exerciseBase =
                           getExerciseBase(_exerciseName);
-                      // widget.exercise.name =
-                      //     widget.exercise.exerciseBase.exerciseName;
                       _exerciseType = null;
                       if (widget.exercise.exerciseBase.oneRepMax != null) {
                         oneRepMaxController.text =
@@ -103,8 +115,6 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                     if (exerciseBaseStrings.contains(_exerciseName)) {
                       widget.exercise.exerciseBase =
                           getExerciseBase(_exerciseName);
-                      // widget.exercise.name =
-                      //     widget.exercise.exerciseBase.exerciseName;
                       _exerciseType = null;
                       if (widget.exercise.exerciseBase.oneRepMax != null) {
                         oneRepMaxController.text =
@@ -181,6 +191,28 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
               ),
               SizedBox(height: 20.0),
 
+              // TM
+              TextFormField(
+                controller: trainingMaxController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                decoration:
+                    textInputDecoration.copyWith(labelText: 'Training Max'),
+                validator: (val) {
+                  if (val.isEmpty) return null;
+                  try {
+                    double weight = double.parse(val);
+                    if (weight < 0)
+                      return 'Not a valid training max';
+                    else
+                      return null;
+                  } on FormatException {
+                    return 'Not a valid training max';
+                  }
+                },
+                onChanged: (val) => setState(() => _trainingMax = val),
+              ),
+              SizedBox(height: 20.0),
+
               RaisedButton(
                 color: flamingoColor,
                 child: Text(
@@ -201,12 +233,16 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                           widget.exercise.exerciseBase.exerciseName,
                       exerciseType: _exerciseType != null
                           ? _exerciseType
-                          : widget.exercise.exerciseBase.exerciseType,
+                          : widget.exercise.exerciseBase != null
+                              ? widget.exercise.exerciseBase.exerciseType
+                              : ExerciseType.Main,
                       oneRepMax: _oneRepMax != null
                           ? double.parse(_oneRepMax)
                           : widget.exercise.exerciseBase != null
                               ? widget.exercise.exerciseBase.oneRepMax
                               : null,
+                      cycleTMs: widget.exercise.exerciseBase.cycleTMs ?? null,
+                      prHistory: widget.exercise.exerciseBase.prHistory ?? null,
                     );
 
                     Exercise ex = Exercise(
@@ -214,6 +250,15 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                       exerciseBase: exBase,
                       exerciseId: widget.exercise.exerciseId,
                     );
+
+                    if (_trainingMax != null) {
+                      if (_trainingMax == '') {
+                        ex.updateTM(null);
+                      } else {
+                        ex.updateTM(double.parse(_trainingMax));
+                      }
+                    }
+
                     await database.updateExercise(exBase, ex);
                   }
                 },

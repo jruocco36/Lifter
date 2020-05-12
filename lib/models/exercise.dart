@@ -1,3 +1,4 @@
+import 'package:Lifter/models/cycle.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:Lifter/models/day.dart';
@@ -30,32 +31,75 @@ String exerciseTypeToString(ExerciseType type) {
 class ExerciseBase {
   final String exerciseName;
   final String exerciseBaseId;
-  final double oneRepMax;
+  double oneRepMax;
+  List<Set> prHistory;
 
   /// main, accessory, or optional
   final ExerciseType exerciseType;
+
+  /// Map of <cycleId, training max>
+  Map<String, dynamic> cycleTMs;
+
+  set cycleTM(Cycle cycle) {
+    if (cycleTMs == null) cycleTMs = {};
+    if (cycleTMs[cycle.cycleId] != null) return;
+    cycleTMs[cycle.cycleId] =
+        (((this.oneRepMax * cycle.trainingMaxPercent) / 5).roundToDouble() * 5)
+            .clamp(0, this.oneRepMax);
+  }
+
+  void updateCycleTM(Cycle cycle, [double newTM]) {
+    if (cycleTMs == null) cycleTMs = {};
+    if (cycleTMs[cycle.cycleId] == null) return;
+    if (newTM != null) {
+      cycleTMs[cycle.cycleId] = newTM;
+    } else {
+      cycleTMs[cycle.cycleId] =
+          (((this.oneRepMax * cycle.trainingMaxPercent) / 5).roundToDouble() *
+                  5)
+              .clamp(0, this.oneRepMax);
+    }
+  }
+
+  String get type {
+    return exerciseTypeToString(exerciseType);
+  }
+
+  // BUG: not adding to [prHistory], not updating set in db
+  set pr(Set set) {
+    // if (prHistory.firstWhere(
+    //         (prSet) => prSet.weight == set.weight && prSet.reps == set.reps,
+    //         orElse: null) ==
+    //     null) {
+    // prHistory.add(set);
+    // }
+  }
 
   ExerciseBase({
     @required this.exerciseName,
     @required this.exerciseBaseId,
     @required this.exerciseType,
     this.oneRepMax,
+    this.cycleTMs,
+    this.prHistory,
   });
-
-  String get type {
-    return exerciseTypeToString(exerciseType);
-  }
 
   ExerciseBase.fromJson(DocumentSnapshot snapshot)
       : exerciseBaseId = snapshot.documentID,
         exerciseName = snapshot['name'],
         exerciseType = getExerciseTypeFromString(snapshot['type']),
-        oneRepMax = snapshot['oneRepMax'];
+        cycleTMs = snapshot['cycleTMs'],
+        oneRepMax = snapshot['oneRepMax'],
+        prHistory = snapshot['prHistory'];
 
   Map toJson({bool update}) => <String, dynamic>{
         'name': this.exerciseName,
         'type': this.type,
         'oneRepMax': this.oneRepMax,
+        'cycleTMs': this.cycleTMs,
+        if (this.prHistory != null)
+          'sets':
+              this.prHistory.map((set) => set.toJson(update: update)).toList(),
         if (!update) 'createdDate': Timestamp.now(),
       };
 }
@@ -69,35 +113,45 @@ class Exercise {
   ExerciseBase exerciseBase;
   final Day day;
   List<Set> sets;
-  // String _name;
-  final double trainingMax;
+  double trainingMax;
 
   String get name {
     return this.exerciseBase.exerciseName;
   }
 
-  Exercise(
-      {@required this.exerciseId,
-      @required this.exerciseBase,
-      @required this.day,
-      this.sets,
-      calculateSets()})
-      :
-        //  name = (exerciseBase != null ? exerciseBase.exerciseName : null),
-        trainingMax = (exerciseBase != null
-            ? exerciseBase.oneRepMax != null
-                ? (((exerciseBase.oneRepMax *
-                                    day.week.cycle.trainingMaxPercent) /
-                                5)
-                            .roundToDouble() *
-                        5)
-                    .clamp(0, exerciseBase.oneRepMax)
-                : null
-            : null);
+  Exercise({
+    @required this.exerciseId,
+    @required this.exerciseBase,
+    @required this.day,
+    this.sets,
+  }) : trainingMax = (exerciseBase != null && exerciseBase.cycleTMs != null
+            ? exerciseBase.cycleTMs[day.week.cycle.cycleId]
+            : null) {
+    calculateTM();
+    // calculateAllSets();
+  }
 
-  void calculateSets() {
+  void calculateSet(int index) {
+    if (sets[index].setType == null || sets[index].setType == SetType.weight) {
+      return;
+    }
+    if (sets[index].setType == SetType.percentOfMax) {
+      sets[index].weight =
+          ((sets[index].percent * this.exerciseBase.oneRepMax / 5)
+                      .roundToDouble() *
+                  5) +
+              (sets[index].additionalWeight ?? 0);
+    } else if (sets[index].setType == SetType.percentOfTMax) {
+      sets[index].weight =
+          ((sets[index].percent * this.trainingMax / 5).roundToDouble() * 5) +
+              (sets[index].additionalWeight ?? 0);
+    }
+  }
+
+  void calculateAllSets() {
+    if (sets == null) return;
     sets.forEach((set) {
-      if (set.setType == null) {
+      if (set.setType == null || set.setType == SetType.weight) {
         return;
       }
       if (set.setType == SetType.percentOfMax) {
@@ -111,6 +165,23 @@ class Exercise {
                 (set.additionalWeight ?? 0);
       }
     });
+  }
+
+  void calculateTM() {
+    if (this.exerciseBase == null) return;
+    this.exerciseBase.cycleTM = this.day.week.cycle;
+    this.trainingMax = (exerciseBase != null && exerciseBase.cycleTMs != null
+        ? exerciseBase.cycleTMs[day.week.cycle.cycleId]
+        : null);
+  }
+
+  void updateTM(double trainingMax) {
+    this.exerciseBase.updateCycleTM(day.week.cycle, trainingMax);
+    this.trainingMax = (exerciseBase != null && exerciseBase.cycleTMs != null
+        ? exerciseBase.cycleTMs[day.week.cycle.cycleId]
+        : null);
+    // could call [calculateSets()] here, but not sure if that is desired
+    // could potentially recalculate weight for sets that have already been completed
   }
 
   void startNew() {

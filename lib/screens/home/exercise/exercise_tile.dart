@@ -8,13 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-// TODO: ability to switch exercise without losing sets
-//       ie. accidently added deficit deadlift instead of deadlift, want
-//       to switch to deadlift without having to re-enter sets (maybe on long press?)
-//       would just have to update day.exercise name and baseId
-// TODO: edit/delete exercise base
-//       (maybe one menu to do this that can be accessed anywhere)
-
 class ExerciseTile extends StatefulWidget {
   final Exercise exercise;
 
@@ -161,6 +154,12 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                   },
                                   onEditingComplete: () {
                                     FocusScope.of(context).unfocus();
+                                    if (widget.exercise.sets[index].reps > 0 &&
+                                        widget.exercise.sets[index].weight >
+                                            0) {
+                                      widget.exercise.exerciseBase.pr =
+                                          widget.exercise.sets[index];
+                                    }
                                     updateExercise(widget.exercise);
                                   },
                                 ),
@@ -193,6 +192,12 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                   }),
                                   onEditingComplete: () {
                                     FocusScope.of(context).unfocus();
+                                    if (widget.exercise.sets[index].reps > 0 &&
+                                        widget.exercise.sets[index].weight >
+                                            0) {
+                                      widget.exercise.exerciseBase.pr =
+                                          widget.exercise.sets[index];
+                                    }
                                     updateExercise(widget.exercise);
                                   },
                                 ),

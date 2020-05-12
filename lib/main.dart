@@ -5,6 +5,8 @@ import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+// TODO: bug reporting/suggestions form
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
@@ -22,13 +24,13 @@ class MyApp extends StatelessWidget {
           primaryColorLight: lightGreyColor,
           accentColor: flamingoColor,
           textTheme: TextTheme(
-            display1: TextStyle(
+            headline4: TextStyle(
               color: whiteTextColor,
             ),
-            body1: TextStyle(
+            bodyText2: TextStyle(
               color: whiteTextColor,
             ),
-            body2: TextStyle(
+            bodyText1: TextStyle(
               color: whiteTextColor,
             ),
             button: TextStyle(

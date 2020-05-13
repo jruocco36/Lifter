@@ -1,5 +1,7 @@
 import 'package:Lifter/Services/auth.dart';
 import 'package:Lifter/models/user.dart';
+import 'package:Lifter/screens/home/feedback.dart';
+import 'package:Lifter/screens/home/user_form.dart';
 import 'package:Lifter/screens/wrapper.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
@@ -25,8 +27,10 @@ class _UserSettingsDrawerState extends State<UserSettingsDrawer> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             UserAccountsDrawerHeader(
-              accountEmail: Text(widget.user.email),
-              accountName: null,
+              accountEmail:
+                  widget.user.email != null ? Text(widget.user.email) : null,
+              accountName:
+                  widget.user.name != null ? Text(widget.user.name) : null,
               currentAccountPicture: CircleAvatar(
                 backgroundColor: flamingoColor,
                 child: Text(
@@ -36,19 +40,30 @@ class _UserSettingsDrawerState extends State<UserSettingsDrawer> {
               // onDetailsPressed: () {},// ),
             ),
             ListTile(
+              title: Text('Edit profile'),
+              leading: Icon(Icons.person),
+              onTap: () {
+                Navigator.pop(context);
+                showModalBottomSheet(
+                    context: context,
+                    builder: (context) => UserForm(user: widget.user));
+              },
+            ),
+            ListTile(
               title: Text('Edit exercises'),
               leading: Icon(Icons.settings),
               onTap: () {
-                // Update the state of the app.
-                // ...
+                // TODO: edit exercises page
               },
             ),
             ListTile(
               title: Text('Submit feedback'),
               leading: Icon(Icons.feedback),
               onTap: () {
-                // Update the state of the app.
-                // ...
+                Navigator.pop(context);
+                showModalBottomSheet(
+                    context: context,
+                    builder: (context) => FeedbackForm(user: widget.user));
               },
             ),
             ListTile(
@@ -66,8 +81,7 @@ class _UserSettingsDrawerState extends State<UserSettingsDrawer> {
           ],
         ),
       );
-    }
-    else {
+    } else {
       return Text('NO USER');
     }
   }

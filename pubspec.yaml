@@ -40,6 +40,7 @@ dependencies:
   flutter_spinkit: "^4.1.2"  # spinner loading widget - https://pub.dev/packages/flutter_spinkit
   animations: ^1.0.0+5
   flutter_typeahead: ^1.8.0
+  firebase_user_stream: ^1.0.0  # pub.dev/packages/firebase_user_stream
 
 dev_dependencies:
   flutter_test:

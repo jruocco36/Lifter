@@ -5,7 +5,7 @@ import 'package:Lifter/models/week.dart';
 import 'package:Lifter/screens/home/day/day_list.dart';
 import 'package:Lifter/screens/home/day/day_settings_form.dart';
 import 'package:Lifter/screens/home/week/week_settings_form.dart';
-import 'package:Lifter/screens/user_settings_drawer.dart';
+import 'package:Lifter/screens/home/user_settings_drawer.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

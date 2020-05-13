@@ -5,7 +5,7 @@ import 'package:Lifter/models/user.dart';
 import 'package:Lifter/screens/home/log_bodyweight_form.dart';
 import 'package:Lifter/screens/home/program/program_list.dart';
 import 'package:Lifter/screens/home/program/program_settings_form.dart';
-import 'package:Lifter/screens/user_settings_drawer.dart';
+import 'package:Lifter/screens/home/user_settings_drawer.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

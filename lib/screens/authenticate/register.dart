@@ -18,6 +18,7 @@ class _RegisterState extends State<Register> {
   bool loading = false;
 
   // text field state
+  String name = '';
   String email = '';
   String password = '';
   String error = '';
@@ -46,6 +47,15 @@ class _RegisterState extends State<Register> {
                 key: _formKey,
                 child: Column(
                   children: <Widget>[
+                    SizedBox(height: 20.0),
+                    TextFormField(
+                      decoration:
+                          textInputDecoration.copyWith(hintText: 'Name'),
+                      onChanged: (val) {
+                        setState(() => name = val);
+                      },
+                      validator: (val) => val.isEmpty ? 'Enter name' : null,
+                    ),
                     SizedBox(height: 20.0),
                     TextFormField(
                       keyboardType: TextInputType.emailAddress,
@@ -78,7 +88,7 @@ class _RegisterState extends State<Register> {
                         if (_formKey.currentState.validate()) {
                           setState(() => loading = true);
                           dynamic result = await _auth
-                              .registerWithEmailPassword(email, password);
+                              .registerWithEmailPassword(name, email, password);
                           if (result.runtimeType == String &&
                               result.contains('ERROR')) {
                             switch (result) {

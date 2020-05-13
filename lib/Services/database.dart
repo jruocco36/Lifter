@@ -587,4 +587,8 @@ class DatabaseService {
       });
     });
   }
+
+  void addFeedback(String feedback) async {
+    await userRef.collection('feedback').add({'feedback': feedback});
+  }
 }

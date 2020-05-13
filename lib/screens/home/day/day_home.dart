@@ -1,9 +1,12 @@
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/day.dart';
 import 'package:Lifter/models/exercise.dart';
+import 'package:Lifter/models/user.dart';
 import 'package:Lifter/screens/home/day/day_settings_form.dart';
 import 'package:Lifter/screens/home/exercise/exercise_list.dart';
 import 'package:Lifter/screens/home/exercise/exercise_settings_form.dart';
+import 'package:Lifter/screens/user_settings_drawer.dart';
+import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -113,12 +116,6 @@ class DayHome extends StatelessWidget {
                   .getExercises(day, bases),
               child: Scaffold(
                 appBar: AppBar(
-                  // title: Text('${dayUpdates.dayName}'),
-                  // bottom: PreferredSize(
-                  //   preferredSize: null,
-                  //   child: Text(
-                  //       '${DateFormat('EEE - MM/dd/yyyy').format(dayUpdates.date)}'),
-                  // ),
                   title: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
@@ -130,14 +127,37 @@ class DayHome extends StatelessWidget {
                       ),
                     ],
                   ),
+                  automaticallyImplyLeading: false,
+                  leading: IconButton(
+                    icon: Icon(Icons.arrow_back),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
                   elevation: 0.0,
                   actions: <Widget>[
-                    IconButton(
-                      icon: Icon(Icons.settings),
-                      tooltip: 'Edit day',
-                      onPressed: () async {
-                        _editDayPanel();
-                      },
+                    Builder(
+                      builder: (context) => PopupMenuButton(
+                        icon: Icon(Icons.more_vert),
+                        color: darkGreyColor,
+                        itemBuilder: (BuildContext context) => [
+                          PopupMenuItem(
+                            value: 'Edit',
+                            child: new Text('Edit day'),
+                          ),
+                          PopupMenuItem(
+                            value: 'Settings',
+                            child: new Text('Settings'),
+                          ),
+                        ],
+                        onSelected: (val) async {
+                          if (val == 'Edit') {
+                            _editDayPanel();
+                          } else if (val == 'Settings') {
+                            Scaffold.of(context).openDrawer();
+                          }
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -146,6 +166,9 @@ class DayHome extends StatelessWidget {
                   elevation: 0,
                   child: Icon(Icons.add),
                   onPressed: () => _newExercisePanel(),
+                ),
+                drawer: UserSettingsDrawer(
+                  user: Provider.of<User>(context),
                 ),
               ),
             );

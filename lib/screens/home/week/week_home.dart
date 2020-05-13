@@ -1,10 +1,12 @@
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/day.dart';
+import 'package:Lifter/models/user.dart';
 import 'package:Lifter/models/week.dart';
 import 'package:Lifter/screens/home/day/day_list.dart';
 import 'package:Lifter/screens/home/day/day_settings_form.dart';
 import 'package:Lifter/screens/home/week/week_settings_form.dart';
-import 'package:Lifter/shared/loading.dart';
+import 'package:Lifter/screens/user_settings_drawer.dart';
+import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -95,14 +97,37 @@ class WeekHome extends StatelessWidget {
             child: Scaffold(
               appBar: AppBar(
                 title: Text('${weekUpdates.weekName}'),
+                automaticallyImplyLeading: false,
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
                 elevation: 0.0,
                 actions: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.settings),
-                    tooltip: 'Edit week',
-                    onPressed: () async {
-                      _editWeekPanel();
-                    },
+                  Builder(
+                    builder: (context) => PopupMenuButton(
+                      icon: Icon(Icons.more_vert),
+                      color: darkGreyColor,
+                      itemBuilder: (BuildContext context) => [
+                        PopupMenuItem(
+                          value: 'Edit',
+                          child: new Text('Edit week'),
+                        ),
+                        PopupMenuItem(
+                          value: 'Settings',
+                          child: new Text('Settings'),
+                        ),
+                      ],
+                      onSelected: (val) async {
+                        if (val == 'Edit') {
+                          _editWeekPanel();
+                        } else if (val == 'Settings') {
+                          Scaffold.of(context).openDrawer();
+                        }
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -111,6 +136,9 @@ class WeekHome extends StatelessWidget {
                 elevation: 0,
                 child: Icon(Icons.add),
                 onPressed: () => _newDayPanel(),
+              ),
+              drawer: UserSettingsDrawer(
+                user: Provider.of<User>(context),
               ),
             ),
           );

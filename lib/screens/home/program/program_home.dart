@@ -17,8 +17,6 @@ class ProgramHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final User user = Provider.of<User>(context);
-
     void _editProgramPanel() {
       showModalBottomSheet(
         shape: RoundedRectangleBorder(
@@ -78,10 +76,6 @@ class ProgramHome extends StatelessWidget {
         stream:
             DatabaseService(uid: program.uid).getProgramData(program.programId),
         builder: (context, snapshot) {
-          // this causes loading screen until program tile animation is finished
-          // if (snapshot.connectionState == ConnectionState.waiting) {
-          //   return Loading();
-          // }
           Program programUpdates;
           snapshot.hasData
               ? programUpdates = snapshot.data
@@ -99,43 +93,38 @@ class ProgramHome extends StatelessWidget {
             child: Scaffold(
               appBar: AppBar(
                 title: Text('${programUpdates.name}'),
+                automaticallyImplyLeading: false,
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
                 elevation: 0.0,
                 actions: <Widget>[
-                  PopupMenuButton(
-                    icon: Icon(Icons.more_vert),
-                    color: darkGreyColor,
-                    itemBuilder: (BuildContext context) => [
-                      PopupMenuItem(
-                        value: 'Edit',
-                        child: new Text('Edit program'),
-                      ),
-                      PopupMenuItem(
-                        value: 'Settings',
-                        child: new Text('Settings'),
-                      ),
-                    ],
-                    onSelected: (val) async {
-                      if (val == 'Edit') {
-                        _editProgramPanel();
-                      } else if (val == 'Settings') {
-                        showModalBottomSheet(
-                          context: context,
-                          // configuration: null,
-                          builder: (context) {
-                            return UserSettingsDrawer(
-                                user: user);
-                          },
-                        );
-                      }
-                    },
+                  Builder(
+                    builder: (context) => PopupMenuButton(
+                      icon: Icon(Icons.more_vert),
+                      color: darkGreyColor,
+                      itemBuilder: (BuildContext context) => [
+                        PopupMenuItem(
+                          value: 'Edit',
+                          child: new Text('Edit program'),
+                        ),
+                        PopupMenuItem(
+                          value: 'Settings',
+                          child: new Text('Settings'),
+                        ),
+                      ],
+                      onSelected: (val) async {
+                        if (val == 'Edit') {
+                          _editProgramPanel();
+                        } else if (val == 'Settings') {
+                          Scaffold.of(context).openDrawer();
+                        }
+                      },
+                    ),
                   ),
-                  // IconButton(
-                  //   icon: Icon(Icons.more_vert),
-                  //   tooltip: 'Edit program',
-                  //   onPressed: () async {
-                  //     _editProgramPanel();
-                  //   },
-                  // ),
                 ],
               ),
               body: CycleList(),
@@ -144,9 +133,9 @@ class ProgramHome extends StatelessWidget {
                 child: Icon(Icons.add),
                 onPressed: () => _newCyclePanel(),
               ),
-              // drawer: UserSettingsDrawer(
-              //   user: Provider.of<User>(context),
-              // ),
+              drawer: UserSettingsDrawer(
+                user: Provider.of<User>(context),
+              ),
             ),
           );
         });

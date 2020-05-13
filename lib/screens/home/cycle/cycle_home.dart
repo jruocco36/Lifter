@@ -1,10 +1,12 @@
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/cycle.dart';
+import 'package:Lifter/models/user.dart';
 import 'package:Lifter/models/week.dart';
 import 'package:Lifter/screens/home/cycle/cycle_settings_form.dart';
 import 'package:Lifter/screens/home/week/week_list.dart';
 import 'package:Lifter/screens/home/week/week_settings_form.dart';
-import 'package:Lifter/shared/loading.dart';
+import 'package:Lifter/screens/user_settings_drawer.dart';
+import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -92,14 +94,37 @@ class CycleHome extends StatelessWidget {
                 return Scaffold(
                   appBar: AppBar(
                     title: Text('${cycleUpdates.name}'),
+                    automaticallyImplyLeading: false,
+                    leading: IconButton(
+                      icon: Icon(Icons.arrow_back),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
                     elevation: 0.0,
                     actions: <Widget>[
-                      IconButton(
-                        icon: Icon(Icons.settings),
-                        tooltip: 'Edit cycle',
-                        onPressed: () async {
-                          _editCyclePanel();
-                        },
+                      Builder(
+                        builder: (context) => PopupMenuButton(
+                          icon: Icon(Icons.more_vert),
+                          color: darkGreyColor,
+                          itemBuilder: (BuildContext context) => [
+                            PopupMenuItem(
+                              value: 'Edit',
+                              child: new Text('Edit cycle'),
+                            ),
+                            PopupMenuItem(
+                              value: 'Settings',
+                              child: new Text('Settings'),
+                            ),
+                          ],
+                          onSelected: (val) async {
+                            if (val == 'Edit') {
+                              _editCyclePanel();
+                            } else if (val == 'Settings') {
+                              Scaffold.of(context).openDrawer();
+                            }
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -108,6 +133,9 @@ class CycleHome extends StatelessWidget {
                     elevation: 0,
                     child: Icon(Icons.add),
                     onPressed: () => _newWeekPanel(weeks),
+                  ),
+                  drawer: UserSettingsDrawer(
+                    user: Provider.of<User>(context),
                   ),
                 );
               },

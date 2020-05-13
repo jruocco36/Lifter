@@ -79,8 +79,13 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                   // initialValue: _startDate ??
                   // (cycle != null ? cycle.startDate.toString() : ''),
                   controller: _startDateController,
-                  decoration:
-                      textInputDecoration.copyWith(labelText: 'Start date'),
+                  decoration: textInputDecoration.copyWith(
+                    labelText: 'Start date',
+                    suffixIcon: Icon(
+                      Icons.calendar_today,
+                      size: 20,
+                    ),
+                  ),
                   keyboardType: TextInputType.datetime,
                   validator: (val) {
                     if (val.isEmpty) return 'Enter start date';
@@ -155,7 +160,7 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                         _cycleName ?? cycle.name,
                         _startDate != null ? _startDate : cycle.startDate,
                         _trainingMaxPercent != null
-                            ? double.parse(_trainingMaxPercent)/100
+                            ? double.parse(_trainingMaxPercent) / 100
                             : cycle.trainingMaxPercent,
                       );
                     }

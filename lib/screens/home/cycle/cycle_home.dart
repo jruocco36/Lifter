@@ -8,9 +8,6 @@ import 'package:Lifter/shared/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// TODO: date ranges on cycles (need to add end date property)
-//       start date - last day of last week
-
 class CycleHome extends StatelessWidget {
   final Cycle cycle;
 

@@ -78,7 +78,7 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
               SizedBox(height: 20.0),
 
               // TODO: edit base name/delete base
-              //       (maybe one menu to do this that can be accessed anywhere)
+              //       (side bar with user options)
 
               // TODO: ability to switch exercise without losing sets
               // ie. accidently added deficit deadlift instead of deadlift, want

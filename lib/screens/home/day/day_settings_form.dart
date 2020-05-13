@@ -57,6 +57,17 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                 ),
                 SizedBox(height: 20.0),
 
+                // day name
+                TextFormField(
+                  // autofocus: true,
+                  initialValue: _dayName ?? (day != null ? day.dayName : ''),
+                  decoration:
+                      textInputDecoration.copyWith(labelText: 'Day name'),
+                  validator: (val) => val.isEmpty ? 'Enter day name' : null,
+                  onChanged: (val) => setState(() => _dayName = val),
+                ),
+                SizedBox(height: 20.0),
+
                 // Date Input
                 TextFormField(
                   // cursorColor: whiteTextColor,
@@ -64,7 +75,13 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                   // initialValue: _date ??
                   // (day != null ? day.date.toString() : ''),
                   controller: _dateTextController,
-                  decoration: textInputDecoration.copyWith(labelText: 'Date'),
+                  decoration: textInputDecoration.copyWith(
+                    labelText: 'Date',
+                    suffixIcon: Icon(
+                      Icons.calendar_today,
+                      size: 20,
+                    ),
+                  ),
                   keyboardType: TextInputType.datetime,
                   validator: (val) {
                     if (val.isEmpty) return 'Enter date';
@@ -102,17 +119,6 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                 ),
                 SizedBox(height: 20.0),
 
-                // day name
-                TextFormField(
-                  // autofocus: true,
-                  initialValue: _dayName ?? (day != null ? day.dayName : ''),
-                  decoration:
-                      textInputDecoration.copyWith(labelText: 'Day name'),
-                  validator: (val) => val.isEmpty ? 'Enter day name' : null,
-                  onChanged: (val) => setState(() => _dayName = val),
-                ),
-                SizedBox(height: 20.0),
-
                 // bodyweight
                 TextFormField(
                   initialValue: _bodyweight ??
@@ -122,8 +128,10 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                               : null)
                           : ''),
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  decoration:
-                      textInputDecoration.copyWith(labelText: 'Bodyweight'),
+                  decoration: textInputDecoration.copyWith(
+                    labelText: 'Bodyweight',
+                    suffix: Text('lbs'),
+                  ),
                   validator: (val) {
                     // if (val.isEmpty) return 'Enter bodyweight';
                     if (val.isEmpty) return null;
@@ -149,7 +157,7 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                   onPressed: () async {
                     if (_formKey.currentState.validate()) {
                       Navigator.pop(context);
-                      
+
                       String bw;
                       if (_bodyweight == null) {
                         if (day != null && day.bodyweight != null) {
@@ -162,7 +170,6 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                       } else {
                         bw = _bodyweight;
                       }
-
 
                       if (_dayName == null &&
                           _date == null &&

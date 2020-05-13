@@ -1,10 +1,12 @@
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/cycle.dart';
 import 'package:Lifter/models/program.dart';
+import 'package:Lifter/models/user.dart';
 import 'package:Lifter/screens/home/cycle/cycle_list.dart';
 import 'package:Lifter/screens/home/cycle/cycle_settings_form.dart';
 import 'package:Lifter/screens/home/program/program_settings_form.dart';
-import 'package:Lifter/shared/loading.dart';
+import 'package:Lifter/screens/user_settings_drawer.dart';
+import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,6 +17,8 @@ class ProgramHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final User user = Provider.of<User>(context);
+
     void _editProgramPanel() {
       showModalBottomSheet(
         shape: RoundedRectangleBorder(
@@ -97,13 +101,41 @@ class ProgramHome extends StatelessWidget {
                 title: Text('${programUpdates.name}'),
                 elevation: 0.0,
                 actions: <Widget>[
-                  IconButton(
-                    icon: Icon(Icons.settings),
-                    tooltip: 'Edit program',
-                    onPressed: () async {
-                      _editProgramPanel();
+                  PopupMenuButton(
+                    icon: Icon(Icons.more_vert),
+                    color: darkGreyColor,
+                    itemBuilder: (BuildContext context) => [
+                      PopupMenuItem(
+                        value: 'Edit',
+                        child: new Text('Edit program'),
+                      ),
+                      PopupMenuItem(
+                        value: 'Settings',
+                        child: new Text('Settings'),
+                      ),
+                    ],
+                    onSelected: (val) async {
+                      if (val == 'Edit') {
+                        _editProgramPanel();
+                      } else if (val == 'Settings') {
+                        showModalBottomSheet(
+                          context: context,
+                          // configuration: null,
+                          builder: (context) {
+                            return UserSettingsDrawer(
+                                user: user);
+                          },
+                        );
+                      }
                     },
                   ),
+                  // IconButton(
+                  //   icon: Icon(Icons.more_vert),
+                  //   tooltip: 'Edit program',
+                  //   onPressed: () async {
+                  //     _editProgramPanel();
+                  //   },
+                  // ),
                 ],
               ),
               body: CycleList(),
@@ -112,6 +144,9 @@ class ProgramHome extends StatelessWidget {
                 child: Icon(Icons.add),
                 onPressed: () => _newCyclePanel(),
               ),
+              // drawer: UserSettingsDrawer(
+              //   user: Provider.of<User>(context),
+              // ),
             ),
           );
         });

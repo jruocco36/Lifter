@@ -5,6 +5,7 @@ import 'package:Lifter/models/user.dart';
 import 'package:Lifter/screens/home/log_bodyweight_form.dart';
 import 'package:Lifter/screens/home/program/program_list.dart';
 import 'package:Lifter/screens/home/program/program_settings_form.dart';
+import 'package:Lifter/screens/user_settings_drawer.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -108,22 +109,11 @@ class Home extends StatelessWidget {
         appBar: AppBar(
           title: Text('Programs'),
           elevation: 0.0,
-          actions: <Widget>[
-            _settingsButton(),
-            // FlatButton.icon(
-            //   icon: Icon(Icons.settings),
-            //   label: Text('settings'),
-            //   onPressed: () => _showSettingsPanel(),
-            // ),
-          ],
+          // actions: <Widget>[
+          //   _settingsButton(),
+          // ],
         ),
         body: Container(
-          // decoration: BoxDecoration(
-          //   image: DecorationImage(
-          //     image: AssetImage('assets/coffee_bg.png'),
-          //     fit: BoxFit.cover,
-          //   ),
-          // ),
           child: ProgramList(),
         ),
         floatingActionButton: FloatingActionButton(
@@ -131,6 +121,7 @@ class Home extends StatelessWidget {
           child: Icon(Icons.add),
           onPressed: () => _newProgramPanel(),
         ),
+        drawer: UserSettingsDrawer(user: user),
       ),
     );
   }

@@ -77,8 +77,13 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
                   // initialValue: _startDate ??
                   // (week != null ? week.startDate.toString() : ''),
                   controller: _startDateController,
-                  decoration:
-                      textInputDecoration.copyWith(labelText: 'Start date'),
+                  decoration: textInputDecoration.copyWith(
+                    labelText: 'Start date',
+                    suffixIcon: Icon(
+                      Icons.calendar_today,
+                      size: 20,
+                    ),
+                  ),
                   keyboardType: TextInputType.datetime,
                   validator: (val) {
                     if (val.isEmpty) return 'Enter start date';
@@ -160,16 +165,14 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
   bool validDate(DateTime date, [Week week]) {
     bool selectable = true;
     widget.weeks.forEach((w) {
-      if ((date.isAfter(w.startDate) ||
-              date.isAtSameMomentAs(w.startDate)) &&
+      if ((date.isAfter(w.startDate) || date.isAtSameMomentAs(w.startDate)) &&
           (date.isBefore(w.startDate.add(Duration(days: 6))) ||
               date.isAtSameMomentAs(w.startDate.add(Duration(days: 6))))) {
         if (week != null) {
           if (week.weekId != w.weekId) {
             selectable = false;
           }
-        }
-        else {
+        } else {
           selectable = false;
         }
       }

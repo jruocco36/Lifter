@@ -10,8 +10,6 @@ import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// TODO: menu option to edit/delete exercise bases
-
 class Home extends StatelessWidget {
   final AuthService _auth = AuthService();
 

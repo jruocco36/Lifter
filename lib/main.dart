@@ -5,7 +5,7 @@ import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-// TODO: bug reporting/suggestions form
+// TODO: confirm running at 120fps
 
 void main() => runApp(MyApp());
 

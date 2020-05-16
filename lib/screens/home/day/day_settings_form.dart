@@ -59,7 +59,7 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
 
                 // day name
                 TextFormField(
-                  // autofocus: true,
+                  autofocus: true,
                   initialValue: _dayName ?? (day != null ? day.dayName : ''),
                   decoration:
                       textInputDecoration.copyWith(labelText: 'Day name'),

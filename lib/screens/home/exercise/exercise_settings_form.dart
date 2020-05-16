@@ -77,9 +77,6 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
               ),
               SizedBox(height: 20.0),
 
-              // TODO: edit base name/delete base
-              //       (side bar with user options)
-
               // TODO: ability to switch exercise without losing sets
               // ie. accidently added deficit deadlift instead of deadlift, want
               // to switch to deadlift without having to re-enter sets
@@ -89,6 +86,7 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
               TypeAheadFormField(
                 textFieldConfiguration: TextFieldConfiguration(
                   enabled: widget.exercise.exerciseId == null,
+                  autofocus: true,
                   controller: exerciseNameController,
                   decoration:
                       textInputDecoration.copyWith(labelText: 'Exercise name'),
@@ -199,6 +197,10 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                     textInputDecoration.copyWith(labelText: 'Training Max'),
                 validator: (val) {
                   if (val.isEmpty) return null;
+                  if (_oneRepMax == null &&
+                      widget.exercise.exerciseBase.oneRepMax == null) {
+                        return 'Can\'t set training max without one rep max';
+                      }
                   try {
                     double weight = double.parse(val);
                     if (weight < 0)
@@ -216,7 +218,7 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
               RaisedButton(
                 color: flamingoColor,
                 child: Text(
-                  widget.exercise != null ? 'Update' : 'Create',
+                  widget.exercise.exerciseId != null ? 'Update' : 'Create',
                   style: TextStyle(color: Colors.white),
                 ),
                 onPressed: () async {
@@ -241,8 +243,12 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                           : widget.exercise.exerciseBase != null
                               ? widget.exercise.exerciseBase.oneRepMax
                               : null,
-                      cycleTMs: widget.exercise.exerciseBase.cycleTMs ?? {},
-                      prHistory: widget.exercise.exerciseBase.prHistory ?? [],
+                      cycleTMs: widget.exercise.exerciseBase != null
+                          ? widget.exercise.exerciseBase.cycleTMs ?? {}
+                          : {},
+                      prHistory: widget.exercise.exerciseBase != null
+                          ? widget.exercise.exerciseBase.prHistory ?? []
+                          : [],
                     );
 
                     Exercise ex = Exercise(

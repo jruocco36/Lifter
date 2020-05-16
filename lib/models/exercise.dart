@@ -43,6 +43,7 @@ class ExerciseBase {
   set cycleTM(Cycle cycle) {
     if (cycleTMs == null) cycleTMs = {};
     if (cycleTMs[cycle.cycleId] != null) return;
+    if (this.oneRepMax == null) return;
     cycleTMs[cycle.cycleId] =
         (((this.oneRepMax * cycle.trainingMaxPercent) / 5).roundToDouble() * 5)
             .clamp(0, this.oneRepMax);
@@ -51,6 +52,7 @@ class ExerciseBase {
   void updateCycleTM(Cycle cycle, [double newTM]) {
     if (cycleTMs == null) cycleTMs = {};
     if (cycleTMs[cycle.cycleId] == null) return;
+    if (this.oneRepMax == null) return;
     if (newTM != null) {
       cycleTMs[cycle.cycleId] = newTM;
     } else {

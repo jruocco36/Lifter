@@ -99,19 +99,14 @@ class DatabaseService {
         .collection('programs')
         .document(program.programId)
         .collection('cycles')
+        .orderBy('startDate')
         .snapshots()
         .map((snapshot) => _cycleListFromSnapshot(snapshot, program));
   }
 
   // program data from snapshot
   Cycle _cycleDataFromSnapshot(DocumentSnapshot snapshot, Program program) {
-    return Cycle(
-      program: program,
-      cycleId: snapshot.documentID,
-      name: snapshot['cycleName'],
-      startDate: snapshot['startDate'].toDate(),
-      trainingMaxPercent: snapshot['trainingMaxPercent'].toDouble(),
-    );
+    return Cycle.fromJson(snapshot, program);
   }
 
   // get cycle data stream for specific program id and cycle id
@@ -126,20 +121,14 @@ class DatabaseService {
   }
 
   // update a cycle
-  Future updateCycle(String programId, String cycleId, String cycleName,
-      DateTime startDate, double trainingMaxPercent) async {
+  Future updateCycle(Cycle cycle) async {
+    bool update = cycle.cycleId != null;
     return await userRef
         .collection('programs')
-        .document(programId)
+        .document(cycle.program.programId)
         .collection('cycles')
-        .document(cycleId)
-        .setData({
-      'uid': uid,
-      'programId': programId,
-      'cycleName': cycleName,
-      'startDate': Timestamp.fromDate(startDate),
-      'trainingMaxPercent': trainingMaxPercent,
-    });
+        .document(cycle.cycleId)
+        .setData(cycle.toJson(update: update));
   }
 
   // delete a cycle

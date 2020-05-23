@@ -1,3 +1,4 @@
+import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/cycle.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -222,7 +223,7 @@ class Exercise {
               )
             : null;
 
-  Map toJson({bool update, String baseId}) => <String, dynamic>{
+  Map toJson({bool update = false, String baseId}) => <String, dynamic>{
         'exerciseBaseId':
             baseId != null ? baseId : this.exerciseBase.exerciseBaseId,
         'dayId': this.day.dayId,
@@ -232,6 +233,11 @@ class Exercise {
           'sets': this.sets.map((set) => set.toJson(update: update)).toList(),
         if (!update) 'createdDate': Timestamp.now(),
       };
+
+  Future updateExercise() async {
+    await DatabaseService(uid: this.day.week.cycle.program.uid)
+        .updateExercise(this.exerciseBase, this);
+  }
 }
 
 ///weight, percent of max, or percent of training max

@@ -265,7 +265,7 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                       }
                     }
 
-                    await database.updateExercise(exBase, ex);
+                    await ex.updateExercise();
                   }
                 },
               ),

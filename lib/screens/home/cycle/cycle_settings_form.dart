@@ -154,15 +154,18 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                           _startDate == null &&
                           _trainingMaxPercent == null) return;
 
-                      await DatabaseService(uid: user.uid).updateCycle(
-                        widget.program.programId,
-                        widget.cycleId,
-                        _cycleName ?? cycle.name,
-                        _startDate != null ? _startDate : cycle.startDate,
-                        _trainingMaxPercent != null
-                            ? double.parse(_trainingMaxPercent) / 100
-                            : cycle.trainingMaxPercent,
-                      );
+                      Cycle editCycle = Cycle(
+                          program: widget.program,
+                          cycleId: widget.cycleId,
+                          name: _cycleName ?? cycle.name,
+                          startDate:
+                              _startDate != null ? _startDate : cycle.startDate,
+                          trainingMaxPercent: _trainingMaxPercent != null
+                                ? double.parse(_trainingMaxPercent) / 100
+                                : cycle.trainingMaxPercent
+                          );
+
+                      await editCycle.updateCycle();
                     }
                   },
                 ),

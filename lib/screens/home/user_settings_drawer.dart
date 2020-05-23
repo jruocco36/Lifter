@@ -34,7 +34,7 @@ class _UserSettingsDrawerState extends State<UserSettingsDrawer> {
               currentAccountPicture: CircleAvatar(
                 backgroundColor: flamingoColor,
                 child: Text(
-                  widget.user.email.substring(0, 1),
+                  widget.user.name.substring(0, 1),
                 ),
               ),
               // onDetailsPressed: () {},// ),

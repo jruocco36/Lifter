@@ -88,6 +88,10 @@ class _CycleTileState extends State<CycleTile>
                           value: 'Delete',
                           child: new Text('Delete'),
                         ),
+                        PopupMenuItem(
+                          value: 'Next cycle',
+                          child: new Text('Next cycle'),
+                        ),
                       ],
                       onSelected: (val) async {
                         if (val == 'Edit') {
@@ -130,13 +134,12 @@ class _CycleTileState extends State<CycleTile>
                                 .deleteCycle(widget.cycle.program.programId,
                                     widget.cycle.cycleId);
                           }
+                        } else if (val == 'Next cycle') {
+                          // TODO: copy to new cycle
                         }
                       },
                     ),
                     onTap: () {
-                      // print(_animationController.status);
-                      // print(_animationController.value);
-                      // print(showWeekDrawer);
                       if (_animationController.isAnimating ||
                           _animationController.isCompleted) {
                         _animationController.reverse();
@@ -146,19 +149,6 @@ class _CycleTileState extends State<CycleTile>
                     },
                     onLongPress: () {
                       openContainer();
-                      // Navigator.push(
-                      //   context,
-                      //   ScaleRoute(
-                      //     page: CycleHome(
-                      //       cycle: widget.cycle,
-                      //     ),
-                      //   ),
-                      //   // MaterialPageRoute(
-                      //   //   builder: (context) => CycleHome(
-                      //   //     cycle: widget.cycle,
-                      //   //   ),
-                      //   // ),
-                      // );
                     },
                   );
                 }),

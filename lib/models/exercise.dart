@@ -286,21 +286,22 @@ class Set {
   double additionalWeight;
   String notes;
   String exerciseId;
+  DateTime date;
 
   /// weight, percent of max, or percent of training max
   SetType setType;
 
-  Set({
-    @required this.setId,
-    @required this.exerciseId,
-    this.weight,
-    this.reps,
-    this.setType = SetType.weight,
-    this.percent,
-    this.additionalWeight,
-    this.repRange,
-    this.notes,
-  });
+  Set(
+      {@required this.setId,
+      @required this.exerciseId,
+      this.weight,
+      this.reps,
+      this.setType = SetType.weight,
+      this.percent,
+      this.additionalWeight,
+      this.repRange,
+      this.notes,
+      @required this.date});
 
   /// Reset weight and reps for this set.
   ///
@@ -330,6 +331,7 @@ class Set {
         percent: double.tryParse(json['percent'].toString()),
         notes: json['notes'],
         additionalWeight: double.tryParse(json['additionalWeight'].toString()),
+        date: json['date'] != null ? json['date'].toDate() : null,
       );
 
   Map toJson({bool update}) => <String, dynamic>{
@@ -343,6 +345,7 @@ class Set {
         'percent': this.percent,
         'notes': this.notes,
         'additionalWeight': this.additionalWeight,
+        'date': this.date,
         if (!update) 'createdDate': Timestamp.now(),
       };
 }
@@ -352,24 +355,28 @@ class HistoricSet {
   final int reps;
   final String setId;
   final String exerciseId;
+  final DateTime date;
 
   HistoricSet(Set set)
       : weight = set.weight,
         reps = set.reps,
         exerciseId = set.exerciseId,
-        setId = set.setId;
+        setId = set.setId,
+        date = set.date;
 
   HistoricSet.fromJson(Map<String, dynamic> json)
       : weight = double.tryParse(json['weight'].toString()),
         reps = json['reps'],
         exerciseId = json['exerciseId'],
-        setId = json['setId'];
+        setId = json['setId'],
+        date = json['date'] != null ? json['date'].toDate() : null;
 
   Map toJson({bool update}) => <String, dynamic>{
         'weight': this.weight,
         'reps': this.reps,
         'exerciseId': this.exerciseId,
         'setId': this.setId,
+        'date': this.date,
         if (!update) 'createdDate': Timestamp.now(),
       };
 }

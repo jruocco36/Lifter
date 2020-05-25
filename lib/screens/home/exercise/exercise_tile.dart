@@ -117,6 +117,10 @@ class _ExerciseTileState extends State<ExerciseTile> {
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: widget.exercise.sets.length,
                   itemBuilder: (context, index) {
+                    if (widget.exercise.sets[index].date == null) {
+                      widget.exercise.sets[index].date =
+                          widget.exercise.day.date;
+                    }
                     if (weightControllers.length < index + 1) {
                       weightControllers.add(TextEditingController());
                     }

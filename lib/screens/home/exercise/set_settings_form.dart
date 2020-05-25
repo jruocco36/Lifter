@@ -27,13 +27,15 @@ class _SetSettingsFormState extends State<SetSettingsForm> {
         ? widget.exercise.sets[widget.setIndex]
         : Set(
             exerciseId: widget.exercise.exerciseId,
-            setId: Uuid().v1());
+            setId: Uuid().v1(),
+            date: widget.exercise.day.date);
     if (set.percent != null) {
       percentController.text = (set.percent * 100).toString();
     }
     if (set.additionalWeight != null) {
       additionalWeightController.text = set.additionalWeight.toString();
     }
+    // if (set.date == null) set.date = widget.exercise.day.date;
     super.initState();
   }
 

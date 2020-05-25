@@ -41,6 +41,7 @@ dependencies:
   animations: ^1.0.0+5
   flutter_typeahead: ^1.8.0
   firebase_user_stream: ^1.0.0  # pub.dev/packages/firebase_user_stream
+  uuid: 2.0.4  # generate unique id
 
 dev_dependencies:
   flutter_test:

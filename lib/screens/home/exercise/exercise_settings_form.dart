@@ -224,8 +224,8 @@ class _ExerciseSettingsFormState extends State<ExerciseSettingsForm> {
                 onPressed: () async {
                   if (_formKey.currentState.validate()) {
                     Navigator.pop(context);
-                    DatabaseService database = DatabaseService(
-                        uid: widget.exercise.day.week.cycle.program.uid);
+                    // DatabaseService database = DatabaseService(
+                    //     uid: widget.exercise.day.week.cycle.program.uid);
 
                     ExerciseBase exBase = ExerciseBase(
                       exerciseBaseId: widget.exercise.exerciseBase != null

@@ -211,7 +211,6 @@ class _ExerciseTileState extends State<ExerciseTile> {
                               Flexible(
                                 child: TextFormField(
                                   keyboardType: TextInputType.text,
-                                  // keyboardType: TextInputType.,
                                   decoration: InputDecoration(
                                     isDense: true,
                                     hintText: 'Rep range',
@@ -262,6 +261,8 @@ class _ExerciseTileState extends State<ExerciseTile> {
                               IconButton(
                                 icon: Icon(Icons.delete),
                                 onPressed: () {
+                                  widget.exercise.exerciseBase
+                                      .removePr(widget.exercise.sets[index]);
                                   widget.exercise.sets.removeAt(index);
                                   weightControllers.removeAt(index);
                                   updateExercise(widget.exercise);

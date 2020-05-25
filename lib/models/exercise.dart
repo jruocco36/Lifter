@@ -3,6 +3,7 @@ import 'package:Lifter/models/cycle.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:Lifter/models/day.dart';
+import 'package:uuid/uuid.dart';
 
 enum ExerciseType { Main, Accessory, Optional }
 
@@ -68,18 +69,20 @@ class ExerciseBase {
     return exerciseTypeToString(exerciseType);
   }
 
-  // TODO: remove [HistoricSet] from [prHistory] if [Set] is changed/deleted
-  //       need way to track each set counting towards pr (maybe need setId)
   set pr(Set set) {
     if (prHistory == null) prHistory = [];
     for (HistoricSet pr in prHistory) {
-      if (pr.weight == set.weight &&
-          pr.reps == set.reps &&
-          set.exerciseId == pr.exerciseId) {
-        return;
+      if (pr.setId == set.setId) {
+        removePr(set); // remove old pr set
+        prHistory.add(HistoricSet(set)); // add new pr set
+        return; // stop looking
       }
     }
-    // prHistory.add(HistoricSet(set));
+    prHistory.add(HistoricSet(set)); // set not found, add it
+  }
+
+  void removePr(Set set) {
+    prHistory.removeWhere((prH) => prH.setId == set.setId);
   }
 
   ExerciseBase({
@@ -275,6 +278,7 @@ List<String> setTypesToStrings() {
 }
 
 class Set {
+  final String setId;
   double weight;
   String repRange;
   int reps;
@@ -287,6 +291,8 @@ class Set {
   SetType setType;
 
   Set({
+    @required this.setId,
+    @required this.exerciseId,
     this.weight,
     this.reps,
     this.setType = SetType.weight,
@@ -294,7 +300,6 @@ class Set {
     this.additionalWeight,
     this.repRange,
     this.notes,
-    @required this.exerciseId,
   });
 
   /// Reset weight and reps for this set.
@@ -316,6 +321,8 @@ class Set {
   }
 
   factory Set.fromJson(Map<String, dynamic> json) => Set(
+        setId: json['setId'] ?? Uuid().v1(),
+        exerciseId: json['exerciseId'],
         weight: double.tryParse(json['weight'].toString()),
         reps: json['reps'],
         repRange: json['repRange'],
@@ -323,10 +330,11 @@ class Set {
         percent: double.tryParse(json['percent'].toString()),
         notes: json['notes'],
         additionalWeight: double.tryParse(json['additionalWeight'].toString()),
-        exerciseId: json['exerciseId'],
       );
 
   Map toJson({bool update}) => <String, dynamic>{
+        'setId': this.setId,
+        'exerciseId': this.exerciseId,
         'weight': this.weight,
         'reps': this.reps,
         'repRange': this.repRange,
@@ -335,7 +343,6 @@ class Set {
         'percent': this.percent,
         'notes': this.notes,
         'additionalWeight': this.additionalWeight,
-        'exerciseId': this.exerciseId,
         if (!update) 'createdDate': Timestamp.now(),
       };
 }
@@ -343,22 +350,26 @@ class Set {
 class HistoricSet {
   final double weight;
   final int reps;
+  final String setId;
   final String exerciseId;
 
   HistoricSet(Set set)
       : weight = set.weight,
         reps = set.reps,
-        exerciseId = set.exerciseId;
+        exerciseId = set.exerciseId,
+        setId = set.setId;
 
   HistoricSet.fromJson(Map<String, dynamic> json)
       : weight = double.tryParse(json['weight'].toString()),
         reps = json['reps'],
-        exerciseId = json['exerciseId'];
+        exerciseId = json['exerciseId'],
+        setId = json['setId'];
 
   Map toJson({bool update}) => <String, dynamic>{
         'weight': this.weight,
         'reps': this.reps,
         'exerciseId': this.exerciseId,
+        'setId': this.setId,
         if (!update) 'createdDate': Timestamp.now(),
       };
 }

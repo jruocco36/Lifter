@@ -228,6 +228,7 @@ class DatabaseService {
     });
   }
 
+  // TODO: Day.fromJson
   // day data from snapshot
   Day _dayDataFromSnapshot(DocumentSnapshot snapshot, Week week) {
     return Day(
@@ -316,6 +317,7 @@ class DatabaseService {
         .map((snapshot) => _dayDataFromSnapshot(snapshot, week));
   }
 
+  // TODO: Day.toJson
   // update a day
   Future updateDay(
       Week week, String dayId, DateTime date, double bodyweight, String dayName,
@@ -374,10 +376,6 @@ class DatabaseService {
   // exerciseBase data from snapshot
   ExerciseBase _exerciseBaseDataFromSnapshot(DocumentSnapshot snapshot) {
     return ExerciseBase.fromJson(snapshot);
-    // return ExerciseBase(
-    //   exerciseBaseId: snapshot.documentID,
-    //   exerciseName: snapshot.data['name'],
-    //   exerciseType: getExerciseTypeFromString(snapshot.data['type']),
     // );
   }
 

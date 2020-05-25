@@ -2,6 +2,7 @@ import 'package:Lifter/models/exercise.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:uuid/uuid.dart';
 
 class SetSettingsForm extends StatefulWidget {
   final Exercise exercise;
@@ -24,7 +25,9 @@ class _SetSettingsFormState extends State<SetSettingsForm> {
   void initState() {
     set = widget.setIndex != null
         ? widget.exercise.sets[widget.setIndex]
-        : Set(exerciseId: widget.exercise.exerciseId);
+        : Set(
+            exerciseId: widget.exercise.exerciseId,
+            setId: Uuid().v1());
     if (set.percent != null) {
       percentController.text = (set.percent * 100).toString();
     }

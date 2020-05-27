@@ -33,258 +33,256 @@ class _ExerciseTileState extends State<ExerciseTile> {
     DatabaseService database =
         DatabaseService(uid: widget.exercise.day.week.cycle.program.uid);
 
-    return SingleChildScrollView(
-      child: Container(
-        margin: EdgeInsets.only(bottom: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Container(
-              color: lightGreyColor,
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(8.0, 5.0, 12.0, 5.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Text(
-                        widget.exercise.name,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: flamingoColor,
-                        ),
+    return Container(
+      margin: EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Container(
+            color: lightGreyColor,
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(8.0, 5.0, 12.0, 5.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Text(
+                      widget.exercise.name,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: flamingoColor,
                       ),
-                      if (widget.exercise.exerciseBase.oneRepMax != null)
-                        oneRepMax(),
-                      if (widget.exercise.trainingMax != null) trainingMax(),
-                    ],
-                  ),
-                  Row(
-                    children: <Widget>[
-                      GestureDetector(
-                        child: Icon(
-                          Icons.add,
-                          size: 20,
-                        ),
-                        onTap: () {
-                          if (widget.exercise.sets == null) {
-                            widget.exercise.sets = [];
-                          }
-                          _editSet();
-                        },
+                    ),
+                    if (widget.exercise.exerciseBase.oneRepMax != null)
+                      oneRepMax(),
+                    if (widget.exercise.trainingMax != null) trainingMax(),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    GestureDetector(
+                      child: Icon(
+                        Icons.add,
+                        size: 20,
                       ),
-                      SizedBox(width: 25),
-                      GestureDetector(
-                        child: Icon(
-                          Icons.settings,
-                          size: 20,
-                        ),
-                        onTap: () {
-                          _editExercisePanel();
-                        },
+                      onTap: () {
+                        if (widget.exercise.sets == null) {
+                          widget.exercise.sets = [];
+                        }
+                        _editSet();
+                      },
+                    ),
+                    SizedBox(width: 25),
+                    GestureDetector(
+                      child: Icon(
+                        Icons.settings,
+                        size: 20,
                       ),
-                      SizedBox(width: 25),
-                      GestureDetector(
-                        child: Icon(
-                          Icons.delete,
-                          size: 20,
-                        ),
-                        onTap: () async {
-                          final delete = await showDialog(
-                              context: context,
-                              builder: (_) {
-                                return DeleteDialog(widget.exercise.name);
-                              });
-                          if (delete) {
-                            database.deleteExercise(widget.exercise);
-                          }
-                        },
+                      onTap: () {
+                        _editExercisePanel();
+                      },
+                    ),
+                    SizedBox(width: 25),
+                    GestureDetector(
+                      child: Icon(
+                        Icons.delete,
+                        size: 20,
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                      onTap: () async {
+                        final delete = await showDialog(
+                            context: context,
+                            builder: (_) {
+                              return DeleteDialog(widget.exercise.name);
+                            });
+                        if (delete) {
+                          database.deleteExercise(widget.exercise);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
+          ),
 
-            // Set List
-            if (widget.exercise.sets != null && widget.exercise.sets.length > 0)
-              Container(
-                child: ListView.builder(
-                  padding: EdgeInsets.fromLTRB(10, 7, 0, 0),
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: widget.exercise.sets.length,
-                  itemBuilder: (context, index) {
-                    if (widget.exercise.sets[index].date == null) {
-                      widget.exercise.sets[index].date =
-                          widget.exercise.day.date;
-                    }
-                    if (weightControllers.length < index + 1) {
-                      weightControllers.add(TextEditingController());
-                    }
-                    if (widget.exercise.sets[index].weight != null) {
-                      weightControllers[index].text =
-                          widget.exercise.sets[index].weight.toInt().toString();
-                    }
+          // Set List
+          if (widget.exercise.sets != null && widget.exercise.sets.length > 0)
+            Container(
+              child: ListView.builder(
+                padding: EdgeInsets.fromLTRB(10, 7, 0, 0),
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: widget.exercise.sets.length,
+                itemBuilder: (context, index) {
+                  if (widget.exercise.sets[index].date == null) {
+                    widget.exercise.sets[index].date =
+                        widget.exercise.day.date;
+                  }
+                  if (weightControllers.length < index + 1) {
+                    weightControllers.add(TextEditingController());
+                  }
+                  if (widget.exercise.sets[index].weight != null) {
+                    weightControllers[index].text =
+                        widget.exercise.sets[index].weight.toInt().toString();
+                  }
 
-                    return IntrinsicHeight(
-                      child: Column(
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            mainAxisSize: MainAxisSize.min,
-                            children: <Widget>[
-                              Flexible(
-                                child: TextFormField(
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                    isDense: true,
-                                    hintText: 'Weight',
-                                    hintStyle: TextStyle(fontSize: 14),
+                  return IntrinsicHeight(
+                    child: Column(
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Flexible(
+                              child: TextFormField(
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  hintText: 'Weight',
+                                  hintStyle: TextStyle(fontSize: 14),
+                                ),
+                                controller: weightControllers[index],
+                                inputFormatters: <TextInputFormatter>[
+                                  WhitelistingTextInputFormatter(
+                                    RegExp(r'^\d*\.{0,1}\d*$'),
                                   ),
-                                  controller: weightControllers[index],
-                                  inputFormatters: <TextInputFormatter>[
-                                    WhitelistingTextInputFormatter(
-                                      RegExp(r'^\d*\.{0,1}\d*$'),
-                                    ),
-                                  ],
-                                  onChanged: (val) {
-                                    widget.exercise.sets[index].weight =
-                                        val != '' ? double.parse(val) : null;
-                                  },
-                                  onEditingComplete: () {
-                                    FocusScope.of(context).unfocus();
-                                    if (widget.exercise.sets[index].reps !=
-                                            null &&
-                                        widget.exercise.sets[index].weight !=
-                                            null) {
-                                      widget.exercise.exerciseBase.pr =
-                                          widget.exercise.sets[index];
-                                    }
-                                    updateExercise(widget.exercise);
-                                  },
-                                ),
-                              ),
-                              VerticalDivider(
-                                endIndent: 5,
-                                indent: 10,
-                              ),
-                              Flexible(
-                                child: TextFormField(
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                    isDense: true,
-                                    hintText: 'Reps',
-                                    hintStyle: TextStyle(fontSize: 14),
-                                  ),
-                                  inputFormatters: <TextInputFormatter>[
-                                    WhitelistingTextInputFormatter.digitsOnly
-                                  ],
-                                  initialValue:
-                                      widget.exercise.sets[index].reps != null
-                                          ? widget.exercise.sets[index].reps
-                                              .toString()
-                                          : null,
-                                  // validator: (val) =>
-                                  //     val.isEmpty ? 'Enter reps' : null,
-                                  onChanged: (val) => setState(() {
-                                    widget.exercise.sets[index].reps =
-                                        val != '' ? int.parse(val) : null;
-                                  }),
-                                  onEditingComplete: () {
-                                    FocusScope.of(context).unfocus();
-                                    if (widget.exercise.sets[index].reps !=
-                                            null &&
-                                        widget.exercise.sets[index].weight !=
-                                            null) {
-                                      widget.exercise.exerciseBase.pr =
-                                          widget.exercise.sets[index];
-                                    }
-                                    updateExercise(widget.exercise);
-                                  },
-                                ),
-                              ),
-                              VerticalDivider(
-                                endIndent: 5,
-                                indent: 10,
-                              ),
-
-                              // Rep range
-                              Flexible(
-                                child: TextFormField(
-                                  keyboardType: TextInputType.text,
-                                  decoration: InputDecoration(
-                                    isDense: true,
-                                    hintText: 'Rep range',
-                                    hintStyle: TextStyle(fontSize: 14),
-                                  ),
-                                  initialValue:
-                                      widget.exercise.sets[index].repRange !=
-                                              null
-                                          ? widget.exercise.sets[index].repRange
-                                          : null,
-                                  onChanged: (val) => setState(() {
-                                    widget.exercise.sets[index].repRange =
-                                        val != '' ? val : null;
-                                  }),
-                                  onEditingComplete: () {
-                                    FocusScope.of(context).unfocus();
-                                    updateExercise(widget.exercise);
-                                  },
-                                ),
-                              ),
-
-                              // Set notes
-                              IconButton(
-                                icon: Icon(
-                                  Icons.note,
-                                  color: widget.exercise.sets[index].notes !=
-                                              null &&
-                                          widget.exercise.sets[index].notes
-                                                  .length >
-                                              1
-                                      ? Colors.white
-                                      : greyTextColor,
-                                ),
-                                onPressed: () {
-                                  setNotes(index);
+                                ],
+                                onChanged: (val) {
+                                  widget.exercise.sets[index].weight =
+                                      val != '' ? double.parse(val) : null;
                                 },
-                              ),
-
-                              // Set settings
-                              IconButton(
-                                icon: Icon(Icons.settings),
-                                onPressed: () {
-                                  _editSet(index);
-                                },
-                              ),
-
-                              // Delete set
-                              IconButton(
-                                icon: Icon(Icons.delete),
-                                onPressed: () {
-                                  widget.exercise.exerciseBase
-                                      .removePr(widget.exercise.sets[index]);
-                                  widget.exercise.sets.removeAt(index);
-                                  weightControllers.removeAt(index);
+                                onEditingComplete: () {
+                                  FocusScope.of(context).unfocus();
+                                  if (widget.exercise.sets[index].reps !=
+                                          null &&
+                                      widget.exercise.sets[index].weight !=
+                                          null) {
+                                    widget.exercise.exerciseBase.pr =
+                                        widget.exercise.sets[index];
+                                  }
                                   updateExercise(widget.exercise);
                                 },
-                              )
-                            ],
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                              ),
+                            ),
+                            VerticalDivider(
+                              endIndent: 5,
+                              indent: 10,
+                            ),
+                            Flexible(
+                              child: TextFormField(
+                                keyboardType: TextInputType.number,
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  hintText: 'Reps',
+                                  hintStyle: TextStyle(fontSize: 14),
+                                ),
+                                inputFormatters: <TextInputFormatter>[
+                                  WhitelistingTextInputFormatter.digitsOnly
+                                ],
+                                initialValue:
+                                    widget.exercise.sets[index].reps != null
+                                        ? widget.exercise.sets[index].reps
+                                            .toString()
+                                        : null,
+                                // validator: (val) =>
+                                //     val.isEmpty ? 'Enter reps' : null,
+                                onChanged: (val) => setState(() {
+                                  widget.exercise.sets[index].reps =
+                                      val != '' ? int.parse(val) : null;
+                                }),
+                                onEditingComplete: () {
+                                  FocusScope.of(context).unfocus();
+                                  if (widget.exercise.sets[index].reps !=
+                                          null &&
+                                      widget.exercise.sets[index].weight !=
+                                          null) {
+                                    widget.exercise.exerciseBase.pr =
+                                        widget.exercise.sets[index];
+                                  }
+                                  updateExercise(widget.exercise);
+                                },
+                              ),
+                            ),
+                            VerticalDivider(
+                              endIndent: 5,
+                              indent: 10,
+                            ),
+
+                            // Rep range
+                            Flexible(
+                              child: TextFormField(
+                                keyboardType: TextInputType.text,
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  hintText: 'Rep range',
+                                  hintStyle: TextStyle(fontSize: 14),
+                                ),
+                                initialValue:
+                                    widget.exercise.sets[index].repRange !=
+                                            null
+                                        ? widget.exercise.sets[index].repRange
+                                        : null,
+                                onChanged: (val) => setState(() {
+                                  widget.exercise.sets[index].repRange =
+                                      val != '' ? val : null;
+                                }),
+                                onEditingComplete: () {
+                                  FocusScope.of(context).unfocus();
+                                  updateExercise(widget.exercise);
+                                },
+                              ),
+                            ),
+
+                            // Set notes
+                            IconButton(
+                              icon: Icon(
+                                Icons.note,
+                                color: widget.exercise.sets[index].notes !=
+                                            null &&
+                                        widget.exercise.sets[index].notes
+                                                .length >
+                                            1
+                                    ? Colors.white
+                                    : greyTextColor,
+                              ),
+                              onPressed: () {
+                                setNotes(index);
+                              },
+                            ),
+
+                            // Set settings
+                            IconButton(
+                              icon: Icon(Icons.settings),
+                              onPressed: () {
+                                _editSet(index);
+                              },
+                            ),
+
+                            // Delete set
+                            IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
+                                widget.exercise.exerciseBase
+                                    .removePr(widget.exercise.sets[index]);
+                                widget.exercise.sets.removeAt(index);
+                                weightControllers.removeAt(index);
+                                updateExercise(widget.exercise);
+                              },
+                            )
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   } // BUILD

@@ -17,7 +17,7 @@ class WeekSettingsForm extends StatefulWidget {
   WeekSettingsForm({
     @required this.cycle,
     this.weekId,
-    this.weeks,
+    @required this.weeks,
   });
 
   @override
@@ -131,13 +131,23 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
                       Navigator.pop(context);
                       if (_weekName == null && _startDate == null) return;
                       await DatabaseService(uid: user.uid).updateWeek(
-                        widget.cycle.program.programId,
-                        widget.cycle.cycleId,
-                        widget.weekId,
-                        _weekName ?? week.weekName,
-                        _startDate != null ? _startDate : week.startDate,
-                        week != null ? week.days : null,
+                        Week(
+                          cycle: widget.cycle,
+                          startDate:
+                              _startDate != null ? _startDate : week.startDate,
+                          weekId: widget.weekId,
+                          weekName: _weekName ?? week.weekName,
+                          days: week != null ? week.days : null,
+                        ),
                       );
+                      // await DatabaseService(uid: user.uid).updateWeek(
+                      //   widget.cycle.program.programId,
+                      //   widget.cycle.cycleId,
+                      //   widget.weekId,
+                      //   _weekName ?? week.weekName,
+                      //   _startDate != null ? _startDate : week.startDate,
+                      //   week != null ? week.days : null,
+                      // );
                     }
                   },
                 ),

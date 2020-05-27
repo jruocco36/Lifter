@@ -123,22 +123,64 @@ class DatabaseService {
   // update a cycle
   Future updateCycle(Cycle cycle) async {
     bool update = cycle.cycleId != null;
-    return await userRef
-        .collection('programs')
-        .document(cycle.program.programId)
-        .collection('cycles')
-        .document(cycle.cycleId)
-        .setData(cycle.toJson(update: update));
+    if (update) {
+      return await userRef
+          .collection('programs')
+          .document(cycle.program.programId)
+          .collection('cycles')
+          .document(cycle.cycleId)
+          .updateData(cycle.toJson(update: update));
+    } else {
+      return await userRef
+          .collection('programs')
+          .document(cycle.program.programId)
+          .collection('cycles')
+          .add(cycle.toJson(update: update));
+    }
   }
 
   // delete a cycle
   Future deleteCycle(String programId, String cycleId) async {
-    return await userRef
+    userRef.collection('exerciseBases').getDocuments().then((docs) {
+      docs.documents.forEach((doc) {
+        Map<String, dynamic> tMs = doc.data['cycleTMs'];
+        if (tMs[cycleId] != null) {
+          tMs.remove(cycleId);
+        }
+        doc.reference.updateData({'cycleTMs': tMs});
+      });
+    });
+
+    // create batch to store commands
+    var batch = Firestore.instance.batch();
+
+    DocumentReference cycleRef = userRef
         .collection('programs')
         .document(programId)
         .collection('cycles')
-        .document(cycleId)
-        .delete();
+        .document(cycleId);
+
+    // delete cycle ref first so cycle disappears immediately
+    // then continue cleaning up subcollections in background
+    cycleRef.delete();
+
+    QuerySnapshot weekCol = await cycleRef.collection('weeks').getDocuments();
+    for (DocumentSnapshot weekDoc in weekCol.documents) {
+      QuerySnapshot dayCol =
+          await weekDoc.reference.collection('days').getDocuments();
+      for (DocumentSnapshot dayDoc in dayCol.documents) {
+        QuerySnapshot exCol =
+            await dayDoc.reference.collection('exercises').getDocuments();
+        for (DocumentSnapshot exDoc in exCol.documents) {
+          batch.delete(exDoc.reference);
+        }
+        batch.delete(dayDoc.reference);
+      }
+      batch.delete(weekDoc.reference);
+    }
+
+    // batch.delete(cycleRef);
+    return batch.commit(); // commit batch to db
   }
 
   // program's week data from snapshot
@@ -161,16 +203,47 @@ class DatabaseService {
         .map((snapshot) => _weekListFromSnapshot(snapshot, cycle));
   }
 
-  // delete a week
+  Future<List<Week>> getWeekList(Cycle cycle) {
+    if (cycle == null) return null;
+    return userRef
+        .collection('programs')
+        .document(cycle.program.programId)
+        .collection('cycles')
+        .document(cycle.cycleId)
+        .collection('weeks')
+        .orderBy('startDate')
+        .getDocuments()
+        .then((snapshot) => _weekListFromSnapshot(snapshot, cycle));
+  }
+
+  // delete a week and all subcollections
   Future deleteWeek(String programId, String cycleId, String weekId) async {
-    return await userRef
+    var batch = Firestore.instance.batch();
+
+    DocumentReference weekRef = userRef
         .collection('programs')
         .document(programId)
         .collection('cycles')
         .document(cycleId)
         .collection('weeks')
-        .document(weekId)
-        .delete();
+        .document(weekId);
+
+    // delete weekRef ref first so cycle disappears immediately
+    // then continue cleaning up subcollections in background
+    weekRef.delete();
+
+    QuerySnapshot dayCol = await weekRef.collection('days').getDocuments();
+    for (DocumentSnapshot dayDoc in dayCol.documents) {
+      QuerySnapshot exCol =
+          await dayDoc.reference.collection('exercises').getDocuments();
+      for (DocumentSnapshot exDoc in exCol.documents) {
+        batch.delete(exDoc.reference);
+      }
+      batch.delete(dayDoc.reference);
+    }
+
+    // batch.delete(weekRef);
+    batch.commit();
   }
 
   // week data from snapshot
@@ -198,10 +271,11 @@ class DatabaseService {
   }
 
   // update a week
-  Future updateWeek(String programId, String cycleId, String weekId,
-      String weekName, DateTime startDate, Map<String, dynamic> days) async {
-    if (days == null) {
-      days = days = {
+  Future updateWeek(Week week) async {
+    bool update = week.weekId != null;
+
+    if (week.days == null) {
+      week.days = week.days = {
         'Monday': null,
         'Tuesday': null,
         'Wednesday': null,
@@ -211,33 +285,30 @@ class DatabaseService {
         'Sunday': null,
       };
     }
-    return await userRef
-        .collection('programs')
-        .document(programId)
-        .collection('cycles')
-        .document(cycleId)
-        .collection('weeks')
-        .document(weekId)
-        .setData({
-      'uid': uid,
-      'programId': programId,
-      'cycleId': cycleId,
-      'weekName': weekName,
-      'startDate': Timestamp.fromDate(startDate),
-      'days': days,
-    });
+
+    if (update) {
+      return await userRef
+          .collection('programs')
+          .document(week.cycle.program.programId)
+          .collection('cycles')
+          .document(week.cycle.cycleId)
+          .collection('weeks')
+          .document(week.weekId)
+          .updateData(week.toJson());
+    } else {
+      return await userRef
+          .collection('programs')
+          .document(week.cycle.program.programId)
+          .collection('cycles')
+          .document(week.cycle.cycleId)
+          .collection('weeks')
+          .add(week.toJson());
+    }
   }
 
-  // TODO: Day.fromJson
   // day data from snapshot
   Day _dayDataFromSnapshot(DocumentSnapshot snapshot, Week week) {
-    return Day(
-      date: snapshot['date'].toDate(),
-      bodyweight: snapshot['bodyweight'],
-      week: week,
-      dayId: snapshot.documentID,
-      dayName: snapshot['dayName'],
-    );
+    return Day.fromJson(snapshot, week);
   }
 
   // program's day data from snapshot
@@ -262,9 +333,34 @@ class DatabaseService {
         .map((snapshot) => _dayListFromSnapshot(snapshot, week));
   }
 
-  // delete a day
+  Future<List<Day>> getDayList(List<Week> weekList) async {
+    if (weekList == null) return null;
+
+    List<Day> dayList = [];
+
+    for (Week week in weekList) {
+      await userRef
+          .collection('programs')
+          .document(week.cycle.program.programId)
+          .collection('cycles')
+          .document(week.cycle.cycleId)
+          .collection('weeks')
+          .document(week.weekId)
+          .collection('days')
+          .orderBy('date')
+          .getDocuments()
+          .then((snapshot) {
+        dayList += _dayListFromSnapshot(snapshot, week);
+      });
+    }
+    return dayList;
+  }
+
+  // delete a day and subcollections
   Future deleteDay(Day day) async {
-    return await userRef
+    var batch = Firestore.instance.batch();
+
+    DocumentReference dayRef = userRef
         .collection('programs')
         .document(day.week.cycle.program.programId)
         .collection('cycles')
@@ -272,34 +368,21 @@ class DatabaseService {
         .collection('weeks')
         .document(day.week.weekId)
         .collection('days')
-        .document(day.dayId)
-        .collection('exercises')
-        .getDocuments()
-        .then((snap) => snap.documents.forEach((doc) {
-              doc.reference.delete();
-            }))
-        .whenComplete(() {
-      userRef
-          .collection('programs')
-          .document(day.week.cycle.program.programId)
-          .collection('cycles')
-          .document(day.week.cycle.cycleId)
-          .collection('weeks')
-          .document(day.week.weekId)
-          .collection('days')
-          .document(day.dayId)
-          .delete()
-          .whenComplete(() {
-        day.week.days[DateFormat('EEEE').format(day.date)] = null;
-        updateWeek(
-            day.week.cycle.program.programId,
-            day.week.cycle.cycleId,
-            day.week.weekId,
-            day.week.weekName,
-            day.week.startDate,
-            day.week.days);
-      });
-    });
+        .document(day.dayId);
+
+    // delete day Ref ref first so cycle disappears immediately
+    // then continue cleaning up subcollections in background
+    dayRef.delete();
+    day.week.days[DateFormat('EEEE').format(day.date)] = null;
+    await updateWeek(day.week);
+
+    QuerySnapshot exCol = await dayRef.collection('exercises').getDocuments();
+    for (DocumentSnapshot exDoc in exCol.documents) {
+      batch.delete(exDoc.reference);
+    }
+
+    // batch.delete(dayRef);
+    batch.commit();
   }
 
   // get day data stream for specific program id and cycle id
@@ -317,58 +400,44 @@ class DatabaseService {
         .map((snapshot) => _dayDataFromSnapshot(snapshot, week));
   }
 
-  // TODO: Day.toJson
   // update a day
-  Future updateDay(
-      Week week, String dayId, DateTime date, double bodyweight, String dayName,
-      [bool merge]) async {
-    if (dayId == null) {
-      return await userRef
+  Future updateDay(Day day) async {
+    bool update = day.dayId != null;
+    DocumentReference documentReference;
+
+    if (!update) {
+      documentReference = await userRef
           .collection('programs')
-          .document(week.cycle.program.programId)
+          .document(day.week.cycle.program.programId)
           .collection('cycles')
-          .document(week.cycle.cycleId)
+          .document(day.week.cycle.cycleId)
           .collection('weeks')
-          .document(week.weekId)
+          .document(day.week.weekId)
           .collection('days')
-          .add({
-        'uid': uid,
-        'programId': week.cycle.program.programId,
-        'cycleId': week.cycle.cycleId,
-        'weekId': week.weekId,
-        'dayName': dayName,
-        'date': date,
-        'bodyweight': bodyweight,
-      }).then((doc) {
-        week.days[DateFormat('EEEE').format(date)] = doc.documentID;
-        updateWeek(week.cycle.program.programId, week.cycle.cycleId,
-            week.weekId, week.weekName, week.startDate, week.days);
-      });
+          .add(day.toJson());
+
+      day.week.days[DateFormat('EEEE').format(day.date)] =
+          documentReference.documentID;
+      await updateWeek(day.week);
+
+      return documentReference;
     } else {
       return await userRef
           .collection('programs')
-          .document(week.cycle.program.programId)
+          .document(day.week.cycle.program.programId)
           .collection('cycles')
-          .document(week.cycle.cycleId)
+          .document(day.week.cycle.cycleId)
           .collection('weeks')
-          .document(week.weekId)
+          .document(day.week.weekId)
           .collection('days')
-          .document(dayId)
-          .setData({
-        'uid': uid,
-        'programId': week.cycle.program.programId,
-        'cycleId': week.cycle.cycleId,
-        'weekId': week.weekId,
-        'dayName': dayName,
-        'date': date,
-        'bodyweight': bodyweight,
-      }, merge: true).whenComplete(() {
-        String val = week.days.keys
-            .firstWhere((k) => week.days[k] == dayId, orElse: null);
-        week.days[val] = null;
-        week.days[DateFormat('EEEE').format(date)] = dayId;
-        updateWeek(week.cycle.program.programId, week.cycle.cycleId,
-            week.weekId, week.weekName, week.startDate, week.days);
+          .document(day.dayId)
+          .setData(day.toJson(), merge: true)
+          .whenComplete(() {
+        String val = day.week.days.keys
+            .firstWhere((k) => day.week.days[k] == day.dayId, orElse: null);
+        day.week.days[val] = null;
+        day.week.days[DateFormat('EEEE').format(day.date)] = day.dayId;
+        updateWeek(day.week);
       });
     }
   }
@@ -376,7 +445,6 @@ class DatabaseService {
   // exerciseBase data from snapshot
   ExerciseBase _exerciseBaseDataFromSnapshot(DocumentSnapshot snapshot) {
     return ExerciseBase.fromJson(snapshot);
-    // );
   }
 
   // program's exerciseBase data from snapshot
@@ -394,16 +462,46 @@ class DatabaseService {
         .map((snapshot) => _exerciseBaseListFromSnapshot(snapshot));
   }
 
+  Future updateExerciseBase(ExerciseBase exerciseBase) async {
+    return await userRef
+        .collection('exerciseBases')
+        .document(exerciseBase.exerciseBaseId)
+        .updateData(exerciseBase.toJson(update: true));
+  }
+
   // update a base exercise and exercise
   // TODO: only update base if needed (to save writes to db)
   Future updateExercise(ExerciseBase exerciseBase, Exercise exercise) async {
     bool update = exerciseBase.exerciseBaseId != null;
+    DocumentReference documentReference;
+
     if (!update) {
-      return await userRef
+      documentReference = await userRef
           .collection('exerciseBases')
-          .add(exerciseBase.toJson(update: false))
-          .then((doc) {
-        userRef
+          .add(exerciseBase.toJson(update: false));
+
+      documentReference = await userRef
+          .collection('programs')
+          .document(exercise.day.week.cycle.program.programId)
+          .collection('cycles')
+          .document(exercise.day.week.cycle.cycleId)
+          .collection('weeks')
+          .document(exercise.day.week.weekId)
+          .collection('days')
+          .document(exercise.day.dayId)
+          .collection('exercises')
+          .add(exercise.toJson(
+              update: false, baseId: documentReference.documentID));
+
+      return documentReference;
+    } else {
+      await userRef
+          .collection('exerciseBases')
+          .document(exerciseBase.exerciseBaseId)
+          .updateData(exerciseBase.toJson(update: update));
+
+      if (exercise.exerciseId != null) {
+        await userRef
             .collection('programs')
             .document(exercise.day.week.cycle.program.programId)
             .collection('cycles')
@@ -413,41 +511,23 @@ class DatabaseService {
             .collection('days')
             .document(exercise.day.dayId)
             .collection('exercises')
-            .add(exercise.toJson(update: false, baseId: doc.documentID));
-      });
-    } else {
-      return await userRef
-          .collection('exerciseBases')
-          .document(exerciseBase.exerciseBaseId)
-          .updateData(exerciseBase.toJson(update: update))
-          .whenComplete(() {
-        if (exercise.exerciseId != null) {
-          userRef
-              .collection('programs')
-              .document(exercise.day.week.cycle.program.programId)
-              .collection('cycles')
-              .document(exercise.day.week.cycle.cycleId)
-              .collection('weeks')
-              .document(exercise.day.week.weekId)
-              .collection('days')
-              .document(exercise.day.dayId)
-              .collection('exercises')
-              .document(exercise.exerciseId)
-              .updateData(exercise.toJson(update: update));
-        } else {
-          userRef
-              .collection('programs')
-              .document(exercise.day.week.cycle.program.programId)
-              .collection('cycles')
-              .document(exercise.day.week.cycle.cycleId)
-              .collection('weeks')
-              .document(exercise.day.week.weekId)
-              .collection('days')
-              .document(exercise.day.dayId)
-              .collection('exercises')
-              .add(exercise.toJson(update: false));
-        }
-      });
+            .document(exercise.exerciseId)
+            .updateData(exercise.toJson(update: update));
+      } else {
+        documentReference = await userRef
+            .collection('programs')
+            .document(exercise.day.week.cycle.program.programId)
+            .collection('cycles')
+            .document(exercise.day.week.cycle.cycleId)
+            .collection('weeks')
+            .document(exercise.day.week.weekId)
+            .collection('days')
+            .document(exercise.day.dayId)
+            .collection('exercises')
+            .add(exercise.toJson(update: false));
+
+        return documentReference;
+      }
     }
   }
 
@@ -483,6 +563,40 @@ class DatabaseService {
         .orderBy('createdDate')
         .snapshots()
         .map((snapshot) => _exerciseListFromSnapshot(snapshot, day, bases));
+  }
+
+  Future<List<ExerciseBase>> getExerciseBaseList() async {
+    return userRef
+        .collection('exerciseBases')
+        .getDocuments()
+        .then((snapshot) => _exerciseBaseListFromSnapshot(snapshot));
+  }
+
+  Future<List<Exercise>> getExerciseList(List<Day> dayList) async {
+    if (dayList == null) return null;
+
+    List<ExerciseBase> exerciseBaseList = await getExerciseBaseList();
+    List<Exercise> exerciseList = [];
+
+    for (Day day in dayList) {
+      await userRef
+          .collection('programs')
+          .document(day.week.cycle.program.programId)
+          .collection('cycles')
+          .document(day.week.cycle.cycleId)
+          .collection('weeks')
+          .document(day.week.weekId)
+          .collection('days')
+          .document(day.dayId)
+          .collection('exercises')
+          .orderBy('createdDate')
+          .getDocuments()
+          .then((snapshot) {
+        exerciseList +=
+            _exerciseListFromSnapshot(snapshot, day, exerciseBaseList);
+      });
+    }
+    return exerciseList;
   }
 
   // get exercise data stream for specific program id and cycle id

@@ -42,9 +42,12 @@ class ExerciseBase {
   /// Map of <cycleId, training max>
   Map<String, dynamic> cycleTMs;
 
+  /// Calculate training maxes for given cycle.
+  ///
+  /// Training maxes saved in [ExerciseBase].[cycleTMs] under [cycleId]
   set cycleTM(Cycle cycle) {
     if (cycleTMs == null) cycleTMs = {};
-    if (cycleTMs[cycle.cycleId] != null) return;
+    if (cycleTMs[cycle.cycleId] != null) return; // only set if currently null
     if (this.oneRepMax == null) return;
     cycleTMs[cycle.cycleId] =
         (((this.oneRepMax * cycle.trainingMaxPercent) / 5).roundToDouble() * 5)
@@ -53,11 +56,12 @@ class ExerciseBase {
 
   void updateCycleTM(Cycle cycle, [double newTM]) {
     if (cycleTMs == null) cycleTMs = {};
-    if (cycleTMs[cycle.cycleId] == null) return;
-    if (this.oneRepMax == null) return;
+    if (cycle.cycleId == null) return;
     if (newTM != null) {
       cycleTMs[cycle.cycleId] = newTM;
+      return;
     } else {
+      if (this.oneRepMax == null) return;
       cycleTMs[cycle.cycleId] =
           (((this.oneRepMax * cycle.trainingMaxPercent) / 5).roundToDouble() *
                   5)
@@ -144,10 +148,11 @@ class Exercise {
     @required this.exerciseBase,
     @required this.day,
     this.sets,
-  }) : trainingMax = (exerciseBase != null && exerciseBase.cycleTMs != null
-            ? exerciseBase.cycleTMs[day.week.cycle.cycleId]
-            : null) {
-    calculateTM();
+    this.trainingMax,
+  }) {
+    if (trainingMax == null) {
+      calculateTM();
+    }
   }
 
   void calculateSet(int index) {
@@ -204,6 +209,7 @@ class Exercise {
   }
 
   void startNew() {
+    if (sets == null) return;
     sets.forEach((set) => set.startNew());
   }
 
@@ -238,8 +244,20 @@ class Exercise {
       };
 
   Future updateExercise() async {
-    await DatabaseService(uid: this.day.week.cycle.program.uid)
-        .updateExercise(this.exerciseBase, this);
+    DocumentReference result =
+        await DatabaseService(uid: this.day.week.cycle.program.uid)
+            .updateExercise(this.exerciseBase, this);
+
+    if (this.exerciseId == null) {
+      return Exercise(
+        exerciseId: result.documentID,
+        day: this.day,
+        exerciseBase: this.exerciseBase,
+        sets: this.sets,
+      );
+    } else {
+      return this;
+    }
   }
 }
 

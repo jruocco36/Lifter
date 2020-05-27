@@ -20,6 +20,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
+        // so keyboard doesn't cover input
         padding:
             EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
         child: Padding(

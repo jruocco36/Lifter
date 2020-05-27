@@ -175,12 +175,22 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                           _date == null &&
                           _bodyweight == null) return;
                       await DatabaseService(uid: user.uid).updateDay(
-                        widget.week,
-                        widget.dayId,
-                        _date != null ? _date : day.date,
-                        bw != null ? double.parse(bw) : null,
-                        _dayName ?? day.dayName,
+                        Day(
+                          week: widget.week,
+                          dayId: widget.dayId,
+                          date: _date != null ? _date : day.date,
+                          bodyweight: bw != null ? double.parse(bw) : null,
+                          dayName: _dayName ?? day.dayName,
+                        ),
                       );
+
+                      // await DatabaseService(uid: user.uid).updateDay(
+                      //   widget.week,
+                      //   widget.dayId,
+                      //   _date != null ? _date : day.date,
+                      //   bw != null ? double.parse(bw) : null,
+                      //   _dayName ?? day.dayName,
+                      // );
                     }
                   },
                 ),

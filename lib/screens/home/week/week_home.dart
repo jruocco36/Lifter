@@ -12,8 +12,12 @@ import 'package:provider/provider.dart';
 
 class WeekHome extends StatelessWidget {
   final Week week;
+  final List<Week> weeks;
 
-  WeekHome({this.week});
+  WeekHome({
+    @required this.week,
+    @required this.weeks,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +42,7 @@ class WeekHome extends StatelessWidget {
                 child: WeekSettingsForm(
                   cycle: week.cycle,
                   weekId: week.weekId,
+                  weeks: weeks,
                 ),
               ),
             ),
@@ -88,6 +93,7 @@ class WeekHome extends StatelessWidget {
               Day(
                 dayId: 'loading',
                 date: null,
+                delayDays: null,
                 dayName: null,
                 week: null,
                 bodyweight: null,

@@ -41,9 +41,8 @@ class WeekTile extends StatelessWidget {
           child: OpenContainer(
               transitionType: ContainerTransitionType.fade,
               transitionDuration: Duration(milliseconds: 250),
-              openBuilder: (BuildContext _, VoidCallback openContainer) {
-                return WeekHome(week: week);
-              },
+              openBuilder: (BuildContext context, VoidCallback openContainer) =>
+                  WeekHome(week: week, weeks: weeks),
               tappable: false,
               closedShape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -51,7 +50,8 @@ class WeekTile extends StatelessWidget {
               closedElevation: 0.0,
               closedColor: lightGreyColor,
               openColor: darkGreyColor,
-              closedBuilder: (BuildContext _, VoidCallback openContainer) {
+              closedBuilder:
+                  (BuildContext context, VoidCallback openContainer) {
                 return ListTile(
                   title: Text(week.weekName, overflow: TextOverflow.ellipsis),
                   isThreeLine: true,

@@ -36,6 +36,19 @@ class Cycle {
 
   // TODO: refractor all updates to be like this
   Future updateCycle() async {
-    await DatabaseService(uid: program.uid).updateCycle(this);
+    DocumentReference result =
+        await DatabaseService(uid: program.uid).updateCycle(this);
+
+    if (this.cycleId == null) {
+      return Cycle(
+        cycleId: result.documentID,
+        name: this.name,
+        program: this.program,
+        startDate: this.startDate,
+        trainingMaxPercent: this.trainingMaxPercent,
+      );
+    } else {
+      return this;
+    }
   }
 }

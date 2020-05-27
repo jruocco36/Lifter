@@ -3,6 +3,7 @@ import 'package:Lifter/models/cycle.dart';
 import 'package:Lifter/models/week.dart';
 import 'package:Lifter/screens/home/cycle/cycle_home.dart';
 import 'package:Lifter/screens/home/cycle/cycle_settings_form.dart';
+import 'package:Lifter/screens/home/cycle/next_cycle.dart';
 import 'package:Lifter/screens/home/delete_dialog.dart';
 import 'package:Lifter/screens/home/week/week_list.dart';
 import 'package:Lifter/shared/constants.dart';
@@ -135,7 +136,15 @@ class _CycleTileState extends State<CycleTile>
                                     widget.cycle.cycleId);
                           }
                         } else if (val == 'Next cycle') {
-                          // TODO: copy to new cycle
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NextCycle(
+                                oldCycle: widget.cycle,
+                              ),
+                            ),
+                          );
+                          // NextCycle();
                         }
                       },
                     ),

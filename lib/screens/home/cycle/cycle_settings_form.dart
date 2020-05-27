@@ -105,8 +105,10 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                       context: context,
                       initialDate: _startDate ??
                           (cycle != null ? cycle.startDate : DateTime.now()),
-                      firstDate: DateTime.now().subtract(Duration(days: 365)),
-                      lastDate: DateTime.now().add(Duration(days: 365)),
+                      firstDate: DateTime(DateTime.now().year - 10,
+                          DateTime.now().month, DateTime.now().day),
+                      lastDate: DateTime(DateTime.now().year + 5,
+                          DateTime.now().month, DateTime.now().day),
                     );
 
                     if (selectedDate != null) {
@@ -148,8 +150,8 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                     style: TextStyle(color: Colors.white),
                   ),
                   onPressed: () async {
-                    Navigator.pop(context);
                     if (_formKey.currentState.validate()) {
+                      Navigator.pop(context);
                       if (_cycleName == null &&
                           _startDate == null &&
                           _trainingMaxPercent == null) return;
@@ -161,9 +163,8 @@ class _CycleSettingsFormState extends State<CycleSettingsForm> {
                           startDate:
                               _startDate != null ? _startDate : cycle.startDate,
                           trainingMaxPercent: _trainingMaxPercent != null
-                                ? double.parse(_trainingMaxPercent) / 100
-                                : cycle.trainingMaxPercent
-                          );
+                              ? double.parse(_trainingMaxPercent) / 100
+                              : cycle.trainingMaxPercent);
 
                       await editCycle.updateCycle();
                     }

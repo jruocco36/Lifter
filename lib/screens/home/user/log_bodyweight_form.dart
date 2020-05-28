@@ -22,6 +22,7 @@ class _BodyweightFormState extends State<BodyweightForm> {
   String _bodyweight;
   DateTime _date =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+  bool _newDate = true;
 
   void initState() {
     _dateTextController.text = DateFormat('MM/dd/yyyy').format(_date);
@@ -43,12 +44,17 @@ class _BodyweightFormState extends State<BodyweightForm> {
             return Loading();
           }
           if (snapshot.hasData) {
-            if (snapshot.data > 0) {
-              _bodyweightController.text = snapshot.data.toString();
-              _bodyweight = snapshot.data.toString();
-            } else {
-              _bodyweight = null;
-              _bodyweightController.text = '';
+            // only pull in bodyweight if we have a new date
+            // without this, old bodyweight fills in briefly after hitting
+            // save, because validate() rebuilds the form
+            if (_newDate) {
+              if (snapshot.data > 0) {
+                _bodyweightController.text = snapshot.data.toString();
+                _bodyweight = snapshot.data.toString();
+              } else {
+                _bodyweight = null;
+                _bodyweightController.text = '';
+              }
             }
           }
 
@@ -77,6 +83,7 @@ class _BodyweightFormState extends State<BodyweightForm> {
                         keyboardType: TextInputType.datetime,
                         enableInteractiveSelection: false,
                         validator: (val) {
+                          if (_newDate) return null;
                           if (val.isEmpty) return 'Enter date';
                           try {
                             DateFormat.yMd().parseStrict(val);
@@ -103,6 +110,9 @@ class _BodyweightFormState extends State<BodyweightForm> {
                             setState(() {
                               _dateTextController.text =
                                   DateFormat('MM/dd/yyyy').format(selectedDate);
+                              _newDate = true; // we have a new date, reset form
+                              _formKey.currentState
+                                  .validate(); // clear error messages
                             });
                             _formKey.currentState.save();
                           }
@@ -111,8 +121,6 @@ class _BodyweightFormState extends State<BodyweightForm> {
                       SizedBox(height: 20.0),
 
                       TextFormField(
-                        // autofocus: true,
-                        // initialValue: bodyweight,
                         controller: _bodyweightController,
                         keyboardType:
                             TextInputType.numberWithOptions(decimal: true),
@@ -124,6 +132,7 @@ class _BodyweightFormState extends State<BodyweightForm> {
                           ),
                         ],
                         validator: (val) {
+                          if (_newDate) return null;
                           if (val.isEmpty) {
                             return 'Enter bodyweight';
                           } else {
@@ -151,11 +160,14 @@ class _BodyweightFormState extends State<BodyweightForm> {
                           style: TextStyle(color: Colors.white),
                         ),
                         onPressed: () async {
+                          // don't pull in new bodyweight until a new date is selected
+                          // validate() will rebuild form, we don't want to reset
+                          // bodyweight to original value when that happens
+                          _newDate = false;
                           if (_formKey.currentState.validate()) {
-                            double bw = double.parse(_bodyweight);
                             Navigator.pop(context);
-                            DatabaseService(uid: widget.user.uid)
-                                .addBodyweight(_date, bw);
+                            widget.user.addBodyweight(
+                                _date, double.parse(_bodyweight));
                           }
                         },
                       ),

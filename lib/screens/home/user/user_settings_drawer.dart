@@ -1,7 +1,8 @@
 import 'package:Lifter/Services/auth.dart';
 import 'package:Lifter/models/user.dart';
-import 'package:Lifter/screens/home/feedback.dart';
-import 'package:Lifter/screens/home/user_form.dart';
+import 'package:Lifter/screens/home/user/feedback.dart';
+import 'package:Lifter/screens/home/user/log_bodyweight_form.dart';
+import 'package:Lifter/screens/home/user/user_form.dart';
 import 'package:Lifter/screens/wrapper.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
@@ -46,14 +47,26 @@ class _UserSettingsDrawerState extends State<UserSettingsDrawer> {
                 Navigator.pop(context);
                 showModalBottomSheet(
                     context: context,
+                    isScrollControlled: true,
                     builder: (context) => UserForm(user: widget.user));
               },
             ),
             ListTile(
               title: Text('Edit exercises'),
-              leading: Icon(Icons.settings),
+              leading: Icon(Icons.fitness_center),
               onTap: () {
                 // TODO: edit exercises page
+              },
+            ),
+            ListTile(
+              title: Text('Log bodyweight'),
+              leading: Icon(Icons.assessment),
+              onTap: () {
+                Navigator.pop(context);
+                showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (context) => BodyweightForm(user: widget.user));
               },
             ),
             ListTile(
@@ -63,6 +76,7 @@ class _UserSettingsDrawerState extends State<UserSettingsDrawer> {
                 Navigator.pop(context);
                 showModalBottomSheet(
                     context: context,
+                    isScrollControlled: true,
                     builder: (context) => FeedbackForm(user: widget.user));
               },
             ),

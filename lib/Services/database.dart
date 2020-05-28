@@ -23,6 +23,26 @@ class DatabaseService {
     });
   }
 
+  Future addBodyweight(DateTime date, double bodyweight) async {
+    return await userRef
+        .collection('bodyweight')
+        .document(date.toString())
+        .setData({
+      'bodyweight': bodyweight,
+    });
+  }
+
+  Future<double> getBodyweight(DateTime date) async {
+    DocumentSnapshot doc =
+        await userRef.collection('bodyweight').document(date.toString()).get();
+    if (doc.data != null) {
+      return doc.data['bodyweight'];
+    }
+    else {
+      return 0.0;
+    }
+  }
+
   // update a program for this user
   Future updateProgram(String programId, String programName, String programType,
       String progressType, Timestamp createdDate) async {

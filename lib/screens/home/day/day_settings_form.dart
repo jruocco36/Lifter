@@ -120,33 +120,33 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                 SizedBox(height: 20.0),
 
                 // bodyweight
-                TextFormField(
-                  initialValue: _bodyweight ??
-                      (day != null
-                          ? (day.bodyweight != null
-                              ? day.bodyweight.toString()
-                              : null)
-                          : ''),
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
-                  decoration: textInputDecoration.copyWith(
-                    labelText: 'Bodyweight',
-                    suffix: Text('lbs'),
-                  ),
-                  validator: (val) {
-                    // if (val.isEmpty) return 'Enter bodyweight';
-                    if (val.isEmpty) return null;
-                    try {
-                      double weight = double.parse(val);
-                      if (weight < 0)
-                        return 'Not a valid bodyweight';
-                      else
-                        return null;
-                    } on FormatException {
-                      return 'Not a valid bodyweight';
-                    }
-                  },
-                  onChanged: (val) => setState(() => _bodyweight = val),
-                ),
+                // TextFormField(
+                //   initialValue: _bodyweight ??
+                //       (day != null
+                //           ? (day.bodyweight != null
+                //               ? day.bodyweight.toString()
+                //               : null)
+                //           : ''),
+                //   keyboardType: TextInputType.numberWithOptions(decimal: true),
+                //   decoration: textInputDecoration.copyWith(
+                //     labelText: 'Bodyweight',
+                //     suffix: Text('lbs'),
+                //   ),
+                //   validator: (val) {
+                //     // if (val.isEmpty) return 'Enter bodyweight';
+                //     if (val.isEmpty) return null;
+                //     try {
+                //       double weight = double.parse(val);
+                //       if (weight < 0)
+                //         return 'Not a valid bodyweight';
+                //       else
+                //         return null;
+                //     } on FormatException {
+                //       return 'Not a valid bodyweight';
+                //     }
+                //   },
+                //   onChanged: (val) => setState(() => _bodyweight = val),
+                // ),
 
                 RaisedButton(
                   color: flamingoColor,

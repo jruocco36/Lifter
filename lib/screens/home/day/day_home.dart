@@ -5,7 +5,7 @@ import 'package:Lifter/models/user.dart';
 import 'package:Lifter/screens/home/day/day_settings_form.dart';
 import 'package:Lifter/screens/home/exercise/exercise_list.dart';
 import 'package:Lifter/screens/home/exercise/exercise_settings_form.dart';
-import 'package:Lifter/screens/home/user_settings_drawer.dart';
+import 'package:Lifter/screens/home/user/user_settings_drawer.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

@@ -18,7 +18,8 @@ class BodyweightForm extends StatefulWidget {
 class _BodyweightFormState extends State<BodyweightForm> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _dateTextController = TextEditingController();
-  String bodyweight;
+  final TextEditingController _bodyweightController = TextEditingController();
+  String _bodyweight;
   DateTime _date =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
@@ -29,21 +30,25 @@ class _BodyweightFormState extends State<BodyweightForm> {
 
   void dispose() {
     _dateTextController.dispose();
+    _bodyweightController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: DatabaseService(uid: widget.user.uid).getBodyweight(DateTime(
-            DateTime.now().year, DateTime.now().month, DateTime.now().day)),
+        future: DatabaseService(uid: widget.user.uid).getBodyweight(_date),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Loading();
           }
           if (snapshot.hasData) {
             if (snapshot.data > 0) {
-              bodyweight = snapshot.data.toString();
+              _bodyweightController.text = snapshot.data.toString();
+              _bodyweight = snapshot.data.toString();
+            } else {
+              _bodyweight = null;
+              _bodyweightController.text = '';
             }
           }
 
@@ -107,7 +112,8 @@ class _BodyweightFormState extends State<BodyweightForm> {
 
                       TextFormField(
                         // autofocus: true,
-                        initialValue: bodyweight,
+                        // initialValue: bodyweight,
+                        controller: _bodyweightController,
                         keyboardType:
                             TextInputType.numberWithOptions(decimal: true),
                         decoration: textInputDecoration.copyWith(
@@ -131,9 +137,9 @@ class _BodyweightFormState extends State<BodyweightForm> {
                         },
                         onChanged: (val) {
                           if (val == '') {
-                            bodyweight = null;
+                            _bodyweight = null;
                           } else {
-                            bodyweight = val;
+                            _bodyweight = val;
                           }
                         },
                       ),
@@ -146,7 +152,7 @@ class _BodyweightFormState extends State<BodyweightForm> {
                         ),
                         onPressed: () async {
                           if (_formKey.currentState.validate()) {
-                            double bw = double.parse(bodyweight);
+                            double bw = double.parse(_bodyweight);
                             Navigator.pop(context);
                             DatabaseService(uid: widget.user.uid)
                                 .addBodyweight(_date, bw);

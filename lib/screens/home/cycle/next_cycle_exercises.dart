@@ -6,6 +6,7 @@ import 'package:Lifter/models/week.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:Lifter/shared/loading.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class NextCycleExercises extends StatefulWidget {
   final Cycle oldCycle;
@@ -31,17 +32,16 @@ class NextCycleExercises extends StatefulWidget {
 class _NextCycleExercisesState extends State<NextCycleExercises> {
   final _formKey = GlobalKey<FormState>();
 
-  // form values
-  // String _cycleName;
-  // DateTime _startDate;
-  // String _trainingMaxPercent;
-  // TextEditingController _startDateController = TextEditingController();
   bool includeDelays = false;
   bool newCycleWait = false;
 
   List<ExerciseBase> exerciseBaseList = [];
-  // true if we are adding a percentage, otherwise adding weight
+
+  /// Map<cycleId, bool>
+  /// True if we are adding a percentage of TM, otherwise adding weight
   Map<String, bool> addPercent = {};
+
+  /// Map<cycleId, weight>
   Map<String, double> addAmount = {};
 
   void initState() {
@@ -72,10 +72,10 @@ class _NextCycleExercisesState extends State<NextCycleExercises> {
       ),
       body: newCycleWait
           ? Loading()
-          : Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(20, 20, 20, 40),
+          : SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(20, 20, 20, 40),
+              child: Form(
+                key: _formKey,
                 child: Column(
                   children: <Widget>[
                     Container(
@@ -83,10 +83,7 @@ class _NextCycleExercisesState extends State<NextCycleExercises> {
                         itemCount: exerciseBaseList.length,
                         physics: NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
-                        // padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
                         itemBuilder: (context, index) {
-                          // return Text(exerciseBaseList[index].exerciseName);
-
                           return Container(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,37 +96,62 @@ class _NextCycleExercisesState extends State<NextCycleExercises> {
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
-                                  // mainAxisSize: MainAxisSize.min,
                                   children: <Widget>[
-                                    // VerticalDivider(
-                                    //   endIndent: 5,
-                                    //   indent: 10,
-                                    // ),
                                     Flexible(
                                       child: TextFormField(
                                         keyboardType:
                                             TextInputType.numberWithOptions(
-                                                decimal: true),
+                                                decimal: true, signed: false),
+                                        inputFormatters: <TextInputFormatter>[
+                                          WhitelistingTextInputFormatter(
+                                            RegExp(r'^\d*\.{0,1}\d*$'),
+                                          ),
+                                        ],
                                         decoration:
                                             textInputDecoration.copyWith(
-                                          labelText: 'Add to training max',
+                                          hintText: 'Add to training max',
                                           isDense: true,
                                           hintStyle: TextStyle(fontSize: 14),
                                         ),
+                                        validator: (val) {
+                                          String type;
+                                          if (addPercent[exerciseBaseList[index]
+                                                  .exerciseBaseId] ==
+                                              true) {
+                                            type = 'percent';
+                                          } else {
+                                            type = 'weight';
+                                          }
+
+                                          if (val.isEmpty) {
+                                            return 'Enter ' + type;
+                                          } else {
+                                            try {
+                                              double.parse(val);
+                                              return null;
+                                            } catch (e) {
+                                              return 'Not a valid ' + type;
+                                            }
+                                          }
+                                        },
                                         onChanged: (val) {
                                           // adding percent
                                           if (addPercent[exerciseBaseList[index]
                                                   .exerciseBaseId] ==
                                               true) {
-                                            addAmount[exerciseBaseList[index]
-                                                    .exerciseBaseId] =
-                                                1 + (double.parse(val) / 100);
+                                            setState(() {
+                                              addAmount[exerciseBaseList[index]
+                                                      .exerciseBaseId] =
+                                                  1 + (double.parse(val) / 100);
+                                            });
                                           }
                                           // adding weight
                                           else {
-                                            addAmount[exerciseBaseList[index]
-                                                    .exerciseBaseId] =
-                                                double.parse(val);
+                                            setState(() {
+                                              addAmount[exerciseBaseList[index]
+                                                      .exerciseBaseId] =
+                                                  double.parse(val);
+                                            });
                                           }
                                         },
                                       ),
@@ -225,15 +247,6 @@ class _NextCycleExercisesState extends State<NextCycleExercises> {
     @required List<Day> dayList,
     @required List<Exercise> exerciseList,
   }) async {
-    // create next cycle
-    // Cycle newCycle = Cycle(
-    //   cycleId: null,
-    //   name: cycleName,
-    //   program: program,
-    //   startDate: startDate,
-    //   trainingMaxPercent: trainingMaxPercent,
-    // );
-
     newCycle = await newCycle.updateCycle();
 
     for (ExerciseBase base in exerciseBaseList) {

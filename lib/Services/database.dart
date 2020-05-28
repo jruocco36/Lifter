@@ -104,6 +104,18 @@ class DatabaseService {
         .map((snapshot) => _cycleListFromSnapshot(snapshot, program));
   }
 
+  /// Return list of cycles in given program
+  Future<List<Cycle>> getCycleList(Program program) {
+    if (program == null) return null;
+    return userRef
+        .collection('programs')
+        .document(program.programId)
+        .collection('cycles')
+        .orderBy('startDate')
+        .getDocuments()
+        .then((snapshot) => _cycleListFromSnapshot(snapshot, program));
+  }
+
   // program data from snapshot
   Cycle _cycleDataFromSnapshot(DocumentSnapshot snapshot, Program program) {
     return Cycle.fromJson(snapshot, program);

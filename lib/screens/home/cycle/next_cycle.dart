@@ -22,6 +22,7 @@ class NextCycle extends StatefulWidget {
 
 class _NextCycleState extends State<NextCycle> {
   // cycle data
+  List<Cycle> cycleList;  // for new cycle name validation
   List<Week> weekList;
   List<Day> dayList;
   List<Exercise> exerciseList;
@@ -41,43 +42,53 @@ class _NextCycleState extends State<NextCycle> {
         ),
         elevation: 0.0,
       ),
-      body: FutureBuilder<List<Week>>(
-        future: DatabaseService(uid: user.uid).getWeekList(widget.oldCycle),
-        builder: (context, snapshot) {
-          weekList = snapshot.data;
+      body: FutureBuilder<List<Cycle>>(
+          future: DatabaseService(uid: user.uid)
+              .getCycleList(widget.oldCycle.program),
+          builder: (context, snapshot) {
+            cycleList = snapshot.data;
 
-          return FutureBuilder<List<Day>>(
-            future: DatabaseService(uid: user.uid).getDayList(weekList),
-            builder: (context, snapshot) {
-              dayList = snapshot.data;
+            return FutureBuilder<List<Week>>(
+              future:
+                  DatabaseService(uid: user.uid).getWeekList(widget.oldCycle),
+              builder: (context, snapshot) {
+                weekList = snapshot.data;
 
-              return FutureBuilder<List<Exercise>>(
-                future: DatabaseService(uid: user.uid).getExerciseList(dayList),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return Loading();
-                  }
+                return FutureBuilder<List<Day>>(
+                  future: DatabaseService(uid: user.uid).getDayList(weekList),
+                  builder: (context, snapshot) {
+                    dayList = snapshot.data;
 
-                  exerciseList = snapshot.data;
-                  return SingleChildScrollView(
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(40.0),
-                        child: NextCycleForm(
-                          oldCycle: widget.oldCycle,
-                          weekList: weekList,
-                          dayList: dayList,
-                          exerciseList: exerciseList,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          );
-        },
-      ),
+                    return FutureBuilder<List<Exercise>>(
+                      future: DatabaseService(uid: user.uid)
+                          .getExerciseList(dayList),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return Loading();
+                        }
+
+                        exerciseList = snapshot.data;
+                        return SingleChildScrollView(
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(40.0),
+                              child: NextCycleForm(
+                                oldCycle: widget.oldCycle,
+                                cycleList: cycleList,
+                                weekList: weekList,
+                                dayList: dayList,
+                                exerciseList: exerciseList,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            );
+          }),
     );
   }
 }

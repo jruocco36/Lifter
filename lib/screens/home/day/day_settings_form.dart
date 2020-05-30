@@ -70,10 +70,6 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
 
                 // Date Input
                 TextFormField(
-                  // cursorColor: whiteTextColor,
-                  // decoration: const InputDecoration(labelText: 'Start date'),
-                  // initialValue: _date ??
-                  // (day != null ? day.date.toString() : ''),
                   controller: _dateTextController,
                   decoration: textInputDecoration.copyWith(
                     labelText: 'Date',
@@ -119,35 +115,6 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                 ),
                 SizedBox(height: 20.0),
 
-                // bodyweight
-                // TextFormField(
-                //   initialValue: _bodyweight ??
-                //       (day != null
-                //           ? (day.bodyweight != null
-                //               ? day.bodyweight.toString()
-                //               : null)
-                //           : ''),
-                //   keyboardType: TextInputType.numberWithOptions(decimal: true),
-                //   decoration: textInputDecoration.copyWith(
-                //     labelText: 'Bodyweight',
-                //     suffix: Text('lbs'),
-                //   ),
-                //   validator: (val) {
-                //     // if (val.isEmpty) return 'Enter bodyweight';
-                //     if (val.isEmpty) return null;
-                //     try {
-                //       double weight = double.parse(val);
-                //       if (weight < 0)
-                //         return 'Not a valid bodyweight';
-                //       else
-                //         return null;
-                //     } on FormatException {
-                //       return 'Not a valid bodyweight';
-                //     }
-                //   },
-                //   onChanged: (val) => setState(() => _bodyweight = val),
-                // ),
-
                 RaisedButton(
                   color: flamingoColor,
                   child: Text(
@@ -183,14 +150,6 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                           dayName: _dayName ?? day.dayName,
                         ),
                       );
-
-                      // await DatabaseService(uid: user.uid).updateDay(
-                      //   widget.week,
-                      //   widget.dayId,
-                      //   _date != null ? _date : day.date,
-                      //   bw != null ? double.parse(bw) : null,
-                      //   _dayName ?? day.dayName,
-                      // );
                     }
                   },
                 ),
@@ -233,15 +192,6 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
         }
       }
     });
-
-    // widget.weeks.forEach((week) {
-    //   if ((date.isAfter(week.startDate) ||
-    //           date.isAtSameMomentAs(week.startDate)) &&
-    //       (date.isBefore(week.startDate.add(Duration(days: 6))) ||
-    //           date.isAtSameMomentAs(week.startDate.add(Duration(days: 6))))) {
-    //     selectable = false;
-    //   }
-    // });
     return selectable;
   }
 }

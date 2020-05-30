@@ -72,10 +72,6 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
 
                 // Start Date Input
                 TextFormField(
-                  // cursorColor: whiteTextColor,
-                  // decoration: const InputDecoration(labelText: 'Start date'),
-                  // initialValue: _startDate ??
-                  // (week != null ? week.startDate.toString() : ''),
                   controller: _startDateController,
                   decoration: textInputDecoration.copyWith(
                     labelText: 'Start date',
@@ -130,24 +126,19 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
                     if (_formKey.currentState.validate()) {
                       Navigator.pop(context);
                       if (_weekName == null && _startDate == null) return;
+                      DateTime startDate =
+                          _startDate != null ? _startDate : week.startDate;
                       await DatabaseService(uid: user.uid).updateWeek(
                         Week(
                           cycle: widget.cycle,
-                          startDate:
-                              _startDate != null ? _startDate : week.startDate,
+                          startDate: startDate,
+                          endDate:
+                              week.endDate ?? startDate.add(Duration(days: 6)),
                           weekId: widget.weekId,
                           weekName: _weekName ?? week.weekName,
                           days: week != null ? week.days : null,
                         ),
                       );
-                      // await DatabaseService(uid: user.uid).updateWeek(
-                      //   widget.cycle.program.programId,
-                      //   widget.cycle.cycleId,
-                      //   widget.weekId,
-                      //   _weekName ?? week.weekName,
-                      //   _startDate != null ? _startDate : week.startDate,
-                      //   week != null ? week.days : null,
-                      // );
                     }
                   },
                 ),
@@ -175,9 +166,8 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
   bool validDate(DateTime date, [Week week]) {
     bool selectable = true;
     widget.weeks.forEach((w) {
-      if ((date.isAfter(w.startDate) || date.isAtSameMomentAs(w.startDate)) &&
-          (date.isBefore(w.startDate.add(Duration(days: 6))) ||
-              date.isAtSameMomentAs(w.startDate.add(Duration(days: 6))))) {
+      if ((date.compareTo(w.startDate) >= 0) &&
+          (date.compareTo(w.endDate) <= 0)) {
         if (week != null) {
           if (week.weekId != w.weekId) {
             selectable = false;

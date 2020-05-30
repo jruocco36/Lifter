@@ -8,6 +8,7 @@ class Week {
   final String weekId;
   final String weekName;
   final DateTime startDate;
+  DateTime endDate;
 
   Map<String, dynamic> days = {
     'Monday': null,
@@ -24,7 +25,17 @@ class Week {
       @required this.weekId,
       @required this.weekName,
       @required this.startDate,
+      this.endDate,
       this.days});
+
+  Week.fromJson(DocumentSnapshot snapshot, Cycle cycle)
+      : cycle = cycle,
+        weekId = snapshot.documentID,
+        weekName = snapshot['weekName'],
+        startDate = snapshot['startDate'].toDate(),
+        endDate =
+            snapshot['endDate'] != null ? snapshot['endDate'].toDate() : null,
+        days = snapshot['days'];
 
   Map toJson({bool update = false}) => <String, dynamic>{
         'uid': this.cycle.program.uid,
@@ -32,6 +43,7 @@ class Week {
         'cycleId': this.cycle.cycleId,
         'weekName': weekName,
         'startDate': Timestamp.fromDate(startDate),
+        'endDate': Timestamp.fromDate(endDate),
         'days': days,
       };
 

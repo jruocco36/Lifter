@@ -6,6 +6,7 @@ import 'package:Lifter/screens/home/day/day_home.dart';
 import 'package:Lifter/shared/constants.dart';
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class DayTile extends StatelessWidget {
@@ -98,11 +99,15 @@ class DayTile extends StatelessWidget {
                       showDialog(
                         context: context,
                         builder: (_) {
-                          // TODO: only accept positive/negative integers
                           return AlertDialog(
                             backgroundColor: darkGreyColor,
                             content: TextFormField(
                               autofocus: true,
+                              inputFormatters: <TextInputFormatter>[
+                                WhitelistingTextInputFormatter(
+                                  RegExp(r'^-?\d*$'),
+                                ),
+                              ],
                               decoration:
                                   InputDecoration(hintText: 'Number of days'),
                               onChanged: (val) {
@@ -116,6 +121,7 @@ class DayTile extends StatelessWidget {
                                 onPressed: () {
                                   Navigator.pop(context);
                                   if (duration != 0) {
+                                    // delay day
                                     DatabaseService(
                                             uid: day.week.cycle.program.uid)
                                         .delayProgram(day, duration);

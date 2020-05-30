@@ -37,8 +37,7 @@ class DatabaseService {
         await userRef.collection('bodyweight').document(date.toString()).get();
     if (doc.data != null) {
       return doc.data['bodyweight'];
-    }
-    else {
+    } else {
       return 0.0;
     }
   }
@@ -211,7 +210,6 @@ class DatabaseService {
       batch.delete(weekDoc.reference);
     }
 
-    // batch.delete(cycleRef);
     return batch.commit(); // commit batch to db
   }
 
@@ -274,19 +272,12 @@ class DatabaseService {
       batch.delete(dayDoc.reference);
     }
 
-    // batch.delete(weekRef);
     batch.commit();
   }
 
   // week data from snapshot
   Week _weekDataFromSnapshot(DocumentSnapshot snapshot, Cycle cycle) {
-    return Week(
-      cycle: cycle,
-      weekId: snapshot.documentID,
-      weekName: snapshot['weekName'],
-      startDate: snapshot['startDate'].toDate(),
-      days: snapshot['days'],
-    );
+    return Week.fromJson(snapshot, cycle);
   }
 
   // get week data stream for specific program id and cycle id
@@ -667,6 +658,9 @@ class DatabaseService {
 
   /// Delay program from a certain day.
   /// Also works for advancing after a certain day.
+  /// 
+  /// Will also update this day's week with a new start date (if applicable),
+  /// end date, and week map to reflect day changes.
   Future delayProgram(Day delayDay, int duration) async {
     return await userRef
         .collection('programs')
@@ -676,47 +670,51 @@ class DatabaseService {
         .collection('weeks')
         .where('startDate',
             isGreaterThanOrEqualTo: (delayDay.date.subtract(Duration(days: 6))))
+        .orderBy('startDate')
         .getDocuments()
-        .then((value) {
-      value.documents.asMap().forEach((index, week) {
-        Map<String, dynamic> days = week['days'];
-        int index = 0;
+        .then((weeks) {
+      weeks.documents.asMap().forEach((index, week) {
+        Map<String, dynamic> dayMap = {
+          'Monday': null,
+          'Tuesday': null,
+          'Wednesday': null,
+          'Thursday': null,
+          'Friday': null,
+          'Saturday': null,
+          'Sunday': null,
+        };
 
-        // move each dayId in [week].[days] up/down by duration
-        days.forEach((key, value) {
-          String oldDay = DateFormat('EEEE')
-              .format(week['startDate'].toDate().add(Duration(days: index)));
-          String newDay = DateFormat('EEEE').format(
-              week['startDate'].toDate().add(Duration(days: duration + index)));
-
-          // don't move days before delayDay (day we want to start delaying)
-          if (week['startDate']
-              .toDate()
-              .add(Duration(days: index))
-              .isBefore(delayDay.date.subtract(Duration(days: 1)))) {
-            index++;
-            return;
-          }
-          days[newDay] = week['days'][oldDay];
-          index++;
-        });
-
-        week.reference.updateData({
-          'days': days,
-          if (week['startDate'].toDate().isAfter(delayDay.date))
-            'startDate':
-                week['startDate'].toDate().add(Duration(days: duration)),
-        }).whenComplete(() {
-          week.reference.collection('days').getDocuments().then((value) => {
-                value.documents.forEach((day) {
-                  if (day['date'].toDate().isAfter(delayDay.date) ||
-                      day['date'].toDate().isAtSameMomentAs(delayDay.date))
-                    day.reference.updateData({
-                      'date': day['date'].toDate().add(Duration(days: duration))
-                    });
-                })
-              });
-        });
+        week.reference
+            .collection('days')
+            .orderBy('date')
+            .getDocuments()
+            .then((days) => {
+                  // apply delay to each day in this week
+                  days.documents.forEach((day) {
+                    if (day['date'].toDate().compareTo(delayDay.date) >= 0) {
+                      dayMap[DateFormat(DateFormat.WEEKDAY).format(day['date']
+                          .toDate()
+                          .add(Duration(days: duration)))] = day.documentID;
+                      day.reference.updateData({
+                        'date':
+                            day['date'].toDate().add(Duration(days: duration))
+                      });
+                    } else {
+                      dayMap[DateFormat('EEEE').format(day['date'].toDate())] =
+                          day.documentID;
+                    }
+                  }),
+                  // update week with new day map, start date, end date
+                  week.reference.updateData({
+                    'days': dayMap,
+                    if (week['startDate'].toDate().isAfter(delayDay.date))
+                      'startDate': week['startDate']
+                          .toDate()
+                          .add(Duration(days: duration)),
+                    'endDate':
+                        week['endDate'].toDate().add(Duration(days: duration)),
+                  }),
+                });
       });
     });
   }

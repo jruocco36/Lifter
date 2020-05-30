@@ -18,11 +18,9 @@ class WeekTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final weeks = Provider.of<List<Week>>(context) ?? [];
-    int daysFromNow =
-        DateTime(week.startDate.year, week.startDate.month, week.startDate.day)
-            .difference(DateTime(
-                DateTime.now().year, DateTime.now().month, DateTime.now().day))
-            .inDays;
+    if (week.endDate == null) {
+      week.endDate = week.startDate.add(Duration(days: 6));
+    }
 
     return Padding(
       padding: weekDrawer
@@ -59,9 +57,11 @@ class WeekTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                          '${DateFormat('EEE - MM/dd/yyyy').format(week.startDate)}',
-                          // this won't work on the week that a day gets delayed
-                          style: daysFromNow >= -6 && daysFromNow < 1
+                          '${DateFormat('EEE MM/dd/yyyy').format(week.startDate)}' +
+                              ' - ${DateFormat('EEE MM/dd/yyyy').format(week.endDate)}',
+                          style: DateTime.now().compareTo(week.startDate) >=
+                                      0 &&
+                                  DateTime.now().compareTo(week.endDate) <= 0
                               ? TextStyle(color: Colors.green[300])
                               : null),
                       if (week.days != null)

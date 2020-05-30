@@ -77,10 +77,6 @@ class CycleHome extends StatelessWidget {
         stream: DatabaseService(uid: cycle.program.uid)
             .getCycleData(cycle.program, cycle.cycleId),
         builder: (context, snapshot) {
-          // if (snapshot.connectionState == ConnectionState.waiting) {
-          //   return Loading();
-          // }
-
           Cycle cycleUpdates;
           snapshot.hasData
               ? cycleUpdates = snapshot.data

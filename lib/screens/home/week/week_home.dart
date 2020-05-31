@@ -82,10 +82,6 @@ class WeekHome extends StatelessWidget {
         stream: DatabaseService(uid: week.cycle.program.uid)
             .getWeekData(week.cycle, week.weekId),
         builder: (context, snapshot) {
-          // if (snapshot.connectionState == ConnectionState.waiting) {
-          //   return Loading();
-          // }
-
           Week weekUpdates;
           snapshot.hasData ? weekUpdates = snapshot.data : weekUpdates = week;
           return StreamProvider<List<Day>>.value(
@@ -96,7 +92,6 @@ class WeekHome extends StatelessWidget {
                 delayDays: null,
                 dayName: null,
                 week: null,
-                bodyweight: null,
               )
             ],
             value: DatabaseService(uid: week.cycle.program.uid).getDays(week),

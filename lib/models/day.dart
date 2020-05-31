@@ -9,7 +9,6 @@ class Day {
   final DateTime date;
   final int delayDays;
   final String dayName;
-  double bodyweight;
 
   Day({
     @required this.dayId,
@@ -17,13 +16,11 @@ class Day {
     @required this.date,
     this.delayDays,
     @required this.dayName,
-    this.bodyweight,
   });
 
   Day.fromJson(DocumentSnapshot snapshot, Week week)
       : date = snapshot['date'].toDate(),
         delayDays = snapshot['delayDays'],
-        bodyweight = snapshot['bodyweight'],
         week = week,
         dayId = snapshot.documentID,
         dayName = snapshot['dayName'];
@@ -36,7 +33,6 @@ class Day {
         'dayName': dayName,
         'date': date,
         'delayDays': delayDays,
-        'bodyweight': bodyweight,
       };
 
   Future updateDay() async {
@@ -50,7 +46,6 @@ class Day {
         delayDays: this.delayDays,
         dayName: this.dayName,
         week: this.week,
-        bodyweight: this.bodyweight,
       );
     } else {
       return this;

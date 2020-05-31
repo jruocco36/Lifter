@@ -125,19 +125,6 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                     if (_formKey.currentState.validate()) {
                       Navigator.pop(context);
 
-                      String bw;
-                      if (_bodyweight == null) {
-                        if (day != null && day.bodyweight != null) {
-                          bw = day.bodyweight.toString();
-                        } else {
-                          bw = null;
-                        }
-                      } else if (_bodyweight == '') {
-                        bw = null;
-                      } else {
-                        bw = _bodyweight;
-                      }
-
                       if (_dayName == null &&
                           _date == null &&
                           _bodyweight == null) return;
@@ -146,7 +133,6 @@ class _DaySettingsFormState extends State<DaySettingsForm> {
                           week: widget.week,
                           dayId: widget.dayId,
                           date: _date != null ? _date : day.date,
-                          bodyweight: bw != null ? double.parse(bw) : null,
                           dayName: _dayName ?? day.dayName,
                         ),
                       );

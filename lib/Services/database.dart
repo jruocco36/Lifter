@@ -658,7 +658,7 @@ class DatabaseService {
 
   /// Delay program from a certain day.
   /// Also works for advancing after a certain day.
-  /// 
+  ///
   /// Will also update this day's week with a new start date (if applicable),
   /// end date, and week map to reflect day changes.
   Future delayProgram(Day delayDay, int duration) async {
@@ -697,7 +697,8 @@ class DatabaseService {
                           .add(Duration(days: duration)))] = day.documentID;
                       day.reference.updateData({
                         'date':
-                            day['date'].toDate().add(Duration(days: duration))
+                            day['date'].toDate().add(Duration(days: duration)),
+                        'delayDays': (day['delayDays'] ?? 0) + duration,
                       });
                     } else {
                       dayMap[DateFormat('EEEE').format(day['date'].toDate())] =
@@ -705,15 +706,28 @@ class DatabaseService {
                     }
                   }),
                   // update week with new day map, start date, end date
-                  week.reference.updateData({
-                    'days': dayMap,
-                    if (week['startDate'].toDate().isAfter(delayDay.date))
-                      'startDate': week['startDate']
-                          .toDate()
-                          .add(Duration(days: duration)),
-                    'endDate':
-                        week['endDate'].toDate().add(Duration(days: duration)),
-                  }),
+                  if (week['startDate'].toDate().isAfter(delayDay.date))
+                    {
+                      week.reference.updateData({
+                        'days': dayMap,
+                        'startDate': week['startDate']
+                            .toDate()
+                            .add(Duration(days: duration)),
+                        'endDate': week['endDate']
+                            .toDate()
+                            .add(Duration(days: duration)),
+                        'delayDays': (week['delayDays'] ?? 0) + duration,
+                      }),
+                    }
+                  else if (week['endDate'].toDate().isAfter(delayDay.date))
+                    {
+                      week.reference.updateData({
+                        'days': dayMap,
+                        'endDate': week['endDate']
+                            .toDate()
+                            .add(Duration(days: duration)),
+                      }),
+                    }
                 });
       });
     });

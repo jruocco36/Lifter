@@ -14,7 +14,7 @@ class Day {
     @required this.dayId,
     @required this.week,
     @required this.date,
-    this.delayDays,
+    this.delayDays = 0,
     @required this.dayName,
   });
 

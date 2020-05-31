@@ -273,16 +273,25 @@ class _NextCycleExercisesState extends State<NextCycleExercises> {
       DatabaseService(uid: newCycle.program.uid).updateExerciseBase(base);
     }
 
+    int delayDaysWeek = 0;
     int delayDays = 0; // days delayed to offset for new cycle
     // create weeks
     for (Week week in weekList) {
+      // if (includeDelays == false && week.delayDays != null)
+      //   delayDaysWeek += week.delayDays;
+      // TODO: week.delayDays not set in database
       Week newWeek = Week(
         cycle: newCycle,
         weekName: week.weekName,
         weekId: null,
         days: null,
+        delayDays: 0,
         startDate: newCycle.startDate
-            .add(week.startDate.difference(week.cycle.startDate)),
+            .add(week.startDate.difference(week.cycle.startDate))
+            .subtract(Duration(days: week.delayDays ?? 0)),
+        endDate: newCycle.startDate
+            .add(week.endDate.difference(week.cycle.startDate))
+            .subtract(Duration(days: week.delayDays ?? 0))
       );
 
       newWeek = await newWeek.updateWeek();
@@ -290,13 +299,13 @@ class _NextCycleExercisesState extends State<NextCycleExercises> {
       // create days
       for (Day day in dayList) {
         if (day.week.weekId != week.weekId) continue;
-        if (includeDelays == false && day.delayDays != null)
-          delayDays += day.delayDays;
+        // if (includeDelays == false && day.delayDays != null)
+        //   delayDays += day.delayDays;
         Day newDay = Day(
           date: newCycle.startDate
-              .subtract(Duration(days: delayDays))
-              .add(day.date.difference(day.week.cycle.startDate)),
-          delayDays: null,
+              .add(day.date.difference(day.week.cycle.startDate))
+              .subtract(Duration(days: day.delayDays ?? 0)),
+          delayDays: 0,
           dayId: null,
           dayName: day.dayName,
           week: newWeek,

@@ -189,6 +189,7 @@ class _CycleTileState extends State<CycleTile>
                         weekId: 'loading',
                         cycle: null,
                         startDate: null,
+                        endDate: null,
                         weekName: null,
                       )
                     ],

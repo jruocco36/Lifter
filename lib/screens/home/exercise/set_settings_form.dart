@@ -7,9 +7,9 @@ import 'package:uuid/uuid.dart';
 class SetSettingsForm extends StatefulWidget {
   final Exercise exercise;
   final int setIndex;
-  final Function updateExercise;
+  // final Function updateExercise;
 
-  SetSettingsForm({this.exercise, this.setIndex, this.updateExercise});
+  SetSettingsForm({this.exercise, this.setIndex});
 
   @override
   _SetSettingsFormState createState() => _SetSettingsFormState();
@@ -177,7 +177,7 @@ class _SetSettingsFormState extends State<SetSettingsForm> {
                         widget.exercise.calculateSet(
                             widget.setIndex ?? widget.exercise.sets.length - 1);
                       }
-                      widget.updateExercise(widget.exercise);
+                      widget.exercise.updateExercise();
                     }
                   },
                 ),

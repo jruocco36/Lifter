@@ -31,11 +31,9 @@ class _ExerciseTileState extends State<ExerciseTile> {
   }
 
   void startUpdateTimer() {
-    Timer(Duration(seconds: 5), timerFire);
-  }
-
-  void timerFire() {
-    widget.exercise.updateExercise();
+    // Timer(Duration(seconds: 5), () {
+    //   //
+    // });
   }
 
   @override
@@ -431,9 +429,9 @@ class _ExerciseTileState extends State<ExerciseTile> {
         // Because this is not in the stateful Build() method, it needs to be
         // wrapped in StatefulBuilder to be able to call it's own setState() function
         return SetSettingsForm(
-            exercise: widget.exercise,
-            setIndex: index,
-            updateExercise: widget.exercise.updateExercise);
+          exercise: widget.exercise,
+          setIndex: index,
+        );
       },
     );
   }

@@ -128,12 +128,15 @@ class _WeekSettingsFormState extends State<WeekSettingsForm> {
                       if (_weekName == null && _startDate == null) return;
                       DateTime startDate =
                           _startDate != null ? _startDate : week.startDate;
+                      DateTime endDate = week != null
+                          ? week.endDate
+                          : startDate.add(Duration(days: 6));
+
                       await DatabaseService(uid: user.uid).updateWeek(
                         Week(
                           cycle: widget.cycle,
                           startDate: startDate,
-                          endDate:
-                              week.endDate ?? startDate.add(Duration(days: 6)),
+                          endDate: endDate,
                           weekId: widget.weekId,
                           weekName: _weekName ?? week.weekName,
                           days: week != null ? week.days : null,

@@ -51,7 +51,8 @@ class _BodyweightFormState extends State<BodyweightForm> {
               if (snapshot.data > 0) {
                 _bodyweightController.text = snapshot.data.toString();
                 _bodyweight = snapshot.data.toString();
-              } else {
+              } 
+              else {
                 _bodyweight = null;
                 _bodyweightController.text = '';
               }
@@ -120,6 +121,7 @@ class _BodyweightFormState extends State<BodyweightForm> {
                       ),
                       SizedBox(height: 20.0),
 
+                      // Bodyweight
                       TextFormField(
                         controller: _bodyweightController,
                         keyboardType:
@@ -145,6 +147,7 @@ class _BodyweightFormState extends State<BodyweightForm> {
                           }
                         },
                         onChanged: (val) {
+                          _newDate = false;
                           if (val == '') {
                             _bodyweight = null;
                           } else {

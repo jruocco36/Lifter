@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:Lifter/Services/database.dart';
 import 'package:Lifter/models/exercise.dart';
 import 'package:Lifter/screens/home/delete_dialog.dart';
@@ -26,6 +28,14 @@ class _ExerciseTileState extends State<ExerciseTile> {
     });
 
     super.dispose();
+  }
+
+  void startUpdateTimer() {
+    Timer(Duration(seconds: 5), timerFire);
+  }
+
+  void timerFire() {
+    widget.exercise.updateExercise();
   }
 
   @override
@@ -117,8 +127,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                 itemCount: widget.exercise.sets.length,
                 itemBuilder: (context, index) {
                   if (widget.exercise.sets[index].date == null) {
-                    widget.exercise.sets[index].date =
-                        widget.exercise.day.date;
+                    widget.exercise.sets[index].date = widget.exercise.day.date;
                   }
                   if (weightControllers.length < index + 1) {
                     weightControllers.add(TextEditingController());
@@ -135,6 +144,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
+                            // Weight
                             Flexible(
                               child: TextFormField(
                                 keyboardType: TextInputType.number,
@@ -152,6 +162,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                 onChanged: (val) {
                                   widget.exercise.sets[index].weight =
                                       val != '' ? double.parse(val) : null;
+                                  startUpdateTimer();
                                 },
                                 onEditingComplete: () {
                                   FocusScope.of(context).unfocus();
@@ -162,7 +173,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                     widget.exercise.exerciseBase.pr =
                                         widget.exercise.sets[index];
                                   }
-                                  updateExercise(widget.exercise);
+                                  widget.exercise.updateExercise();
                                 },
                               ),
                             ),
@@ -170,6 +181,8 @@ class _ExerciseTileState extends State<ExerciseTile> {
                               endIndent: 5,
                               indent: 10,
                             ),
+
+                            // Reps
                             Flexible(
                               child: TextFormField(
                                 keyboardType: TextInputType.number,
@@ -191,6 +204,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                 onChanged: (val) => setState(() {
                                   widget.exercise.sets[index].reps =
                                       val != '' ? int.parse(val) : null;
+                                  startUpdateTimer();
                                 }),
                                 onEditingComplete: () {
                                   FocusScope.of(context).unfocus();
@@ -201,7 +215,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                     widget.exercise.exerciseBase.pr =
                                         widget.exercise.sets[index];
                                   }
-                                  updateExercise(widget.exercise);
+                                  widget.exercise.updateExercise();
                                 },
                               ),
                             ),
@@ -220,17 +234,17 @@ class _ExerciseTileState extends State<ExerciseTile> {
                                   hintStyle: TextStyle(fontSize: 14),
                                 ),
                                 initialValue:
-                                    widget.exercise.sets[index].repRange !=
-                                            null
+                                    widget.exercise.sets[index].repRange != null
                                         ? widget.exercise.sets[index].repRange
                                         : null,
                                 onChanged: (val) => setState(() {
                                   widget.exercise.sets[index].repRange =
                                       val != '' ? val : null;
+                                  startUpdateTimer();
                                 }),
                                 onEditingComplete: () {
                                   FocusScope.of(context).unfocus();
-                                  updateExercise(widget.exercise);
+                                  widget.exercise.updateExercise();
                                 },
                               ),
                             ),
@@ -239,13 +253,13 @@ class _ExerciseTileState extends State<ExerciseTile> {
                             IconButton(
                               icon: Icon(
                                 Icons.note,
-                                color: widget.exercise.sets[index].notes !=
-                                            null &&
-                                        widget.exercise.sets[index].notes
-                                                .length >
-                                            1
-                                    ? Colors.white
-                                    : greyTextColor,
+                                color:
+                                    widget.exercise.sets[index].notes != null &&
+                                            widget.exercise.sets[index].notes
+                                                    .length >
+                                                1
+                                        ? Colors.white
+                                        : greyTextColor,
                               ),
                               onPressed: () {
                                 setNotes(index);
@@ -263,12 +277,19 @@ class _ExerciseTileState extends State<ExerciseTile> {
                             // Delete set
                             IconButton(
                               icon: Icon(Icons.delete),
-                              onPressed: () {
-                                widget.exercise.exerciseBase
-                                    .removePr(widget.exercise.sets[index]);
-                                widget.exercise.sets.removeAt(index);
-                                weightControllers.removeAt(index);
-                                updateExercise(widget.exercise);
+                              onPressed: () async {
+                                final delete = await showDialog(
+                                    context: context,
+                                    builder: (_) {
+                                      return DeleteDialog('set');
+                                    });
+                                if (delete) {
+                                  widget.exercise.exerciseBase
+                                      .removePr(widget.exercise.sets[index]);
+                                  widget.exercise.sets.removeAt(index);
+                                  weightControllers.removeAt(index);
+                                  widget.exercise.updateExercise();
+                                }
                               },
                             )
                           ],
@@ -286,11 +307,6 @@ class _ExerciseTileState extends State<ExerciseTile> {
       ),
     );
   } // BUILD
-
-  void updateExercise(Exercise exercise) async {
-    await DatabaseService(uid: exercise.day.week.cycle.program.uid)
-        .updateExercise(exercise.exerciseBase, exercise);
-  }
 
   Widget oneRepMax() {
     return Row(
@@ -362,7 +378,7 @@ class _ExerciseTileState extends State<ExerciseTile> {
                     onPressed: () async {
                       Navigator.pop(context);
                       if (widget.exercise.sets[index].notes != oldNotes) {
-                        updateExercise(widget.exercise);
+                        widget.exercise.updateExercise();
                       }
                     },
                   ),
@@ -415,10 +431,9 @@ class _ExerciseTileState extends State<ExerciseTile> {
         // Because this is not in the stateful Build() method, it needs to be
         // wrapped in StatefulBuilder to be able to call it's own setState() function
         return SetSettingsForm(
-          exercise: widget.exercise,
-          setIndex: index,
-          updateExercise: updateExercise,
-        );
+            exercise: widget.exercise,
+            setIndex: index,
+            updateExercise: widget.exercise.updateExercise);
       },
     );
   }
